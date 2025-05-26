@@ -1,0 +1,1384 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1, user-scalable=no">
+  <title>EV kWh Reimbursement App</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+  <link rel="icon" type="image/png" href="ev_favicon.png">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <style>
+    :root {
+      --bg-color: #f5f5f7;
+      --text-color: #212529;
+      --container-bg: #ffffff;
+      --pre-bg: #f8f9fa;
+      --form-bg: #ffffff;
+      --form-text: #212529;
+    }
+    body.dark-mode {
+      --bg-color: #212529;
+      --text-color: #f5f5f7;
+      --container-bg: #343a40;
+      --pre-bg: #495057;
+      --form-bg: #495057;
+      --form-text: #f5f5f7;
+    }
+    body {
+      background-color: var(--bg-color);
+      color: var(--text-color);
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+    .container {
+      max-width: 600px;
+      padding: 20px;
+      background-color: var(--container-bg);
+      border-radius: 15px;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+      position: relative;
+    }
+    .result { font-size: 1.5rem; font-weight: bold; color: #28a745; }
+    .btn-dark-mode { position: absolute; top: 10px; right: 10px; }
+    .btn-site-help { position: absolute; top: 10px; left: 10px; }
+    .footer-divider {
+      border-top: 1px solid #dee2e6;
+      margin-top: 30px;
+      padding-top: 15px;
+    }
+    .credit {
+      font-size: 0.875rem;
+      text-align: center;
+      color: #6c757d;
+    }
+    .siemens-header {
+      font-size: 1.5rem;
+      font-weight: bold;
+      text-align: center;
+      color: #009999;
+      margin-bottom: 15px;
+    }
+    .file-help-group {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .file-help-group .form-control {
+      flex: 1;
+    }
+    .modal-content {
+      background-color: var(--container-bg);
+      color: var(--text-color);
+    }
+    pre {
+      background-color: var(--pre-bg);
+      padding: 10px;
+      border-radius: 5px;
+    }
+    .form-control {
+      background-color: var(--form-bg);
+      color: var(--form-text);
+      border: 1px solid #ced4da;
+    }
+    .form-control:focus {
+      background-color: var(--form-bg);
+      color: var(--form-text);
+      border-color: #86b7fe;
+      box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.25);
+    }
+    .billing-box {
+      background: var(--container-bg);
+      color: var(--text-color);
+      border-radius: 18px;
+      box-shadow: 0 6px 24px 0 rgba(0,0,0,0.10), 0 1.5px 4px 0 rgba(0,0,0,0.08);
+      padding: 20px 18px;
+      margin-bottom: 24px;
+      border: 1px solid var(--pre-bg);
+      transition: box-shadow 0.2s, background 0.2s, color 0.2s, border-color 0.2s;
+    }
+    .billing-box:hover {
+      box-shadow: 0 10px 32px 0 rgba(0,0,0,0.13), 0 2px 8px 0 rgba(0,0,0,0.10);
+    }
+    .billing-box .form-control.is-invalid, .form-control.is-invalid {
+      border-color: #dc3545 !important;
+      box-shadow: 0 0 0 0.2rem rgba(220,53,69,.25) !important;
+      transition: border-color 0.2s, box-shadow 0.2s;
+    }
+    .billing-box.highlight {
+      animation: highlightBox 0.7s;
+    }
+    @keyframes highlightBox {
+      0% { box-shadow: 0 0 0 0.4rem rgba(220,53,69,0.25); }
+      100% { box-shadow: 0 6px 24px 0 rgba(0,0,0,0.10), 0 1.5px 4px 0 rgba(0,0,0,0.08); }
+    }
+    @keyframes successHighlight {
+      0% { box-shadow: 0 0 0 0.4rem rgba(40,167,69,0.25); }
+      100% { box-shadow: 0 6px 24px 0 rgba(0,0,0,0.10), 0 1.5px 4px 0 rgba(0,0,0,0.08); }
+    }
+    .result-box {
+      background: var(--container-bg);
+      color: var(--text-color);
+      border-radius: 18px;
+      box-shadow: 0 6px 24px 0 rgba(0,0,0,0.10), 0 1.5px 4px 0 rgba(0,0,0,0.08);
+      padding: 20px 18px;
+      margin-bottom: 24px;
+      border: 1px solid var(--pre-bg);
+      text-align: center;
+      display: none;
+      border: 2px solid rgba(40,167,69,0.2);
+    }
+    .result-box.show {
+      display: flex;
+      animation: successHighlight 0.7s;
+      justify-content: center;
+      align-items: center;
+    }
+    .result-box .result {
+      font-size: 1.5rem;
+      font-weight: bold;
+      color: #28a745;
+      margin: 0;
+      min-height: auto;
+    }
+    #chartBox {
+      display: none;
+    }
+    #chartBox.show {
+      display: block;
+    }
+    /* Mobile optimization tweaks */
+    @media (max-width: 600px) {
+      .container {
+        max-width: 100vw;
+        padding: 8px;
+        border-radius: 0;
+      }
+      .billing-box {
+        padding: 12px 6px 8px 6px;
+        border-radius: 10px;
+      }
+      .btn, .form-control {
+        font-size: 1.05rem;
+        min-height: 44px;
+      }
+      label, .credit, .result {
+        font-size: 1rem;
+      }
+      .siemens-header {
+        font-size: 1.1rem;
+      }
+      .btn-dark-mode, .btn-site-help {
+        top: 4px;
+        right: 4px;
+        left: 4px;
+      }
+    }
+    .profile-box {
+      margin-bottom: 24px;
+      background: var(--container-bg);
+      color: var(--text-color);
+      border-radius: 18px;
+      box-shadow: 0 6px 24px 0 rgba(0,0,0,0.10), 0 1.5px 4px 0 rgba(0,0,0,0.08);
+      border: 1px solid var(--pre-bg);
+      padding: 12px 18px 12px 18px;
+      transition: box-shadow 0.2s, background 0.2s, color 0.2s, border-color 0.2s;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 12px;
+      text-align: center;
+    }
+    .profile-box label {
+      font-weight: 500;
+      margin-bottom: 0;
+      color: var(--text-color);
+      text-align: center;
+    }
+    .profile-select {
+      background-color: var(--form-bg);
+      color: var(--form-text);
+      border: 1px solid #ced4da;
+      min-width: 120px;
+      max-width: 180px;
+      transition: background 0.2s, color 0.2s, border-color 0.2s;
+    }
+    body.dark-mode .profile-select {
+      background-color: var(--form-bg);
+      color: var(--form-text);
+      border-color: #495057;
+    }
+    .profile-btn {
+      min-width: 36px;
+      min-height: 36px;
+      font-size: 1.2rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 0 10px;
+      margin-left: 2px;
+      margin-right: 2px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.07);
+      transition: background 0.2s, color 0.2s, border-color 0.2s;
+    }
+    @media (max-width: 600px) {
+      .profile-box {
+        flex-direction: column;
+        align-items: center;
+        padding: 10px 6px 10px 6px;
+        border-radius: 10px;
+        text-align: center;
+      }
+      .profile-box label {
+        margin-bottom: 4px;
+        text-align: center;
+      }
+      .profile-select, .profile-btn {
+        width: 100%;
+        margin-bottom: 6px;
+        margin-left: 0;
+        margin-right: 0;
+      }
+    }
+    #kwhFieldsBox {
+      max-height: 500px; /* Approximate height for 10 fields */
+      overflow-y: auto; /* Add vertical scroll if content exceeds height */
+      overflow-x: hidden; /* Hide horizontal scroll */
+      display: none; /* Hide the box by default */
+    }
+    #kwhFieldsBox.show {
+      display: block; /* Show the box when fields are generated */
+    }
+    .button-row-spacing {
+      margin-bottom: 1rem; /* Standardize vertical spacing between button rows */
+    }
+  </style>
+</head>
+<body>
+  <div class="container mt-5">
+    <div class="siemens-header">SIEMENS</div>
+    <button class="btn btn-secondary btn-dark-mode" onclick="toggleDarkMode()" aria-label="Toggle dark mode"><i class="bi bi-moon-fill"></i></button>
+    <button class="btn btn-info btn-site-help" data-bs-toggle="modal" data-bs-target="#siteHelpModal" title="Site Help" aria-label="Site Help">
+      <i class="bi bi-question-circle-fill"></i>
+    </button>
+    
+    <h2 class="mb-4 text-center"><i class="inarsbi bi-car-front-fill"></i> EV kWh Reimbursement</h2>
+    <!-- Profile Selector Card -->
+    <div class="billing-box mb-4 profile-box d-flex align-items-center gap-2 flex-wrap">
+      <label for="profileSelect" class="form-label mb-0" style="min-width:90px;">Profile:</label>
+      <select id="profileSelect" class="form-select profile-select" style="max-width:180px;"></select>
+      <button class="btn btn-success btn-sm profile-btn" id="addProfileBtn" aria-label="Add Profile" title="Add Profile">+</button>
+      <button class="btn btn-danger btn-sm profile-btn" id="deleteProfileBtn" aria-label="Delete Profile" title="Delete Profile">&minus;</button>
+    </div>
+    <div class="billing-box mb-4">
+      <div class="row mb-3">
+        <div class="col-6">
+          <label for="startDate"><i class="bi bi-calendar-date-fill"></i> Billing Period Start:</label>
+          <input type="date" id="startDate" class="form-control" aria-label="Billing Period Start" onchange="saveData(); checkAndGenerateFields();">
+        </div>
+        <div class="col-6">
+          <label for="endDate"><i class="bi bi-calendar-date-fill"></i> Billing Period End:</label>
+          <input type="date" id="endDate" class="form-control" aria-label="Billing Period End" onchange="saveData(); checkAndGenerateFields();">
+        </div>
+      </div>
+      <div class="row mb-1">
+        <div class="col-6">
+          <button class="btn btn-secondary w-100" onclick="generateKwhFields()">
+            <i class="bi bi-plus-square"></i> Generate kWh Fields
+          </button>
+        </div>
+        <div class="col-6">
+          <button class="btn btn-warning w-100" onclick="resetForm()">
+            <i class="bi bi-arrow-counterclockwise"></i> Reset
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <div class="billing-box mb-3">
+      <label><i class="bi bi-lightning-charge-fill"></i> Cost per kWh ($):</label>
+      <input type="number" id="costPerKwh" step="0.01" class="form-control" aria-label="Cost per kWh" oninput="saveData()">
+    </div>
+
+    <div class="billing-box mb-3">
+      <label><i class="bi bi-filetype-csv"></i> Got your kWh data ready? Upload your CSV file below!</label>
+      <div class="file-help-group">
+        <input type="file" accept=".csv" id="csvFile" class="form-control" aria-label="Upload CSV file">
+        <button class="btn btn-info" data-bs-toggle="modal" data-bs-target="#helpModal" title="CSV Format Help" aria-label="CSV Format Help">
+          <i class="bi bi-question-circle-fill"></i>
+        </button>
+      </div>
+      <div class="row mt-2">
+        <div class="col-6">
+          <button class="btn btn-secondary w-100" onclick="generateCSVTemplate()" aria-label="Download CSV Template"><i class="bi bi-download"></i> Download CSV Template</button>
+        </div>
+        <div class="col-6">
+          <button class="btn btn-primary w-100" onclick="importCSV()" aria-label="Import from CSV"><i class="bi bi-upload"></i> Import from CSV</button>
+        </div>
+      </div>
+    </div>
+
+    <div id="kwhFieldsBox" class="billing-box mb-3">
+      <div id="kwhFields">
+        <!-- Dynamically generated kWh fields will go here -->
+      </div>
+    </div>
+
+    <div class="billing-box mb-3" id="chartBox">
+      <canvas id="usageChart" height="120" aria-label="kWh Usage and Cost Chart"></canvas>
+    </div>
+
+    <div class="billing-box mb-3">
+      <div class="row mb-3 d-flex justify-content-center button-row-spacing">
+        <div class="col-6 d-flex justify-content-center align-items-center">
+          <button class="btn btn-success w-100" onclick="calculateTotal()" aria-label="Calculate Reimbursement"><i class="bi bi-calculator-fill"></i> Calculate Reimbursement</button>
+        </div>
+        <div class="col-6 d-flex justify-content-center align-items-center">
+          <button class="btn btn-info w-100" onclick="exportToExcel()" aria-label="Export to Excel"><i class="bi bi-file-earmark-excel-fill"></i> Export to Excel</button>
+        </div>
+      </div>
+      <div class="row mb-3 d-flex justify-content-center button-row-spacing">
+        <div class="col-6 d-flex justify-content-center align-items-center">
+          <a href="https://travel.siemens.com" target="_blank" rel="noopener" class="btn btn-primary w-100" aria-label="Travel@Siemens"><i class="bi bi-globe"></i> Travel@Siemens</a>
+        </div>
+        <div class="col-6 d-flex justify-content-center align-items-center">
+          <button class="btn btn-danger w-100" onclick="exportToPDF()" aria-label="Export to PDF"><i class="bi bi-file-earmark-pdf-fill"></i> Export to PDF</button>
+        </div>
+      </div>
+      <div class="row mb-3 d-flex justify-content-center button-row-spacing">
+        <div class="col-6 d-flex justify-content-center align-items-center">
+          <button class="btn btn-primary w-100" data-bs-toggle="modal" data-bs-target="#evPolicyModal" aria-label="EV Policy"><i class="bi bi-file-earmark-text"></i> EV Policy</button>
+        </div>
+        <div class="col-6 d-flex justify-content-center align-items-center">
+          <button class="btn btn-primary w-100" data-bs-toggle="modal" data-bs-target="#contactModal" aria-label="Contact"><i class="bi bi-clock-history"></i> Contact</button>
+        </div>
+      </div>
+      <div class="row d-flex justify-content-center">
+        <div class="col-12 d-flex justify-content-center">
+          <button class="btn btn-primary w-100" data-bs-toggle="modal" data-bs-target="#changelogModal" aria-label="Changelog"><i class="bi bi-clock-history"></i> Changelog</button>
+        </div>
+      </div>
+    </div>
+
+    <div id="resultBox" class="result-box">
+      <div class="result" id="result"></div>
+    </div>
+
+    <div class="footer-divider">
+      <div class="credit">Created by: Caleb O'Hara</div>
+    </div>
+    <div class="credit mt-2">
+      <small style="color: var(--text-color); opacity: 0.8;">Data Privacy: All data is stored locally in your browser and never uploaded to any server.</small>
+    </div>
+    <div class="credit mt-2">Version 1.7.0</div>
+  </div>
+
+  <!-- Help Modal -->
+  <div class="modal fade" id="helpModal" tabindex="-1" aria-labelledby="helpModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="helpModalLabel">CSV Import Help</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <p>Your CSV should contain two columns: Date and kWh Usage.</p>
+          <p>Use the following structure:</p>
+          <pre>
+Date,kWh Usage
+2024-01-01,10.5
+2024-01-02,12.0
+          </pre>
+          <p>Important Notes:</p>
+          <ul>
+            <li>The first row must be the header row exactly as shown.</li>
+            <li>Dates must be in YYYY-MM-DD format.</li>
+            <li>kWh values should be numeric.</li>
+            <li>Do not leave blank rows or columns.</li>
+          </ul>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Contact Modal -->
+  <div class="modal fade" id="contactModal" tabindex="-1" aria-labelledby="contactModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="contactModalLabel">Contact Me</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <p>Recommend features or report any issues you encounter.</p>
+          <p><a href="mailto:caleb.ohara@siemens.com" title="Send an email to Caleb O'Hara">Email me at caleb.ohara@siemens.com</a></p>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Site Help Modal -->
+  <div class="modal fade" id="siteHelpModal" tabindex="-1" aria-labelledby="siteHelpModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-xl modal-dialog-scrollable">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="siteHelpModalLabel">Site Help</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <p>Welcome to the EV kWh Reimbursement App! This application helps you calculate and manage your EV charging reimbursement. Here's a comprehensive guide to all features:</p>
+
+          <h6>1. Profile Management</h6>
+          <ul>
+            <li>Use the profile selector to switch between different profiles</li>
+            <li>Add new profiles using the "+" button</li>
+            <li>Delete existing profiles using the "-" button (Default profile cannot be deleted)</li>
+            <li>Each profile maintains its own separate data</li>
+          </ul>
+
+          <h6>2. Billing Period Setup</h6>
+          <ul>
+            <li>Select your billing period start and end dates</li>
+            <li>Dates must be valid and start date must be before end date</li>
+            <li>Click "Generate kWh Fields" to create input fields for each day</li>
+            <li>Use "Reset" to clear all data and start over</li>
+          </ul>
+
+          <h6>3. Data Entry Methods</h6>
+          <ul>
+            <li><strong>Manual Entry:</strong> Enter kWh usage directly into the generated fields</li>
+            <li><strong>CSV Import:</strong> Upload a CSV file with your kWh data
+              <ul>
+                <li>CSV must have "Date" and "kWh Usage" columns</li>
+                <li>Dates must be in YYYY-MM-DD format</li>
+                <li>Use the "Download CSV Template" button to get a properly formatted template</li>
+                <li>Invalid data will be highlighted and skipped during import</li>
+              </ul>
+            </li>
+          </ul>
+
+          <h6>4. Cost Calculation</h6>
+          <ul>
+            <li>Enter your cost per kWh in dollars</li>
+            <li>The app will automatically calculate daily and total costs</li>
+            <li>View real-time cost calculations in the chart</li>
+          </ul>
+
+          <h6>5. Data Visualization</h6>
+          <ul>
+            <li>Interactive chart shows daily kWh usage and costs</li>
+            <li>Hover over data points for detailed information</li>
+            <li>Chart updates automatically as you enter data</li>
+          </ul>
+
+          <h6>6. Export Options</h6>
+          <ul>
+            <li><strong>Excel Export:</strong> Download a detailed Excel report with:
+              <ul>
+                <li>Daily kWh usage</li>
+                <li>Cost per kWh</li>
+                <li>Daily costs</li>
+                <li>Total calculations</li>
+              </ul>
+            </li>
+            <li><strong>PDF Export:</strong> Generate a professional PDF report with:
+              <ul>
+                <li>Billing period summary</li>
+                <li>Daily usage and costs</li>
+                <li>Total calculations</li>
+                <li>Professional formatting</li>
+              </ul>
+            </li>
+          </ul>
+
+          <h6>7. Additional Features</h6>
+          <ul>
+            <li><strong>Dark Mode:</strong> Toggle between light and dark themes using the moon icon</li>
+            <li><strong>Data Persistence:</strong> All data is automatically saved in your browser</li>
+            <li><strong>Input Validation:</strong> Real-time validation of kWh values and dates</li>
+            <li><strong>Travel@Siemens:</strong> Quick access to Siemens travel portal</li>
+            <li><strong>EV Policy:</strong> Access to Siemens EV policy information</li>
+            <li><strong>Contact Support:</strong> Get help or report issues</li>
+          </ul>
+
+          <h6>8. Data Privacy</h6>
+          <ul>
+            <li>All data is stored locally in your browser</li>
+            <li>No data is uploaded to any server</li>
+            <li>Each profile's data is kept separate</li>
+          </ul>
+
+          <h6>9. Tips for Best Results</h6>
+          <ul>
+            <li>Use the CSV template for bulk data entry</li>
+            <li>Regularly export your data for backup</li>
+            <li>Check the chart for unusual patterns in usage</li>
+            <li>Use the reset function if you need to start over</li>
+          </ul>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- EV Policy Modal -->
+  <div class="modal fade" id="evPolicyModal" tabindex="-1" aria-labelledby="evPolicyModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-xl modal-dialog-scrollable">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="evPolicyModalLabel">EV Policy</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <h5>5.6.3 SIEMENS-PROVIDED EV CHARGER & INSTALLATION</h5>
+          <ul>
+            <li>By ordering an electric vehicle (EV), an eligible employee agrees to utilize the home charger provided under this Policy as the employee's primary charging method. The employee agrees to use public chargers only on an exception basis, for example when away from home for an extended trip. Siemens will take appropriate action if it determines that an employee is using public chargers on a regular basis in a manner that is non-compliant with this Policy. If an eligible employee resides in a location where the installation of a home charger is not possible (e.g., apartment, subject to HOA restrictions, etc.), the employee should obtain approval from their manager for Siemens Industry, Inc. Policy Smart Infrastructure 25 an exception to use public charging. In this event, the eligible driver shall notify FMS via email that a home charger will not be needed.</li>
+            <li>In the event an eligible employee orders an electric vehicle (EV), Siemens will allow the employee to order a Siemens VersiCharge™ home charger through the fleet management provider at no cost to the employee (but see Home Charger Hardware Tax discussion below). Alternatively, the employee may order an EV charger from a Siemens approved source as directed by FMS or Wheels. In the event an employee orders an EV charger via a method outside of the fleet management provider, the employee will expense the cost of the charger through the T&E process under expense category "Fuel."</li>
+            <li>In addition to providing a charger, Siemens will cover the cost of installation of the charger up to $1,500 (amounts may vary per business unit and are subject to change). The employee will use a local, licensed professional contractor to install the home charger. When hiring a contractor, employee will ensure the following:
+              <ul>
+                <li>Contractor is licensed and insured in the state where the work is being done</li>
+                <li>Contractor is in receipt of and complies with the VersiCharge™ Manual</li>
+                <li>Work is performed in accordance with applicable state and local regulations and building codes</li>
+                <li>A detailed invoice is provided, showing the goods and services provided and the amount paid</li>
+              </ul>
+            </li>
+            <li>Siemens supports the cost of installation of a 208/240VAC connected NEMA 6-50 plug, which should not exceed $1,500. If the cost of installation exceeds $1,500 PKK, the employee must submit documentation of the cost to request prior written authorization from the employee's supervisor. Such written authorization, signed by the employee's supervisor, should also be submitted as a receipt in the E2E Travel@Siemens tool. However, Siemens will not reimburse any costs associated with upgrading the electrical systems of the employee's residence. All installation services must be itemized on an invoice and submitted via E2E Travel@Siemens along with the request for reimbursement. Siemens will fund up to $1,500 for services only pertaining to the enablement of EV charging. If required after consultation with Siemens legal counsel, employees in certain states may be eligible for additional reimbursement.</li>
+            <li>The employee can seek reimbursement of allowable installation costs in E2E Travel@Siemens using the expense category "Fuel."</li>
+            <li>Employee agrees to indemnify Siemens, and Siemens will not be responsible for any damages, liabilities, losses, or expenses arising from the charger, its use or its installation. Upon successful installation of the charger, the employee will pay the contractor and expense the installation through the T&E process.</li>
+            <li>In addition, Siemens recommends, but does not require, that the homeowner connect the charger to the cloud, unlocking a host of features including reporting, monitoring and remote start/stop of charging. The charger can be connected via either ethernet (CAT 5/6) or Wi-Fi. Please note that the charger requires a strong Wi-Fi signal to be commissioned via Wi-Fi.</li>
+            <li>To enable a connected charger to the cloud, please follow the video instructions for commissioning found at: conVersiCharge™ Mobile App Charger Setup.</li>
+            <li>Siemens continues to focus on user experience and is working diligently to incorporate home charging, in addition to adding networks/services to make it easier to charge faster and many more public places.</li>
+            <li>Home charging: A standard 120V will charge your vehicle, but at a slower pace until you can install Siemens VersiCharge™ 40 Amp Level 2 Charger. In rare cases, a Siemens VersiCharge™ unit may not be provided and you will be directed to purchase an EV charger from a supplier/source identified by FMS. In this event, use your corporate AMEX as the payment method and enter the expense into E2E Travel@Siemens using the expense category "Fuel."</li>
+            <li>Home Charger Hardware Tax: Twenty percent (20%) of the value/price of the EV charger will be included in the taxable income of the EV drivers, subject to appropriate U.S. Federal and state income and payroll taxes. The total amount to be taxed will be provided ratio payroll by FMS or E2E Travel@Siemens.</li>
+            <li>PUD adjustment: EV drivers get a reduction in their personal use deduction (PUD) of $25/month, which equates to $12.50/check for businesses that are paid twice/month.</li>
+            <li>Home Charger Install Tax: Siemens will fund up to $1,500 for installation of an EV charger. Twenty percent (20%) of the reimbursed installation costs will be included in the taxable income of the EV drivers, subject to appropriate U.S. Federal and state income and payroll taxes. The total amount to be taxed will be provided to payroll via E2E Travel@Siemens.</li>
+            <li>Home Charging Reimbursement: EV drivers may be reimbursed for home charging expenses related to their company EV. In order to receive reimbursement, EV drivers should calculate the requested reimbursement amount monthly using the following method:
+              <ul>
+                <li>Identify the number of kilowatt hours (kWh) used to charge the EV via the EV charger's associated Mobile App</li>
+                <li>Identify the electric rate (cost/kWh) on the monthly utility bill</li>
+                <li>Multiply the monthly consumption amount (kWh) x the average electric rate (cost/kWh)</li>
+              </ul>
+              <p>Example: 250 kWh x $0.17/kWh = $42.50 (amount to be submitted through the T&E process).</p>
+            </li>
+            <li>To receive reimbursement for documented home charging expenses, enter the expense into E2E Travel@Siemens under the expense category "Fuel." All home charging expenses submitted must include a screen shot from your mobile app showing the kWh charged and a copy of the related monthly utility bill.</li>
+            <li>The Siemens VersiCharge™ home charger should be used strictly for charging of a company vehicle. In the event an employee changes residence after the charger is installed in their home, the employee will be responsible for the cost to upgrade or transfer the home charger to the new residence. In addition, if the employee's eligibility to participate in the company vehicle Program is discontinued, the employee will not be required to reimburse Siemens for any costs associated with the EV charger installation. The employee will be fully responsible for any continued use or removal of the charger.</li>
+          </ul>
+
+          <h5>5.6.4 EV PUBLIC PAYMENT CARD/APP</h5>
+          <ul>
+            <li>As noted above, by ordering an electric vehicle (EV), an eligible employee is agreeing to utilize the home charger provided under this Policy as the employee's primary charging method. The employee agrees to use public chargers only on an exceptional basis, for example when away from home for an extended trip.</li>
+            <li>There is currently no universal payment solution for public charging stations. Siemens FMS has identified a provider with the largest amount of EV charging stations across the U.S. to support your public charging. Prior to taking delivery of your new EV, Wheels will issue a physical card (or other electronic payment method, such as an App) for purchasing EV charging services on participating public charging networks. These locations can be located within the ChargePoint App or via the vehicle's operating system where applicable.</li>
+            <li>ChargePoint (public charging): Note, not all ChargePoint locations have DC fast chargers, but they are continuing to grow their network.</li>
+            <li>Non-ChargePoint Public Charging expenses: Right now the process is to set up your own individual accounts with charging networks in your area that you can use. When setting up your accounts with other charging networks such as EVGo, Flow, etc., you will need to enter your corporate AMEX as the payment method. Transaction receipts will be required for any transaction exceeding $75.00. Non-ChargePoint Public Charging expenses should be entered in E2E Travel@Siemens under the expense category "Fuel."</li>
+            <li>Public Charging Network expansion: Siemens FMS is currently working with Siemens eMobility on expanding your ability to charge easily on other (DC Fast) charging stations across the U.S.</li>
+            <li>Charging services applied to this card will be paid via a direct-bill process through Wheels. T&E expense reports may be used ONLY when charging is required outside of the designated network.</li>
+            <li>If the EV public charging payment solution is a physical card, lost, misplaced or stolen cards must be promptly reported to Wheels at EVsupport@wheels.com.</li>
+            <li>Charging at EV public charging stations must be for EV charging ONLY, regardless of the payment method. No other charges besides EV charging will be reimbursed.</li>
+            <li>Public Charging for Fleet Rental: In the event an electric vehicle is provided for your interim rental, public charging should be used via your Amex card and the charges are to be expensed through E2E Travel@Siemens using the expense category "Fuel."</li>
+          </ul>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Changelog Modal -->
+  <div class="modal fade" id="changelogModal" tabindex="-1" aria-labelledby="changelogModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-xl modal-dialog-scrollable">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="changelogModalLabel">Changelog</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <h6>Version 1.7.0 - [Current Date]</h6>
+          <ul>
+            <li>Enhanced Site Help content with comprehensive instructions on all features, including profile management, data entry methods, chart visualization, and export options.</li>
+            <li>Improved CSV import functionality to automatically update the kWh usage chart upon successful import.</li>
+            <li>Styled the total reimbursement result display to appear in a dedicated box below the buttons, including a subtle animation and improved horizontal and vertical centering.</li>
+            <li>Implemented a scrollable box for the dynamically generated daily kWh input fields, appearing automatically once valid billing period dates are selected for improved data entry usability.</li>
+            <li>Redesigned the layout of the action buttons below the chart (Calculate, Export, Travel@Siemens, EV Policy, Contact, Changelog) for better organization and consistent spacing.</li>
+          </ul>
+          <h6>Version 1.6.0 - May 25, 2025</h6>
+          <ul>
+            <li>Added 'Download CSV Template' feature, allowing users to generate a CSV file based on the selected billing period for manual entry of kWh usage data.</li>
+          </ul>
+          <h6>Version 1.5.0 - May 25, 2025</h6>
+          <ul>
+            <li>Enhanced CSV import functionality with comprehensive error handling, validation, and user feedback for improved data import reliability.</li>
+          </ul>
+          <h6>Version 1.4.0 - April 15, 2025</h6>
+          <ul>
+            <li>Introduced "EV Policy" button with a detailed modal containing Siemens' electric vehicle policy information.</li>
+          </ul>
+          <h6>Version 1.3.0 - March 10, 2025</h6>
+          <ul>
+            <li>Improved "Site Help" modal with scrollable content and adjusted size for enhanced readability and user experience.</li>
+          </ul>
+          <h6>Version 1.2.0 - February 20, 2025</h6>
+          <ul>
+            <li>Added "Site Help" button with a modal providing detailed instructions for application usage.</li>
+          </ul>
+          <h6>Version 1.1.0 - January 5, 2025</h6>
+          <ul>
+            <li>Implemented "Travel@Siemens" button linking to the Siemens travel portal for quick access.</li>
+          </ul>
+          <h6>Version 1.0.0 - December 1, 2024</h6>
+          <ul>
+            <li>Initial release featuring core functionality for calculating EV kWh reimbursement.</li>
+            <li>Included features: billing period selection, kWh input fields, cost per kWh entry, reimbursement calculation, form reset, and Excel export capability.</li>
+          </ul>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.7.0/jspdf.plugin.autotable.min.js"></script>
+  <script>
+    function generateCSVTemplate() {
+      const startDateStr = document.getElementById('startDate').value;
+      const endDateStr = document.getElementById('endDate').value;
+      if (!startDateStr || !endDateStr) {
+        alert('Please select the billing period start and end dates first.');
+        return;
+      }
+      const startDate = new Date(startDateStr);
+      const endDate = new Date(endDateStr);
+      if (isNaN(startDate) || isNaN(endDate) || startDate > endDate) {
+        alert('Please enter valid billing period dates.');
+        return;
+      }
+
+      let csvContent = 'Date,kWh Usage\n';
+      for (let d = new Date(startDate); d <= endDate; d.setDate(d.getDate() + 1)) {
+        const formattedDate = d.toISOString().split('T')[0];
+        csvContent += `${formattedDate},0\n`;
+      }
+
+      const blob = new Blob([csvContent], { type: 'text/csv' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'kwh_template.csv';
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+    }
+
+    function toggleDarkMode() {
+      document.body.classList.toggle('dark-mode');
+      const isDarkMode = document.body.classList.contains('dark-mode');
+      localStorage.setItem('darkMode', isDarkMode ? 'true' : 'false');
+    }
+
+    function generateKwhFields() {
+      const startDate = new Date(document.getElementById('startDate').value);
+      const endDate = new Date(document.getElementById('endDate').value);
+      const kwhFields = document.getElementById('kwhFields');
+      const kwhFieldsBox = document.getElementById('kwhFieldsBox'); // Get the wrapper box
+      kwhFields.innerHTML = '';
+
+      if (!startDate || !endDate || isNaN(startDate) || isNaN(endDate)) {
+        alert('Please enter valid start and end dates.');
+        if (kwhFieldsBox) kwhFieldsBox.classList.remove('show'); // Hide box if dates invalid
+        return;
+      }
+
+      if (startDate > endDate) {
+        alert('Start date must be before end date.');
+        if (kwhFieldsBox) kwhFieldsBox.classList.remove('show'); // Hide box if dates invalid
+        return;
+      }
+
+      for (let d = new Date(startDate); d <= endDate; d.setDate(d.getDate() + 1)) {
+        const formattedDate = d.toISOString().split('T')[0];
+        kwhFields.innerHTML += `
+          <div class="mb-2">
+            <label><i class="bi bi-battery-charging"></i> ${formattedDate} kWh Usage:</label>
+            <input type="number" step="0.01" class="form-control dailyKwh" data-date="${formattedDate}" oninput="saveData()">
+          </div>`;
+      }
+
+      if (kwhFieldsBox) kwhFieldsBox.classList.add('show'); // Show box after generating fields
+      loadDailyKwh();
+    }
+
+    function importCSV() {
+      const file = document.getElementById('csvFile').files[0];
+      if (!file) {
+        alert('Please select a CSV file to upload.');
+        return;
+      }
+      if (!file.name.endsWith('.csv')) {
+        alert('Please upload a valid .csv file.');
+        return;
+      }
+
+      const startDateStr = document.getElementById('startDate').value;
+      const endDateStr = document.getElementById('endDate').value;
+      if (!startDateStr || !endDateStr) {
+        alert('Please select the billing period start and end dates first.');
+        return;
+      }
+      const startDate = new Date(startDateStr);
+      const endDate = new Date(endDateStr);
+      const startDateISO = startDate.toISOString().split('T')[0];
+      const endDateISO = endDate.toISOString().split('T')[0];
+      if (isNaN(startDate) || isNaN(endDate) || startDate > endDate) {
+        alert('Please enter valid billing period dates.');
+        return;
+      }
+
+      const reader = new FileReader();
+      reader.onload = function(e) {
+        const content = e.target.result;
+        const rows = content.split('\n').map(row => row.trim()).filter(row => row);
+        if (rows.length < 1) {
+          alert('The CSV file is empty.');
+          return;
+        }
+
+        const headers = rows[0].split(',').map(header => header.trim());
+        if (headers.length !== 2 || headers[0] !== 'Date' || headers[1] !== 'kWh Usage') {
+          alert('Invalid CSV format. Please ensure the first row contains "Date" and "kWh Usage" headers.');
+          return;
+        }
+
+        let htmlString = '';
+        let imported = 0;
+        let invalidRows = [];
+
+        for (let i = 1; i < rows.length; i++) {
+          const [date, kwh] = rows[i].split(',').map(value => value.trim());
+          let rowInvalid = false;
+          let reason = '';
+          if (!date || !kwh) {
+            rowInvalid = true;
+            reason = 'Missing date or kWh value';
+          }
+          const dateObj = new Date(date);
+          if (!rowInvalid && isNaN(dateObj.getTime())) {
+            rowInvalid = true;
+            reason = 'Invalid date';
+          }
+          // Normalize date to YYYY-MM-DD for comparison
+          const dateISO = !rowInvalid ? dateObj.toISOString().split('T')[0] : '';
+          if (!rowInvalid && (dateISO < startDateISO || dateISO > endDateISO)) {
+            rowInvalid = true;
+            reason = 'Date outside billing period';
+          }
+          const kwhValue = parseFloat(kwh);
+          if (!rowInvalid && isNaN(kwhValue)) {
+            rowInvalid = true;
+            reason = 'Invalid kWh value';
+          }
+
+          if (rowInvalid) {
+            invalidRows.push({row: i+1, date, kwh, reason});
+            htmlString += `
+              <div class="mb-2">
+                <label><i class="bi bi-battery-charging"></i> <span style="color:#dc3545;">${date || 'Invalid Date'}</span> kWh Usage:</label>
+                <input type="number" step="0.01" class="form-control dailyKwh is-invalid" data-date="${date}" value="${kwh || ''}" disabled>
+                <div class="text-danger small">${reason}</div>
+              </div>`;
+            continue;
+          }
+
+          htmlString += `
+            <div class="mb-2">
+              <label><i class="bi bi-battery-charging"></i> ${date} kWh Usage:</label>
+              <input type="number" step="0.01" class="form-control dailyKwh" data-date="${date}" value="${kwhValue}" oninput="validateKwhInput(this); saveData()">
+            </div>`;
+          imported++;
+        }
+
+        const kwhFields = document.getElementById('kwhFields');
+        kwhFields.innerHTML = htmlString;
+        saveData();
+
+        // Show invalid row details below the kWh fields
+        let invalidMsgDiv = document.getElementById('invalidRowsMsg');
+        if (!invalidMsgDiv) {
+          invalidMsgDiv = document.createElement('div');
+          invalidMsgDiv.id = 'invalidRowsMsg';
+          kwhFields.parentNode.insertBefore(invalidMsgDiv, kwhFields.nextSibling);
+        }
+        if (invalidRows.length > 0) {
+          invalidMsgDiv.innerHTML = `<div class='alert alert-danger mt-2'><strong>Some rows were invalid and skipped:</strong><ul style='margin-bottom:0;'>${invalidRows.map(r => `<li>Row ${r.row}: ${r.reason}</li>`).join('')}</ul></div>`;
+        } else {
+          invalidMsgDiv.innerHTML = '';
+        }
+
+        if (imported > 0) {
+          let message = `Successfully imported ${imported} rows.`;
+          if (invalidRows.length > 0) {
+            message += ` ${invalidRows.length} rows were invalid or outside the billing period and were skipped.`;
+          }
+          alert(message);
+          renderUsageChart();
+        } else if (invalidRows.length > 0) {
+          alert(`No rows were imported. All ${invalidRows.length} rows were invalid or outside the billing period.`);
+        } else {
+          alert('The CSV file contains no valid data rows.');
+        }
+
+        // Show the kWh fields box after import
+        const kwhFieldsBox = document.getElementById('kwhFieldsBox');
+        if (kwhFieldsBox) kwhFieldsBox.classList.add('show');
+
+        renderUsageChart(); // Add chart update after successful import
+      };
+      reader.readAsText(file);
+    }
+
+    function calculateTotal() {
+      const costPerKwhInput = document.getElementById('costPerKwh');
+      const costPerKwhBox = costPerKwhInput.closest('.billing-box');
+      const costPerKwh = parseFloat(costPerKwhInput.value);
+      if (isNaN(costPerKwh)) {
+        alert('Please enter a valid cost per kWh.');
+        costPerKwhInput.classList.add('is-invalid');
+        if (costPerKwhBox) {
+          costPerKwhBox.classList.add('highlight');
+          console.log('Highlighting and scrolling to Cost per kWh box');
+          costPerKwhBox.scrollIntoView({behavior: 'smooth', block: 'center', inline: 'nearest'});
+          setTimeout(() => costPerKwhBox.classList.remove('highlight'), 1500);
+        }
+        costPerKwhInput.focus();
+        return;
+      } else {
+        costPerKwhInput.classList.remove('is-invalid');
+      }
+      const dailyKwhInputs = document.querySelectorAll('.dailyKwh');
+      let total = 0;
+      dailyKwhInputs.forEach(input => { total += parseFloat(input.value || 0); });
+      const reimbursement = total * costPerKwh;
+      const resultBox = document.getElementById('resultBox');
+      document.getElementById('result').innerText = `Total Reimbursement: $${reimbursement.toFixed(2)}`;
+      resultBox.classList.add('show');
+      resultBox.scrollIntoView({behavior: 'smooth', block: 'center', inline: 'nearest'});
+    }
+
+    function resetForm() {
+      // Remove current profile's keys
+      ['startDate','endDate','dailyKwhData'].forEach(key => localStorage.removeItem(getProfileKey(key)));
+      // Also remove global keys
+      ['startDate','endDate','dailyKwhData'].forEach(key => localStorage.removeItem(key));
+
+      // Hide the result box and clear the result text
+      const resultBox = document.getElementById('resultBox');
+      const resultText = document.getElementById('result');
+      if (resultBox) resultBox.classList.remove('show');
+      if (resultText) resultText.innerText = '';
+
+      // Also hide the kWh fields box
+      const kwhFieldsBox = document.getElementById('kwhFieldsBox');
+      if (kwhFieldsBox) kwhFieldsBox.classList.remove('show');
+      const kwhFields = document.getElementById('kwhFields');
+      if (kwhFields) kwhFields.innerHTML = ''; // Clear fields content as well
+
+      // Reload the page to clear the form inputs and regenerate fields
+      location.reload();
+    }
+
+    function exportToExcel() {
+      const startDateStr = document.getElementById('startDate').value;
+      const endDateStr = document.getElementById('endDate').value;
+      const costPerKwhInput = document.getElementById('costPerKwh');
+      const costPerKwhBox = costPerKwhInput.closest('.billing-box');
+      const costPerKwh = parseFloat(costPerKwhInput.value);
+      if (!startDateStr || !endDateStr) {
+        alert('Please select the billing period start and end dates first.');
+        return;
+      }
+      if (isNaN(costPerKwh)) {
+        alert('Please enter a valid cost per kWh.');
+        costPerKwhInput.classList.add('is-invalid');
+        if (costPerKwhBox) {
+          costPerKwhBox.classList.add('highlight');
+          costPerKwhBox.scrollIntoView({behavior: 'smooth', block: 'center', inline: 'nearest'});
+          setTimeout(() => costPerKwhBox.classList.remove('highlight'), 1500);
+        }
+        costPerKwhInput.focus();
+        return;
+      } else {
+        costPerKwhInput.classList.remove('is-invalid');
+      }
+      const startDate = new Date(startDateStr);
+      const endDate = new Date(endDateStr);
+      if (isNaN(startDate) || isNaN(endDate) || startDate > endDate) {
+        alert('Please enter valid billing period dates.');
+        return;
+      }
+      let data = [];
+      let totalKwh = 0;
+      let totalCost = 0;
+      const dailyKwhInputs = document.querySelectorAll('.dailyKwh');
+      let kwhMap = {};
+      dailyKwhInputs.forEach(input => {
+        kwhMap[input.getAttribute('data-date')] = parseFloat(input.value || 0);
+      });
+      for (let d = new Date(startDate); d <= endDate; d.setDate(d.getDate() + 1)) {
+        const dateStr = d.toISOString().split('T')[0];
+        const kwh = kwhMap[dateStr] || 0;
+        const dailyCost = kwh * costPerKwh;
+        totalKwh += kwh;
+        totalCost += dailyCost;
+        data.push({
+          'Date': dateStr,
+          'kWh Usage': kwh,
+          'Cost per kWh': costPerKwh,
+          'Daily Cost': dailyCost
+        });
+      }
+      // Add a summary row
+      data.push({
+        'Date': 'TOTAL',
+        'kWh Usage': totalKwh,
+        'Cost per kWh': '',
+        'Daily Cost': totalCost
+      });
+      // Create worksheet and workbook
+      const ws = XLSX.utils.json_to_sheet(data, {header: ['Date', 'kWh Usage', 'Cost per kWh', 'Daily Cost']});
+      const wb = XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(wb, ws, 'Reimbursement');
+      // Format currency columns
+      const range = XLSX.utils.decode_range(ws['!ref']);
+      for (let R = 1; R <= range.e.r; ++R) {
+        const dailyCostCell = ws[XLSX.utils.encode_cell({c: 3, r: R})];
+        if (dailyCostCell) dailyCostCell.z = '$0.00';
+        const costPerKwhCell = ws[XLSX.utils.encode_cell({c: 2, r: R})];
+        if (costPerKwhCell) costPerKwhCell.z = '$0.00';
+      }
+      // Format file name with billing period
+      const fileName = `ev_reimbursement_${startDateStr}_to_${endDateStr}.xlsx`;
+      XLSX.writeFile(wb, fileName);
+    }
+
+    function saveData() {
+      const startDate = document.getElementById('startDate').value;
+      const endDate = document.getElementById('endDate').value;
+      const costPerKwh = document.getElementById('costPerKwh').value;
+      const dailyKwhInputs = document.querySelectorAll('.dailyKwh');
+      let dailyKwhData = {};
+
+      dailyKwhInputs.forEach(input => {
+        dailyKwhData[input.getAttribute('data-date')] = input.value;
+      });
+
+      localStorage.setItem('startDate', startDate);
+      localStorage.setItem('endDate', endDate);
+      localStorage.setItem('costPerKwh', costPerKwh);
+      localStorage.setItem('dailyKwhData', JSON.stringify(dailyKwhData));
+    }
+
+    function loadData() {
+      const startDate = localStorage.getItem('startDate');
+      const endDate = localStorage.getItem('endDate');
+      const costPerKwh = localStorage.getItem('costPerKwh');
+      const dailyKwhData = JSON.parse(localStorage.getItem('dailyKwhData')) || {};
+
+      if (startDate) document.getElementById('startDate').value = startDate;
+      if (endDate) document.getElementById('endDate').value = endDate;
+      if (costPerKwh) document.getElementById('costPerKwh').value = costPerKwh;
+
+      if (startDate && endDate) {
+        generateKwhFields();
+      }
+
+      // Apply dark mode if saved
+      if (localStorage.getItem('darkMode') === 'true') {
+        document.body.classList.add('dark-mode');
+      }
+    }
+
+    function loadDailyKwh() {
+      const dailyKwhData = JSON.parse(localStorage.getItem('dailyKwhData')) || {};
+      const dailyKwhInputs = document.querySelectorAll('.dailyKwh');
+      dailyKwhInputs.forEach(input => {
+        const date = input.getAttribute('data-date');
+        if (dailyKwhData[date]) {
+          input.value = dailyKwhData[date];
+        }
+      });
+    }
+
+    window.onload = function() {
+      loadData();
+      // Remove is-invalid and highlight when user types a valid value
+      document.getElementById('costPerKwh').addEventListener('input', function() {
+        if (!isNaN(parseFloat(this.value))) {
+          this.classList.remove('is-invalid');
+          const box = this.closest('.billing-box');
+          if (box) box.classList.remove('highlight');
+        }
+      });
+
+      // Ensure result box is hidden on load
+      const resultBox = document.getElementById('resultBox');
+      if (resultBox) {
+        resultBox.classList.remove('show');
+        // Optional: Clear text content on load as well
+        const resultText = document.getElementById('result');
+        if (resultText) resultText.innerText = '';
+      }
+    };
+
+    // Inline validation for daily kWh inputs
+    function validateKwhInput(input) {
+      let warningDiv = input.nextElementSibling;
+      if (!warningDiv || !warningDiv.classList.contains('kwh-warning')) {
+        warningDiv = document.createElement('div');
+        warningDiv.className = 'kwh-warning text-danger small';
+        input.parentNode.insertBefore(warningDiv, input.nextSibling);
+      }
+      const value = parseFloat(input.value);
+      let warning = '';
+      if (!isNaN(value) && value < 0) {
+        warning = 'kWh value cannot be negative.';
+        input.classList.add('is-invalid');
+      } else if (!isNaN(value) && value > 200) {
+        warning = 'kWh value is unusually high.';
+        input.classList.add('is-invalid');
+      } else {
+        input.classList.remove('is-invalid');
+      }
+      warningDiv.textContent = warning;
+      if (!warning) warningDiv.style.display = 'none';
+      else warningDiv.style.display = '';
+    }
+
+    // Attach inline validation to all dailyKwh inputs on page load and after generating fields
+    function attachKwhValidation() {
+      document.querySelectorAll('.dailyKwh').forEach(input => {
+        input.oninput = function() { validateKwhInput(this); saveData(); };
+        validateKwhInput(input);
+      });
+    }
+
+    // Patch generateKwhFields to use inline validation
+    const originalGenerateKwhFields = generateKwhFields;
+    generateKwhFields = function() {
+      originalGenerateKwhFields();
+      attachKwhValidation();
+    };
+
+    // Also attach validation on load
+    window.addEventListener('DOMContentLoaded', attachKwhValidation);
+
+    // Export to PDF
+    function exportToPDF() {
+      const startDateInput = document.getElementById('startDate');
+      const endDateInput = document.getElementById('endDate');
+      const costPerKwhInput = document.getElementById('costPerKwh');
+      const costPerKwhBox = costPerKwhInput.closest('.billing-box');
+      const startDateStr = startDateInput.value;
+      const endDateStr = endDateInput.value;
+      const costPerKwh = parseFloat(costPerKwhInput.value);
+      let invalid = false;
+      // Validate start date
+      if (!startDateStr || isNaN(new Date(startDateStr))) {
+        alert('Please select a valid billing period start date.');
+        startDateInput.classList.add('is-invalid');
+        startDateInput.focus();
+        startDateInput.scrollIntoView({behavior: 'smooth', block: 'center', inline: 'nearest'});
+        setTimeout(() => startDateInput.classList.remove('is-invalid'), 1500);
+        invalid = true;
+      } else {
+        startDateInput.classList.remove('is-invalid');
+      }
+      // Validate end date
+      if (!endDateStr || isNaN(new Date(endDateStr))) {
+        alert('Please select a valid billing period end date.');
+        endDateInput.classList.add('is-invalid');
+        endDateInput.focus();
+        endDateInput.scrollIntoView({behavior: 'smooth', block: 'center', inline: 'nearest'});
+        setTimeout(() => endDateInput.classList.remove('is-invalid'), 1500);
+        invalid = true;
+      } else {
+        endDateInput.classList.remove('is-invalid');
+      }
+      // Validate cost per kWh
+      if (isNaN(costPerKwh)) {
+        alert('Please enter a valid cost per kWh.');
+        costPerKwhInput.classList.add('is-invalid');
+        if (costPerKwhBox) {
+          costPerKwhBox.classList.add('highlight');
+          costPerKwhBox.scrollIntoView({behavior: 'smooth', block: 'center', inline: 'nearest'});
+          setTimeout(() => costPerKwhBox.classList.remove('highlight'), 1500);
+        }
+        costPerKwhInput.focus();
+        invalid = true;
+      } else {
+        costPerKwhInput.classList.remove('is-invalid');
+      }
+      if (invalid) return;
+      const startDate = new Date(startDateStr);
+      const endDate = new Date(endDateStr);
+      if (isNaN(startDate) || isNaN(endDate) || startDate > endDate) {
+        alert('Please enter valid billing period dates.');
+        return;
+      }
+      let data = [];
+      let totalKwh = 0;
+      let totalCost = 0;
+      const dailyKwhInputs = document.querySelectorAll('.dailyKwh');
+      let kwhMap = {};
+      dailyKwhInputs.forEach(input => {
+        kwhMap[input.getAttribute('data-date')] = parseFloat(input.value || 0);
+      });
+      for (let d = new Date(startDate); d <= endDate; d.setDate(d.getDate() + 1)) {
+        const dateStr = d.toISOString().split('T')[0];
+        const kwh = kwhMap[dateStr] || 0;
+        const dailyCost = kwh * costPerKwh;
+        totalKwh += kwh;
+        totalCost += dailyCost;
+        data.push([dateStr, kwh, `$${costPerKwh.toFixed(2)}`, `$${dailyCost.toFixed(2)}`]);
+      }
+      data.push(['TOTAL', totalKwh, '', `$${totalCost.toFixed(2)}`]);
+      const { jsPDF } = window.jspdf;
+      const doc = new jsPDF();
+      doc.text('EV kWh Reimbursement Report', 14, 14);
+      doc.setFontSize(10);
+      doc.text(`Billing Period: ${startDateStr} to ${endDateStr}`, 14, 22);
+      doc.text(`Cost per kWh: $${costPerKwh.toFixed(2)}`, 14, 28);
+      doc.autoTable({
+        head: [['Date', 'kWh Usage', 'Cost per kWh', 'Daily Cost']],
+        body: data,
+        startY: 34,
+        theme: 'grid',
+        headStyles: { fillColor: [41, 128, 185] },
+        footStyles: { fillColor: [41, 128, 185] },
+        styles: { cellPadding: 2, fontSize: 10 },
+        didDrawPage: function (data) {
+          doc.setFontSize(8);
+          doc.text('Generated by EV kWh Reimbursement App', 14, doc.internal.pageSize.height - 10);
+        }
+      });
+      doc.save(`ev_reimbursement_${startDateStr}_to_${endDateStr}.pdf`);
+    }
+
+    // Re-render summary table on dark mode toggle
+    document.querySelector('.btn-dark-mode').addEventListener('click', function() {
+      setTimeout(renderSummaryTable, 100);
+    });
+
+    // Progressive Saving: Auto-save on every input/change
+    document.addEventListener('input', function(e) {
+      if (e.target.matches('input,select,textarea')) {
+        saveData();
+      }
+    });
+    document.addEventListener('change', function(e) {
+      if (e.target.matches('input,select,textarea')) {
+        saveData();
+      }
+    });
+
+    // Multi-User Support
+    function getProfiles() {
+      return JSON.parse(localStorage.getItem('profiles') || '["Default"]');
+    }
+    function setProfiles(profiles) {
+      localStorage.setItem('profiles', JSON.stringify(profiles));
+    }
+    function getCurrentProfile() {
+      return localStorage.getItem('currentProfile') || 'Default';
+    }
+    function setCurrentProfile(profile) {
+      localStorage.setItem('currentProfile', profile);
+    }
+    function getProfileKey(key) {
+      return `${getCurrentProfile()}__${key}`;
+    }
+    // Patch saveData/loadData to use profile keys
+    const origSaveData = saveData;
+    saveData = function() {
+      const keys = ['startDate','endDate','costPerKwh','dailyKwhData'];
+      keys.forEach(key => {
+        let val = null;
+        if (key === 'dailyKwhData') val = JSON.stringify(JSON.parse(localStorage.getItem('dailyKwhData')) || {});
+        else val = document.getElementById(key)?.value || localStorage.getItem(key) || '';
+        localStorage.setItem(getProfileKey(key), val);
+      });
+      origSaveData();
+    }
+    const origLoadData = loadData;
+    loadData = function() {
+      const keys = ['startDate','endDate','costPerKwh','dailyKwhData'];
+      keys.forEach(key => {
+        let val = localStorage.getItem(getProfileKey(key));
+        if (val !== null) {
+          if (key === 'dailyKwhData') localStorage.setItem('dailyKwhData', val);
+          else localStorage.setItem(key, val);
+        }
+      });
+      origLoadData();
+    }
+    function updateProfileDropdown() {
+      const select = document.getElementById('profileSelect');
+      const profiles = getProfiles();
+      select.innerHTML = profiles.map(p => `<option value="${p}">${p}</option>`).join('');
+      select.value = getCurrentProfile();
+    }
+    function setupProfileUI() {
+      updateProfileDropdown();
+      document.getElementById('profileSelect').onchange = function() {
+        setCurrentProfile(this.value);
+        loadData();
+        attachKwhValidation();
+        renderUsageChart();
+      };
+      document.getElementById('addProfileBtn').onclick = function() {
+        let name = prompt('Enter new profile name:');
+        if (!name) return;
+        let profiles = getProfiles();
+        if (profiles.includes(name)) { alert('Profile already exists.'); return; }
+        profiles.push(name);
+        setProfiles(profiles);
+        setCurrentProfile(name);
+        updateProfileDropdown();
+        // Clear data for new profile
+        ['startDate','endDate','costPerKwh','dailyKwhData'].forEach(key => localStorage.removeItem(getProfileKey(key)));
+        loadData();
+        attachKwhValidation();
+        renderUsageChart();
+      };
+      document.getElementById('deleteProfileBtn').onclick = function() {
+        let profiles = getProfiles();
+        let current = getCurrentProfile();
+        if (current === 'Default') { alert('Cannot delete Default profile.'); return; }
+        if (!confirm(`Delete profile '${current}'?`)) return;
+        profiles = profiles.filter(p => p !== current);
+        setProfiles(profiles);
+        setCurrentProfile('Default');
+        // Remove all keys for deleted profile
+        ['startDate','endDate','costPerKwh','dailyKwhData'].forEach(key => localStorage.removeItem(`${current}__${key}`));
+        updateProfileDropdown();
+        loadData();
+        attachKwhValidation();
+        renderUsageChart();
+      };
+    }
+    window.addEventListener('DOMContentLoaded', setupProfileUI);
+
+    // Chart.js Visualization
+    let usageChart = null;
+    function renderUsageChart() {
+      const ctx = document.getElementById('usageChart');
+      const chartBox = document.getElementById('chartBox');
+      if (!ctx || !chartBox) return;
+      const startDateStr = document.getElementById('startDate').value;
+      const endDateStr = document.getElementById('endDate').value;
+      const costPerKwh = parseFloat(document.getElementById('costPerKwh').value);
+      if (!startDateStr || !endDateStr || isNaN(costPerKwh)) {
+        if (usageChart) { usageChart.destroy(); usageChart = null; }
+        chartBox.classList.remove('show');
+        return;
+      }
+      const startDate = new Date(startDateStr);
+      const endDate = new Date(endDateStr);
+      if (isNaN(startDate) || isNaN(endDate) || startDate > endDate) {
+        if (usageChart) { usageChart.destroy(); usageChart = null; }
+        chartBox.classList.remove('show');
+        return;
+      }
+      let labels = [];
+      let kwhData = [];
+      let costData = [];
+      const dailyKwhInputs = document.querySelectorAll('.dailyKwh');
+      let kwhMap = {};
+      dailyKwhInputs.forEach(input => {
+        kwhMap[input.getAttribute('data-date')] = parseFloat(input.value || 0);
+      });
+      for (let d = new Date(startDate); d <= endDate; d.setDate(d.getDate() + 1)) {
+        const dateStr = d.toISOString().split('T')[0];
+        labels.push(dateStr);
+        const kwh = kwhMap[dateStr] || 0;
+        kwhData.push(kwh);
+        costData.push(kwh * costPerKwh);
+      }
+      if (usageChart) usageChart.destroy();
+      chartBox.classList.add('show');
+      usageChart = new Chart(ctx, {
+        type: 'line',
+        data: {
+          labels: labels,
+          datasets: [
+            { label: 'kWh Usage', data: kwhData, borderColor: '#007bff', backgroundColor: 'rgba(0,123,255,0.1)', yAxisID: 'y' },
+            { label: 'Daily Cost ($)', data: costData, borderColor: '#28a745', backgroundColor: 'rgba(40,167,69,0.1)', yAxisID: 'y1' }
+          ]
+        },
+        options: {
+          responsive: true,
+          interaction: { mode: 'index', intersect: false },
+          plugins: { legend: { position: 'top' } },
+          scales: {
+            y: { type: 'linear', display: true, position: 'left', title: { display: true, text: 'kWh' } },
+            y1: { type: 'linear', display: true, position: 'right', title: { display: true, text: 'Cost ($)' }, grid: { drawOnChartArea: false } }
+          }
+        }
+      });
+    }
+    // Update chart on data change
+    ['input', 'change'].forEach(evt => {
+      document.addEventListener(evt, function(e) {
+        if (e.target.classList.contains('dailyKwh') || e.target.id === 'costPerKwh' || e.target.id === 'startDate' || e.target.id === 'endDate') {
+          renderUsageChart();
+        }
+      });
+    });
+    window.addEventListener('DOMContentLoaded', renderUsageChart);
+
+    // Function to check if both dates are selected and generate fields
+    function checkAndGenerateFields() {
+      const startDate = document.getElementById('startDate').value;
+      const endDate = document.getElementById('endDate').value;
+      if (startDate && endDate) {
+        generateKwhFields();
+      }
+    }
+  </script>
+  <script>
+    // Disable right-click (context menu)
+    document.addEventListener('contextmenu', function(e) {
+      e.preventDefault();
+    });
+
+    // Disable keyboard shortcuts for viewing source and developer tools
+    document.addEventListener('keydown', function(e) {
+      if (e.ctrlKey && e.key === 'u') {
+        e.preventDefault();
+      }
+      if (e.key === 'F12') {
+        e.preventDefault();
+      }
+      if (e.ctrlKey && e.shiftKey && e.key === 'I') {
+        e.preventDefault();
+      }
+      if (e.ctrlKey && e.shiftKey && e.key === 'J') {
+        e.preventDefault();
+      }
+      if (e.ctrlKey && e.shiftKey && e.key === 'C') {
+        e.preventDefault();
+      }
+    });
+  </script>
+</body>
+</html>
