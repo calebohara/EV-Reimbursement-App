@@ -49,14 +49,24 @@ A web-based application designed to help Siemens employees calculate and manage 
 - Modern web browser (Chrome, Firefox, Safari, Edge)
 - Internet connection for initial load
 - JavaScript enabled
+- Git installed on your computer
 
 ### Installation
-1. Clone the repository:
+1. Open your terminal/command prompt
+2. Navigate to the directory where you want to install the application
+3. Clone the repository:
 ```bash
 git clone https://github.com/calebohara/EV-Reimbursement-App.git
 ```
+4. Navigate into the project directory:
+```bash
+cd EV-Reimbursement-App
+```
+5. Open `index.html` in your web browser
 
-2. Open `index.html` in your web browser
+The application will be installed in a new directory called `EV-Reimbursement-App` in your current location. For example:
+- If you run the command in `C:\Users\YourName\Documents`, the application will be installed in `C:\Users\YourName\Documents\EV-Reimbursement-App`
+- If you run the command in `/Users/YourName/Documents`, the application will be installed in `/Users/YourName/Documents/EV-Reimbursement-App`
 
 No additional installation steps required as this is a client-side application.
 
