@@ -49,22 +49,35 @@ A web-based application designed to help Siemens employees calculate and manage 
 - Modern web browser (Chrome, Firefox, Safari, Edge)
 - Internet connection for initial load
 - JavaScript enabled
-- Git installed on your computer
 
 ### Installation
-1. Open your terminal/command prompt
-2. Navigate to the directory where you want to install the application
-3. Clone the repository:
+
+#### Option 1: Using Git (Recommended)
+1. Ensure Git is installed on your computer
+   - Windows: Download from [git-scm.com](https://git-scm.com/download/win)
+   - Mac: Install via Terminal using `git --version` (prompts installation if not present)
+   - Linux: Install via package manager (e.g., `sudo apt-get install git` for Ubuntu)
+2. Open your terminal/command prompt
+3. Navigate to the directory where you want to install the application
+4. Clone the repository:
 ```bash
 git clone https://github.com/calebohara/EV-Reimbursement-App.git
 ```
-4. Navigate into the project directory:
+5. Navigate into the project directory:
 ```bash
 cd EV-Reimbursement-App
 ```
-5. Open `index.html` in your web browser
+6. Open `index.html` in your web browser
 
-The application will be installed in a new directory called `EV-Reimbursement-App` in your current location. For example:
+#### Option 2: Direct Download (No Git Required)
+1. Visit the repository at [https://github.com/calebohara/EV-Reimbursement-App](https://github.com/calebohara/EV-Reimbursement-App)
+2. Click the green "Code" button
+3. Select "Download ZIP"
+4. Extract the downloaded ZIP file to your desired location
+5. Open the extracted folder
+6. Open `index.html` in your web browser
+
+The application will be installed in a new directory called `EV-Reimbursement-App` in your chosen location. For example:
 - If you run the command in `C:\Users\YourName\Documents`, the application will be installed in `C:\Users\YourName\Documents\EV-Reimbursement-App`
 - If you run the command in `/Users/YourName/Documents`, the application will be installed in `/Users/YourName/Documents/EV-Reimbursement-App`
 
