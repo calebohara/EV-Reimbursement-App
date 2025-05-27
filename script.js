@@ -195,27 +195,9 @@ function importCSV() {
   reader.readAsText(file);
 }
 
-function toggleTieredRates() {
-  const tieredRatesSettings = document.getElementById('tieredRatesSettings');
-  const useTieredRates = document.getElementById('useTieredRates');
-  
-  if (tieredRatesSettings && useTieredRates) {
-    tieredRatesSettings.style.display = useTieredRates.checked ? 'block' : 'none';
-    
-    // If tiered rates are disabled, clear the values
-    if (!useTieredRates.checked) {
-      document.getElementById('tierThreshold').value = '';
-      document.getElementById('tier2Rate').value = '';
-    }
-  }
-}
-
 function calculateTotal() {
   const costPerKwhInput = document.getElementById('costPerKwh');
   const costPerKwhBox = costPerKwhInput.closest('.billing-box');
-  const useTieredRates = document.getElementById('useTieredRates').checked;
-  const tierThreshold = parseFloat(document.getElementById('tierThreshold').value) || 0;
-  const tier2Rate = parseFloat(document.getElementById('tier2Rate').value) || 0;
   const baseRate = parseFloat(costPerKwhInput.value) || 0;
 
   if (!baseRate) {
@@ -224,11 +206,6 @@ function calculateTotal() {
     return;
   }
   costPerKwhBox.classList.remove('is-invalid');
-
-  if (useTieredRates && (!tierThreshold || !tier2Rate)) {
-    alert('Please enter both tier threshold and rate above threshold.');
-    return;
-  }
 
   const dailyKwhInputs = document.getElementsByClassName('dailyKwh');
   let totalKwh = 0;
@@ -243,17 +220,7 @@ function calculateTotal() {
       totalKwh += kwh;
       daysWithUsage++;
       maxDailyKwh = Math.max(maxDailyKwh, kwh);
-      
-      if (useTieredRates) {
-        // Calculate cost with tiered rates
-        if (kwh <= tierThreshold) {
-          totalCost += kwh * baseRate;
-        } else {
-          totalCost += (tierThreshold * baseRate) + ((kwh - tierThreshold) * tier2Rate);
-        }
-      } else {
-        totalCost += kwh * baseRate;
-      }
+      totalCost += kwh * baseRate;
     }
     totalDays++;
   }
@@ -295,14 +262,6 @@ function calculateTotal() {
         <span class="result-label">Days with Usage:</span>
         <span class="result-value">${daysWithUsage} of ${totalDays}</span>
       </div>`;
-
-  if (useTieredRates) {
-    resultHTML += `
-      <div class="result-row">
-        <span class="result-label">Rate Structure:</span>
-        <span class="result-value">$${baseRate}/kWh up to ${tierThreshold} kWh, then $${tier2Rate}/kWh</span>
-      </div>`;
-  }
 
   resultHTML += `</div>`;
   result.innerHTML = resultHTML;
@@ -411,9 +370,6 @@ function saveData() {
     startDate: document.getElementById('startDate').value,
     endDate: document.getElementById('endDate').value,
     costPerKwh: document.getElementById('costPerKwh').value,
-    useTieredRates: document.getElementById('useTieredRates').checked,
-    tierThreshold: document.getElementById('tierThreshold').value,
-    tier2Rate: document.getElementById('tier2Rate').value,
     dailyKwh: {}
   };
 
@@ -440,11 +396,6 @@ function loadData() {
   document.getElementById('startDate').value = data.startDate || '';
   document.getElementById('endDate').value = data.endDate || '';
   document.getElementById('costPerKwh').value = data.costPerKwh || '';
-  document.getElementById('useTieredRates').checked = data.useTieredRates || false;
-  document.getElementById('tierThreshold').value = data.tierThreshold || '';
-  document.getElementById('tier2Rate').value = data.tier2Rate || '';
-  
-  toggleTieredRates();
   
   if (data.dailyKwh) {
     Object.entries(data.dailyKwh).forEach(([date, value]) => {
@@ -670,7 +621,7 @@ function getProfileKey(key) {
 // Patch saveData/loadData to use profile keys
 const origSaveData = saveData;
 saveData = function() {
-  const keys = ['startDate','endDate','costPerKwh','useTieredRates','tierThreshold','tier2Rate','dailyKwh'];
+  const keys = ['startDate','endDate','costPerKwh','dailyKwh'];
   keys.forEach(key => {
     let val = null;
     if (key === 'dailyKwh') val = JSON.stringify(JSON.parse(localStorage.getItem('dailyKwhData')) || {});
@@ -681,7 +632,7 @@ saveData = function() {
 }
 const origLoadData = loadData;
 loadData = function() {
-  const keys = ['startDate','endDate','costPerKwh','useTieredRates','tierThreshold','tier2Rate','dailyKwh'];
+  const keys = ['startDate','endDate','costPerKwh','dailyKwh'];
   keys.forEach(key => {
     let val = localStorage.getItem(getProfileKey(key));
     if (val !== null) {
@@ -715,7 +666,7 @@ function setupProfileUI() {
     setCurrentProfile(name);
     updateProfileDropdown();
     // Clear data for new profile
-    ['startDate','endDate','costPerKwh','useTieredRates','tierThreshold','tier2Rate','dailyKwh'].forEach(key => localStorage.removeItem(getProfileKey(key)));
+    ['startDate','endDate','costPerKwh','dailyKwh'].forEach(key => localStorage.removeItem(getProfileKey(key)));
     loadData();
     attachKwhValidation();
     renderUsageChart();
@@ -729,7 +680,7 @@ function setupProfileUI() {
     setProfiles(profiles);
     setCurrentProfile('Default');
     // Remove all keys for deleted profile
-    ['startDate','endDate','costPerKwh','useTieredRates','tierThreshold','tier2Rate','dailyKwh'].forEach(key => localStorage.removeItem(`${current}__${key}`));
+    ['startDate','endDate','costPerKwh','dailyKwh'].forEach(key => localStorage.removeItem(`${current}__${key}`));
     updateProfileDropdown();
     loadData();
     attachKwhValidation();
@@ -746,10 +697,7 @@ function renderUsageChart() {
   const dates = [];
   const kwhValues = [];
   const costs = [];
-  const useTieredRates = document.getElementById('useTieredRates').checked;
   const baseRate = parseFloat(document.getElementById('costPerKwh').value) || 0;
-  const tierThreshold = parseFloat(document.getElementById('tierThreshold').value) || 0;
-  const tier2Rate = parseFloat(document.getElementById('tier2Rate').value) || 0;
 
   for (let input of dailyKwhInputs) {
     const date = input.getAttribute('data-date');
@@ -757,18 +705,7 @@ function renderUsageChart() {
     if (kwh > 0) {
       dates.push(date);
       kwhValues.push(kwh);
-      
-      let cost;
-      if (useTieredRates) {
-        if (kwh <= tierThreshold) {
-          cost = kwh * baseRate;
-        } else {
-          cost = (tierThreshold * baseRate) + ((kwh - tierThreshold) * tier2Rate);
-        }
-      } else {
-        cost = kwh * baseRate;
-      }
-      costs.push(cost);
+      costs.push(kwh * baseRate);
     }
   }
 

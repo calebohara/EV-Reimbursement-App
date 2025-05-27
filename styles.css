@@ -240,16 +240,3 @@ body.dark-mode .profile-select {
 .button-row-spacing {
   margin-bottom: 1rem; /* Standardize vertical spacing between button rows */
 }
-/* Add styles for tiered rates section */
-#tieredRatesSettings {
-  color: var(--text-color);
-}
-
-#tieredRatesSettings .form-label {
-  color: var(--text-color);
-}
-
-#tieredRatesSettings .text-muted {
-  color: var(--text-color) !important;
-  opacity: 0.7;
-}
