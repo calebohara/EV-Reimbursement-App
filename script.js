@@ -195,32 +195,110 @@ function importCSV() {
   reader.readAsText(file);
 }
 
+function toggleTieredRates() {
+  const tieredRatesSettings = document.getElementById('tieredRatesSettings');
+  const useTieredRates = document.getElementById('useTieredRates').checked;
+  tieredRatesSettings.style.display = useTieredRates ? 'block' : 'none';
+}
+
 function calculateTotal() {
   const costPerKwhInput = document.getElementById('costPerKwh');
   const costPerKwhBox = costPerKwhInput.closest('.billing-box');
-  const costPerKwh = parseFloat(costPerKwhInput.value);
-  if (isNaN(costPerKwh)) {
+  const useTieredRates = document.getElementById('useTieredRates').checked;
+  const tierThreshold = parseFloat(document.getElementById('tierThreshold').value) || 0;
+  const tier2Rate = parseFloat(document.getElementById('tier2Rate').value) || 0;
+  const baseRate = parseFloat(costPerKwhInput.value) || 0;
+
+  if (!baseRate) {
+    costPerKwhBox.classList.add('is-invalid');
     alert('Please enter a valid cost per kWh.');
-    costPerKwhInput.classList.add('is-invalid');
-    if (costPerKwhBox) {
-      costPerKwhBox.classList.add('highlight');
-      console.log('Highlighting and scrolling to Cost per kWh box');
-      costPerKwhBox.scrollIntoView({behavior: 'smooth', block: 'center', inline: 'nearest'});
-      setTimeout(() => costPerKwhBox.classList.remove('highlight'), 1500);
-    }
-    costPerKwhInput.focus();
     return;
-  } else {
-    costPerKwhInput.classList.remove('is-invalid');
   }
-  const dailyKwhInputs = document.querySelectorAll('.dailyKwh');
-  let total = 0;
-  dailyKwhInputs.forEach(input => { total += parseFloat(input.value || 0); });
-  const reimbursement = total * costPerKwh;
+  costPerKwhBox.classList.remove('is-invalid');
+
+  if (useTieredRates && (!tierThreshold || !tier2Rate)) {
+    alert('Please enter both tier threshold and rate above threshold.');
+    return;
+  }
+
+  const dailyKwhInputs = document.getElementsByClassName('dailyKwh');
+  let totalKwh = 0;
+  let totalCost = 0;
+  let daysWithUsage = 0;
+  let maxDailyKwh = 0;
+  let totalDays = 0;
+
+  for (let input of dailyKwhInputs) {
+    const kwh = parseFloat(input.value) || 0;
+    if (kwh > 0) {
+      totalKwh += kwh;
+      daysWithUsage++;
+      maxDailyKwh = Math.max(maxDailyKwh, kwh);
+      
+      if (useTieredRates) {
+        // Calculate cost with tiered rates
+        if (kwh <= tierThreshold) {
+          totalCost += kwh * baseRate;
+        } else {
+          totalCost += (tierThreshold * baseRate) + ((kwh - tierThreshold) * tier2Rate);
+        }
+      } else {
+        totalCost += kwh * baseRate;
+      }
+    }
+    totalDays++;
+  }
+
   const resultBox = document.getElementById('resultBox');
-  document.getElementById('result').innerText = `Total Reimbursement: $${reimbursement.toFixed(2)}`;
+  const result = document.getElementById('result');
+  
+  if (totalKwh === 0) {
+    resultBox.classList.remove('show');
+    result.innerHTML = '';
+    return;
+  }
+
+  const averageKwh = totalKwh / daysWithUsage;
+  const formattedTotal = totalCost.toFixed(2);
+  const formattedAverage = averageKwh.toFixed(2);
+  const formattedMax = maxDailyKwh.toFixed(2);
+
+  let resultHTML = `
+    <div class="result-header">Reimbursement Summary</div>
+    <div class="result-content">
+      <div class="result-row">
+        <span class="result-label">Total kWh:</span>
+        <span class="result-value">${totalKwh.toFixed(2)} kWh</span>
+      </div>
+      <div class="result-row">
+        <span class="result-label">Total Cost:</span>
+        <span class="result-value">$${formattedTotal}</span>
+      </div>
+      <div class="result-row">
+        <span class="result-label">Average Daily kWh:</span>
+        <span class="result-value">${formattedAverage} kWh</span>
+      </div>
+      <div class="result-row">
+        <span class="result-label">Highest Daily kWh:</span>
+        <span class="result-value">${formattedMax} kWh</span>
+      </div>
+      <div class="result-row">
+        <span class="result-label">Days with Usage:</span>
+        <span class="result-value">${daysWithUsage} of ${totalDays}</span>
+      </div>`;
+
+  if (useTieredRates) {
+    resultHTML += `
+      <div class="result-row">
+        <span class="result-label">Rate Structure:</span>
+        <span class="result-value">$${baseRate}/kWh up to ${tierThreshold} kWh, then $${tier2Rate}/kWh</span>
+      </div>`;
+  }
+
+  resultHTML += `</div>`;
+  result.innerHTML = resultHTML;
   resultBox.classList.add('show');
-  resultBox.scrollIntoView({behavior: 'smooth', block: 'center', inline: 'nearest'});
+  renderUsageChart();
 }
 
 function resetForm() {
@@ -320,39 +398,52 @@ function exportToExcel() {
 }
 
 function saveData() {
-  const startDate = document.getElementById('startDate').value;
-  const endDate = document.getElementById('endDate').value;
-  const costPerKwh = document.getElementById('costPerKwh').value;
-  const dailyKwhInputs = document.querySelectorAll('.dailyKwh');
-  let dailyKwhData = {};
+  const data = {
+    startDate: document.getElementById('startDate').value,
+    endDate: document.getElementById('endDate').value,
+    costPerKwh: document.getElementById('costPerKwh').value,
+    useTieredRates: document.getElementById('useTieredRates').checked,
+    tierThreshold: document.getElementById('tierThreshold').value,
+    tier2Rate: document.getElementById('tier2Rate').value,
+    dailyKwh: {}
+  };
 
-  dailyKwhInputs.forEach(input => {
-    dailyKwhData[input.getAttribute('data-date')] = input.value;
+  document.querySelectorAll('.dailyKwh').forEach(input => {
+    const date = input.getAttribute('data-date');
+    const value = input.value;
+    if (date && value) {
+      data.dailyKwh[date] = value;
+    }
   });
 
-  localStorage.setItem('startDate', startDate);
-  localStorage.setItem('endDate', endDate);
-  localStorage.setItem('costPerKwh', costPerKwh);
-  localStorage.setItem('dailyKwhData', JSON.stringify(dailyKwhData));
+  const profile = getCurrentProfile();
+  if (profile) {
+    localStorage.setItem(`profile_${profile}`, JSON.stringify(data));
+  }
 }
 
 function loadData() {
-  const startDate = localStorage.getItem('startDate');
-  const endDate = localStorage.getItem('endDate');
-  const costPerKwh = localStorage.getItem('costPerKwh');
-  const dailyKwhData = JSON.parse(localStorage.getItem('dailyKwhData')) || {};
+  const profile = getCurrentProfile();
+  if (!profile) return;
 
-  if (startDate) document.getElementById('startDate').value = startDate;
-  if (endDate) document.getElementById('endDate').value = endDate;
-  if (costPerKwh) document.getElementById('costPerKwh').value = costPerKwh;
-
-  if (startDate && endDate) {
-    generateKwhFields();
-  }
-
-  // Apply dark mode if saved
-  if (localStorage.getItem('darkMode') === 'true') {
-    document.body.classList.add('dark-mode');
+  const data = JSON.parse(localStorage.getItem(`profile_${profile}`)) || {};
+  
+  document.getElementById('startDate').value = data.startDate || '';
+  document.getElementById('endDate').value = data.endDate || '';
+  document.getElementById('costPerKwh').value = data.costPerKwh || '';
+  document.getElementById('useTieredRates').checked = data.useTieredRates || false;
+  document.getElementById('tierThreshold').value = data.tierThreshold || '';
+  document.getElementById('tier2Rate').value = data.tier2Rate || '';
+  
+  toggleTieredRates();
+  
+  if (data.dailyKwh) {
+    Object.entries(data.dailyKwh).forEach(([date, value]) => {
+      const input = document.querySelector(`.dailyKwh[data-date="${date}"]`);
+      if (input) {
+        input.value = value;
+      }
+    });
   }
 }
 
@@ -558,10 +649,10 @@ function getProfileKey(key) {
 // Patch saveData/loadData to use profile keys
 const origSaveData = saveData;
 saveData = function() {
-  const keys = ['startDate','endDate','costPerKwh','dailyKwhData'];
+  const keys = ['startDate','endDate','costPerKwh','useTieredRates','tierThreshold','tier2Rate','dailyKwh'];
   keys.forEach(key => {
     let val = null;
-    if (key === 'dailyKwhData') val = JSON.stringify(JSON.parse(localStorage.getItem('dailyKwhData')) || {});
+    if (key === 'dailyKwh') val = JSON.stringify(JSON.parse(localStorage.getItem('dailyKwhData')) || {});
     else val = document.getElementById(key)?.value || localStorage.getItem(key) || '';
     localStorage.setItem(getProfileKey(key), val);
   });
@@ -569,11 +660,11 @@ saveData = function() {
 }
 const origLoadData = loadData;
 loadData = function() {
-  const keys = ['startDate','endDate','costPerKwh','dailyKwhData'];
+  const keys = ['startDate','endDate','costPerKwh','useTieredRates','tierThreshold','tier2Rate','dailyKwh'];
   keys.forEach(key => {
     let val = localStorage.getItem(getProfileKey(key));
     if (val !== null) {
-      if (key === 'dailyKwhData') localStorage.setItem('dailyKwhData', val);
+      if (key === 'dailyKwh') localStorage.setItem('dailyKwhData', val);
       else localStorage.setItem(key, val);
     }
   });
@@ -603,7 +694,7 @@ function setupProfileUI() {
     setCurrentProfile(name);
     updateProfileDropdown();
     // Clear data for new profile
-    ['startDate','endDate','costPerKwh','dailyKwhData'].forEach(key => localStorage.removeItem(getProfileKey(key)));
+    ['startDate','endDate','costPerKwh','useTieredRates','tierThreshold','tier2Rate','dailyKwh'].forEach(key => localStorage.removeItem(getProfileKey(key)));
     loadData();
     attachKwhValidation();
     renderUsageChart();
@@ -617,7 +708,7 @@ function setupProfileUI() {
     setProfiles(profiles);
     setCurrentProfile('Default');
     // Remove all keys for deleted profile
-    ['startDate','endDate','costPerKwh','dailyKwhData'].forEach(key => localStorage.removeItem(`${current}__${key}`));
+    ['startDate','endDate','costPerKwh','useTieredRates','tierThreshold','tier2Rate','dailyKwh'].forEach(key => localStorage.removeItem(`${current}__${key}`));
     updateProfileDropdown();
     loadData();
     attachKwhValidation();
@@ -629,59 +720,113 @@ window.addEventListener('DOMContentLoaded', setupProfileUI);
 // Chart.js Visualization
 let usageChart = null;
 function renderUsageChart() {
-  const ctx = document.getElementById('usageChart');
-  const chartBox = document.getElementById('chartBox');
-  if (!ctx || !chartBox) return;
-  const startDateStr = document.getElementById('startDate').value;
-  const endDateStr = document.getElementById('endDate').value;
-  const costPerKwh = parseFloat(document.getElementById('costPerKwh').value);
-  if (!startDateStr || !endDateStr || isNaN(costPerKwh)) {
-    if (usageChart) { usageChart.destroy(); usageChart = null; }
-    chartBox.classList.remove('show');
-    return;
+  const ctx = document.getElementById('usageChart').getContext('2d');
+  const dailyKwhInputs = document.getElementsByClassName('dailyKwh');
+  const dates = [];
+  const kwhValues = [];
+  const costs = [];
+  const useTieredRates = document.getElementById('useTieredRates').checked;
+  const baseRate = parseFloat(document.getElementById('costPerKwh').value) || 0;
+  const tierThreshold = parseFloat(document.getElementById('tierThreshold').value) || 0;
+  const tier2Rate = parseFloat(document.getElementById('tier2Rate').value) || 0;
+
+  for (let input of dailyKwhInputs) {
+    const date = input.getAttribute('data-date');
+    const kwh = parseFloat(input.value) || 0;
+    if (kwh > 0) {
+      dates.push(date);
+      kwhValues.push(kwh);
+      
+      let cost;
+      if (useTieredRates) {
+        if (kwh <= tierThreshold) {
+          cost = kwh * baseRate;
+        } else {
+          cost = (tierThreshold * baseRate) + ((kwh - tierThreshold) * tier2Rate);
+        }
+      } else {
+        cost = kwh * baseRate;
+      }
+      costs.push(cost);
+    }
   }
-  const startDate = new Date(startDateStr);
-  const endDate = new Date(endDateStr);
-  if (isNaN(startDate) || isNaN(endDate) || startDate > endDate) {
-    if (usageChart) { usageChart.destroy(); usageChart = null; }
-    chartBox.classList.remove('show');
-    return;
+
+  if (window.usageChart) {
+    window.usageChart.destroy();
   }
-  let labels = [];
-  let kwhData = [];
-  let costData = [];
-  const dailyKwhInputs = document.querySelectorAll('.dailyKwh');
-  let kwhMap = {};
-  dailyKwhInputs.forEach(input => {
-    kwhMap[input.getAttribute('data-date')] = parseFloat(input.value || 0);
-  });
-  for (let d = new Date(startDate); d <= endDate; d.setDate(d.getDate() + 1)) {
-    const dateStr = d.toISOString().split('T')[0];
-    labels.push(dateStr);
-    const kwh = kwhMap[dateStr] || 0;
-    costData.push(kwh * costPerKwh);
-  }
-  if (usageChart) usageChart.destroy();
-  chartBox.classList.add('show');
-  usageChart = new Chart(ctx, {
-    type: 'line',
-    data: {
-      labels: labels,
-      datasets: [
-        { label: 'kWh Usage', data: kwhData, borderColor: '#007bff', backgroundColor: 'rgba(0,123,255,0.1)', yAxisID: 'y' },
-        { label: 'Daily Cost ($)', data: costData, borderColor: '#28a745', backgroundColor: 'rgba(40,167,69,0.1)', yAxisID: 'y1' }
-      ]
-    },
+
+  const chartData = {
+    labels: dates,
+    datasets: [
+      {
+        label: 'kWh Usage',
+        data: kwhValues,
+        borderColor: 'rgb(75, 192, 192)',
+        backgroundColor: 'rgba(75, 192, 192, 0.2)',
+        yAxisID: 'y',
+        type: 'bar'
+      },
+      {
+        label: 'Cost ($)',
+        data: costs,
+        borderColor: 'rgb(255, 99, 132)',
+        backgroundColor: 'rgba(255, 99, 132, 0.2)',
+        yAxisID: 'y1',
+        type: 'line'
+      }
+    ]
+  };
+
+  const config = {
+    type: 'bar',
+    data: chartData,
     options: {
       responsive: true,
-      interaction: { mode: 'index', intersect: false },
-      plugins: { legend: { position: 'top' } },
+      interaction: {
+        mode: 'index',
+        intersect: false,
+      },
       scales: {
-        y: { type: 'linear', display: true, position: 'left', title: { display: true, text: 'kWh' } },
-        y1: { type: 'linear', display: true, position: 'right', title: { display: true, text: 'Cost ($)' }, grid: { drawOnChartArea: false } }
+        y: {
+          type: 'linear',
+          display: true,
+          position: 'left',
+          title: {
+            display: true,
+            text: 'kWh Usage'
+          }
+        },
+        y1: {
+          type: 'linear',
+          display: true,
+          position: 'right',
+          title: {
+            display: true,
+            text: 'Cost ($)'
+          },
+          grid: {
+            drawOnChartArea: false
+          }
+        }
+      },
+      plugins: {
+        tooltip: {
+          callbacks: {
+            label: function(context) {
+              const datasetLabel = context.dataset.label;
+              const value = context.parsed.y;
+              if (datasetLabel === 'Cost ($)') {
+                return `${datasetLabel}: $${value.toFixed(2)}`;
+              }
+              return `${datasetLabel}: ${value.toFixed(2)} kWh`;
+            }
+          }
+        }
       }
     }
-  });
+  };
+
+  window.usageChart = new Chart(ctx, config);
 }
 // Update chart on data change
 ['input', 'change'].forEach(evt => {

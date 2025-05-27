@@ -58,6 +58,28 @@
     </div>
 
     <div class="billing-box mb-3">
+      <div class="form-check mb-2">
+        <input class="form-check-input" type="checkbox" id="useTieredRates" onchange="toggleTieredRates(); saveData()">
+        <label class="form-check-label" for="useTieredRates">
+          <i class="bi bi-graph-up"></i> Use Tiered Rates
+        </label>
+      </div>
+      <div id="tieredRatesSettings" style="display: none;">
+        <div class="row mb-2">
+          <div class="col-6">
+            <label for="tierThreshold">Tier Threshold (kWh):</label>
+            <input type="number" id="tierThreshold" class="form-control" step="1" min="0" oninput="saveData()">
+          </div>
+          <div class="col-6">
+            <label for="tier2Rate">Rate Above Threshold ($/kWh):</label>
+            <input type="number" id="tier2Rate" class="form-control" step="0.01" min="0" oninput="saveData()">
+          </div>
+        </div>
+        <small class="text-muted">The first rate is your base rate above. This second rate will apply to usage above the threshold.</small>
+      </div>
+    </div>
+
+    <div class="billing-box mb-3">
       <label><i class="bi bi-filetype-csv"></i> Got your kWh data ready? Upload your CSV file below!</label>
       <div class="file-help-group">
         <input type="file" accept=".csv" id="csvFile" class="form-control" aria-label="Upload CSV file">
