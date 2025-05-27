@@ -198,7 +198,9 @@ function importCSV() {
 function toggleTieredRates() {
   const tieredRatesSettings = document.getElementById('tieredRatesSettings');
   const useTieredRates = document.getElementById('useTieredRates').checked;
-  tieredRatesSettings.style.display = useTieredRates ? 'block' : 'none';
+  if (tieredRatesSettings) {
+    tieredRatesSettings.style.display = useTieredRates ? 'block' : 'none';
+  }
 }
 
 function calculateTotal() {
@@ -477,6 +479,9 @@ window.onload = function() {
     const resultText = document.getElementById('result');
     if (resultText) resultText.innerText = '';
   }
+
+  // Initialize tiered rates display
+  toggleTieredRates();
 };
 
 // Inline validation for daily kWh inputs
