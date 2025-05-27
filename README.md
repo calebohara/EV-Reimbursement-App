@@ -53,11 +53,7 @@ A web-based application designed to help Siemens employees calculate and manage 
 ### Installation
 1. Clone the repository:
 ```bash
-<<<<<<< HEAD
 git clone https://github.com/calebohara/EV-Reimbursement-App.git
-=======
-git clone [repository-url]
->>>>>>> 1520c118ff89cc339f8889322c10b481243a68c8
 ```
 
 2. Open `index.html` in your web browser
@@ -190,8 +186,4 @@ This project is proprietary and confidential. All rights reserved.
 
 ---
 
-<<<<<<< HEAD
-*Last updated: [Current Date]* 
-=======
-*Last updated: [05/27/2025]*
->>>>>>> 1520c118ff89cc339f8889322c10b481243a68c8
+*Last updated: May 27, 2024*
