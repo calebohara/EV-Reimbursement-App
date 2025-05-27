@@ -197,9 +197,16 @@ function importCSV() {
 
 function toggleTieredRates() {
   const tieredRatesSettings = document.getElementById('tieredRatesSettings');
-  const useTieredRates = document.getElementById('useTieredRates').checked;
-  if (tieredRatesSettings) {
-    tieredRatesSettings.style.display = useTieredRates ? 'block' : 'none';
+  const useTieredRates = document.getElementById('useTieredRates');
+  
+  if (tieredRatesSettings && useTieredRates) {
+    tieredRatesSettings.style.display = useTieredRates.checked ? 'block' : 'none';
+    
+    // If tiered rates are disabled, clear the values
+    if (!useTieredRates.checked) {
+      document.getElementById('tierThreshold').value = '';
+      document.getElementById('tier2Rate').value = '';
+    }
   }
 }
 
@@ -482,6 +489,15 @@ window.onload = function() {
 
   // Initialize tiered rates display
   toggleTieredRates();
+
+  // Add event listener for tiered rates checkbox
+  const useTieredRates = document.getElementById('useTieredRates');
+  if (useTieredRates) {
+    useTieredRates.addEventListener('change', function() {
+      toggleTieredRates();
+      saveData();
+    });
+  }
 };
 
 // Inline validation for daily kWh inputs
