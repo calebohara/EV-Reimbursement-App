@@ -337,23 +337,31 @@ function saveData() {
 }
 
 function loadData() {
-  const startDate = localStorage.getItem('startDate');
-  const endDate = localStorage.getItem('endDate');
-  const costPerKwh = localStorage.getItem('costPerKwh');
-  const dailyKwhData = JSON.parse(localStorage.getItem('dailyKwhData')) || {};
+  const startDate = localStorage.getItem(getProfileKey('startDate'));
+  const endDate = localStorage.getItem(getProfileKey('endDate'));
+  const costPerKwh = localStorage.getItem(getProfileKey('costPerKwh'));
+  const dailyKwhData = JSON.parse(localStorage.getItem(getProfileKey('dailyKwhData'))) || {};
 
+  // Populate input fields directly from profile data
   if (startDate) document.getElementById('startDate').value = startDate;
   if (endDate) document.getElementById('endDate').value = endDate;
   if (costPerKwh) document.getElementById('costPerKwh').value = costPerKwh;
 
+  // Update the global dailyKwhData for compatibility if needed elsewhere
+  localStorage.setItem('dailyKwhData', JSON.stringify(dailyKwhData));
+
+  // Regenerate fields and load daily kWh values based on the loaded data
   if (startDate && endDate) {
     generateKwhFields();
   }
+  loadDailyKwh(); // Load values into the generated fields
 
-  // Apply dark mode if saved
+  // Apply dark mode if saved (this part remains the same as it's not profile specific)
   if (localStorage.getItem('darkMode') === 'true') {
     document.body.classList.add('dark-mode');
   }
+
+  // Note: We don't call origLoadData() anymore as we handle everything here.
 }
 
 function loadDailyKwh() {
@@ -561,12 +569,24 @@ saveData = function() {
   const keys = ['startDate','endDate','costPerKwh','dailyKwhData'];
   keys.forEach(key => {
     let val = null;
-    if (key === 'dailyKwhData') val = JSON.stringify(JSON.parse(localStorage.getItem('dailyKwhData')) || {});
-    else val = document.getElementById(key)?.value || localStorage.getItem(key) || '';
-    localStorage.setItem(getProfileKey(key), val);
+    if (key === 'dailyKwhData') {
+        // Read directly from the input fields for dailyKwhData when saving
+        const dailyKwhInputs = document.querySelectorAll('.dailyKwh');
+        let currentDailyKwhData = {};
+        dailyKwhInputs.forEach(input => {
+          currentDailyKwhData[input.getAttribute('data-date')] = input.value;
+        });
+        val = JSON.stringify(currentDailyKwhData);
+    } else {
+        val = document.getElementById(key)?.value || '';
+    }
+    if (val !== null) {
+       localStorage.setItem(getProfileKey(key), val);
+    }
   });
-  origSaveData();
-}
+  // Optionally, keep the original save to global for backward compatibility, or remove if only profile saving is desired.
+  // origSaveData(); // Keeping this for now
+};
 const origLoadData = loadData;
 loadData = function() {
   const keys = ['startDate','endDate','costPerKwh','dailyKwhData'];
@@ -659,6 +679,7 @@ function renderUsageChart() {
     const dateStr = d.toISOString().split('T')[0];
     labels.push(dateStr);
     const kwh = kwhMap[dateStr] || 0;
+    kwhData.push(kwh);
     costData.push(kwh * costPerKwh);
   }
   if (usageChart) usageChart.destroy();
