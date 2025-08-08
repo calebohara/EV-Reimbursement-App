@@ -130,7 +130,7 @@
     <div class="credit mt-2">
       <small style="color: var(--text-color); opacity: 0.8;">Data Privacy: All data is stored locally in your browser and never uploaded to any server.</small>
     </div>
-    <div class="credit mt-2">Version 1.7.0</div>
+    <div class="credit mt-2">Version 1.8.0</div>
     <div class="disclaimer mt-3 text-center">
       <small style="color: var(--text-color); opacity: 0.8;">
         <strong>Disclaimer:</strong> The accuracy of calculations and reimbursements depends on the data provided. Please ensure all input values, including kWh usage and cost per kWh, are accurate and verified. Siemens is not responsible for any discrepancies resulting from incorrect data entry.
@@ -366,7 +366,23 @@ Date,kWh Usage
           <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
         </div>
         <div class="modal-body">
-          <h6>Version 1.7.0 - [Current Date]</h6>
+          <h6>Version 1.8.0 - December 19, 2024</h6>
+          <ul>
+            <li><strong>Icon Fix & Accessibility:</strong> Fixed car icon typo and added proper ARIA attributes for screen reader support</li>
+            <li><strong>Reset Function Enhancement:</strong> Unified key lists and improved form reset functionality with complete data clearing</li>
+            <li><strong>Local Date Formatting:</strong> Replaced UTC-based date formatting with local timezone support to prevent date shifts</li>
+            <li><strong>Anti-Debug Removal:</strong> Removed unnecessary event listeners that blocked developer tools and context menus</li>
+            <li><strong>Chart Theming:</strong> Added dynamic dark mode support for charts with automatic color adaptation</li>
+            <li><strong>Profile Management:</strong> Enhanced multi-user support with improved data persistence and profile switching</li>
+            <li><strong>Input Validation:</strong> Added real-time validation for kWh inputs with warning messages</li>
+            <li><strong>Progressive Saving:</strong> Implemented automatic data saving on all input changes</li>
+            <li><strong>Chart Visualization:</strong> Added interactive Chart.js integration with dual-axis support for kWh and cost data</li>
+            <li><strong>CSV Import/Export:</strong> Enhanced CSV functionality with comprehensive validation and error handling</li>
+            <li><strong>Export Features:</strong> Added Excel and PDF export capabilities with professional formatting</li>
+            <li><strong>Dark Mode:</strong> Implemented complete dark mode theming throughout the application</li>
+            <li><strong>Accessibility:</strong> Improved ARIA labels, screen reader support, and keyboard navigation</li>
+          </ul>
+          <h6>Version 1.7.0 - May 27, 2024</h6>
           <ul>
             <li>Enhanced Site Help content with comprehensive instructions on all features, including profile management, data entry methods, chart visualization, and export options.</li>
             <li>Improved CSV import functionality to automatically update the kWh usage chart upon successful import.</li>
