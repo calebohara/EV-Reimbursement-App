@@ -1,3 +1,11 @@
+// Local date formatter (YYYY-MM-DD)
+const ymd = (d) => {
+  const y = d.getFullYear();
+  const m = String(d.getMonth()+1).padStart(2,'0');
+  const dd = String(d.getDate()).padStart(2,'0');
+  return `${y}-${m}-${dd}`;
+};
+
 function generateCSVTemplate() {
   const startDateStr = document.getElementById('startDate').value;
   const endDateStr = document.getElementById('endDate').value;
@@ -14,7 +22,7 @@ function generateCSVTemplate() {
 
   let csvContent = 'Date,kWh Usage\n';
   for (let d = new Date(startDate); d <= endDate; d.setDate(d.getDate() + 1)) {
-    const formattedDate = d.toISOString().split('T')[0];
+    const formattedDate = ymd(d);
     csvContent += `${formattedDate},0\n`;
   }
 
@@ -55,7 +63,7 @@ function generateKwhFields() {
   }
 
   for (let d = new Date(startDate); d <= endDate; d.setDate(d.getDate() + 1)) {
-    const formattedDate = d.toISOString().split('T')[0];
+    const formattedDate = ymd(d);
     kwhFields.innerHTML += `
       <div class="mb-2">
         <label><i class="bi bi-battery-charging"></i> ${formattedDate} kWh Usage:</label>
@@ -86,8 +94,8 @@ function importCSV() {
   }
   const startDate = new Date(startDateStr);
   const endDate = new Date(endDateStr);
-  const startDateISO = startDate.toISOString().split('T')[0];
-  const endDateISO = endDate.toISOString().split('T')[0];
+  const startDateISO = ymd(startDate);
+  const endDateISO = ymd(endDate);
   if (isNaN(startDate) || isNaN(endDate) || startDate > endDate) {
     alert('Please enter valid billing period dates.');
     return;
@@ -126,7 +134,7 @@ function importCSV() {
         reason = 'Invalid date';
       }
       // Normalize date to YYYY-MM-DD for comparison
-      const dateISO = !rowInvalid ? dateObj.toISOString().split('T')[0] : '';
+      const dateISO = !rowInvalid ? ymd(dateObj) : '';
       if (!rowInvalid && (dateISO < startDateISO || dateISO > endDateISO)) {
         rowInvalid = true;
         reason = 'Date outside billing period';
@@ -224,10 +232,14 @@ function calculateTotal() {
 }
 
 function resetForm() {
-  // Remove current profile's keys
-  ['startDate','endDate','dailyKwhData'].forEach(key => localStorage.removeItem(getProfileKey(key)));
-  // Also remove global keys
-  ['startDate','endDate','dailyKwhData'].forEach(key => localStorage.removeItem(key));
+  const KEYS = ['startDate','endDate','costPerKwh','dailyKwhData'];
+  KEYS.forEach(key => localStorage.removeItem(getProfileKey(key)));
+  KEYS.forEach(key => localStorage.removeItem(key));
+
+  // Clear form inputs
+  document.getElementById('startDate').value = '';
+  document.getElementById('endDate').value = '';
+  document.getElementById('costPerKwh').value = '';
 
   // Hide the result box and clear the result text
   const resultBox = document.getElementById('resultBox');
@@ -283,7 +295,7 @@ function exportToExcel() {
     kwhMap[input.getAttribute('data-date')] = parseFloat(input.value || 0);
   });
   for (let d = new Date(startDate); d <= endDate; d.setDate(d.getDate() + 1)) {
-    const dateStr = d.toISOString().split('T')[0];
+    const dateStr = ymd(d);
     const kwh = kwhMap[dateStr] || 0;
     const dailyCost = kwh * costPerKwh;
     totalKwh += kwh;
@@ -500,7 +512,7 @@ function exportToPDF() {
     kwhMap[input.getAttribute('data-date')] = parseFloat(input.value || 0);
   });
   for (let d = new Date(startDate); d <= endDate; d.setDate(d.getDate() + 1)) {
-    const dateStr = d.toISOString().split('T')[0];
+    const dateStr = ymd(d);
     const kwh = kwhMap[dateStr] || 0;
     const dailyCost = kwh * costPerKwh;
     totalKwh += kwh;
@@ -676,7 +688,7 @@ function renderUsageChart() {
     kwhMap[input.getAttribute('data-date')] = parseFloat(input.value || 0);
   });
   for (let d = new Date(startDate); d <= endDate; d.setDate(d.getDate() + 1)) {
-    const dateStr = d.toISOString().split('T')[0];
+    const dateStr = ymd(d);
     labels.push(dateStr);
     const kwh = kwhMap[dateStr] || 0;
     kwhData.push(kwh);
@@ -684,6 +696,12 @@ function renderUsageChart() {
   }
   if (usageChart) usageChart.destroy();
   chartBox.classList.add('show');
+  
+  // Chart theming hook
+  const isDark = document.body.classList.contains('dark-mode');
+  const gridColor = isDark ? '#666' : '#e5e5e5';
+  const labelColor = isDark ? '#f5f5f7' : '#212529';
+  
   usageChart = new Chart(ctx, {
     type: 'line',
     data: {
@@ -696,10 +714,33 @@ function renderUsageChart() {
     options: {
       responsive: true,
       interaction: { mode: 'index', intersect: false },
-      plugins: { legend: { position: 'top' } },
+      plugins: { 
+        legend: { 
+          position: 'top',
+          labels: { color: labelColor }
+        } 
+      },
       scales: {
-        y: { type: 'linear', display: true, position: 'left', title: { display: true, text: 'kWh' } },
-        y1: { type: 'linear', display: true, position: 'right', title: { display: true, text: 'Cost ($)' }, grid: { drawOnChartArea: false } }
+        x: { 
+          grid: { color: gridColor }, 
+          ticks: { color: labelColor } 
+        },
+        y: { 
+          type: 'linear', 
+          display: true, 
+          position: 'left', 
+          title: { display: true, text: 'kWh' },
+          grid: { color: gridColor }, 
+          ticks: { color: labelColor }
+        },
+        y1: { 
+          type: 'linear', 
+          display: true, 
+          position: 'right', 
+          title: { display: true, text: 'Cost ($)' }, 
+          grid: { drawOnChartArea: false, color: gridColor }, 
+          ticks: { color: labelColor }
+        }
       }
     }
   });
@@ -723,26 +764,3 @@ function checkAndGenerateFields() {
   }
 }
 
-// Disable right-click (context menu)
-document.addEventListener('contextmenu', function(e) {
-  e.preventDefault();
-});
-
-// Disable keyboard shortcuts for viewing source and developer tools
-document.addEventListener('keydown', function(e) {
-  if (e.ctrlKey && e.key === 'u') {
-    e.preventDefault();
-  }
-  if (e.key === 'F12') {
-    e.preventDefault();
-  }
-  if (e.ctrlKey && e.shiftKey && e.key === 'I') {
-    e.preventDefault();
-  }
-  if (e.ctrlKey && e.shiftKey && e.key === 'J') {
-    e.preventDefault();
-  }
-  if (e.ctrlKey && e.shiftKey && e.key === 'C') {
-    e.preventDefault();
-  }
-});

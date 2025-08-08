@@ -153,6 +153,21 @@ Requirements:
 
 ## 📝 Version History
 
+### Version 1.8.0
+- **Icon Fix & Accessibility**: Fixed car icon typo and added proper ARIA attributes for screen reader support
+- **Reset Function Enhancement**: Unified key lists and improved form reset functionality with complete data clearing
+- **Local Date Formatting**: Replaced UTC-based date formatting with local timezone support to prevent date shifts
+- **Anti-Debug Removal**: Removed unnecessary event listeners that blocked developer tools and context menus
+- **Chart Theming**: Added dynamic dark mode support for charts with automatic color adaptation
+- **Profile Management**: Enhanced multi-user support with improved data persistence and profile switching
+- **Input Validation**: Added real-time validation for kWh inputs with warning messages
+- **Progressive Saving**: Implemented automatic data saving on all input changes
+- **Chart Visualization**: Added interactive Chart.js integration with dual-axis support for kWh and cost data
+- **CSV Import/Export**: Enhanced CSV functionality with comprehensive validation and error handling
+- **Export Features**: Added Excel and PDF export capabilities with professional formatting
+- **Dark Mode**: Implemented complete dark mode theming throughout the application
+- **Accessibility**: Improved ARIA labels, screen reader support, and keyboard navigation
+
 ### Version 1.7.0
 - Enhanced Site Help content
 - Improved CSV import functionality
@@ -209,4 +224,4 @@ This project is proprietary and confidential. All rights reserved.
 
 ---
 
-*Last updated: May 27, 2024*
+*Last updated: December 19, 2024*
