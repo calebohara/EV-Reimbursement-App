@@ -157,6 +157,11 @@ Requirements:
 
 ## 📝 Version History
 
+### Version 1.10.0
+- **Tiered Rates (Basic):** Optional tiered billing where the first N kWh of the billing period are charged at Tier 1 rate and remaining kWh at Tier 2 (or base rate). Includes validation, per-profile persistence, and integration into chart, summary, calculations, and exports.
+- **Validation & Fallbacks:** Tier inputs validate on the fly; when tiers are enabled and valid, base cost may be blank. If tier inputs are invalid, calculations fall back to the base cost per kWh.
+- **Dark Mode Polish:** Improved readability of modal text, placeholders, and disabled inputs (including tiered fields) in dark mode.
+
 ### Version 1.9.0
 - **Dashboard Summary View**: Added summary card above the chart showing Total kWh, Total Cost, Average Daily Usage, and data completeness with a color-coded progress bar. Updates in real time.
 - **Feedback & Support Form**: Replaced static email with an in-app feedback form, including a 1–5 star rating, feedback categories, and pre-filled mailto generation to `caleb.ohara@siemens.com`.
@@ -239,4 +244,4 @@ This project is proprietary and confidential. All rights reserved.
 
 ---
 
-*Last updated: December 20, 2024*
+*Last updated: December 21, 2024*

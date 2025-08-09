@@ -59,6 +59,12 @@ body {
   background-color: var(--container-bg);
   color: var(--text-color);
 }
+body.dark-mode .modal-content .form-label,
+body.dark-mode .modal-content label,
+body.dark-mode .modal-content p,
+body.dark-mode .modal-content li,
+body.dark-mode .modal-content small { color: var(--text-color); }
+body.dark-mode .text-muted { color: #c8ced6 !important; }
 pre {
   background-color: var(--pre-bg);
   padding: 10px;
@@ -69,6 +75,21 @@ pre {
   color: var(--form-text);
   border: 1px solid #ced4da;
 }
+.form-control:disabled,
+.form-control[disabled] {
+  background-color: var(--form-bg) !important;
+  color: var(--form-text) !important;
+  opacity: 0.75; /* keep readable but indicate disabled */
+  border-color: #adb5bd;
+}
+body.dark-mode .form-control:disabled,
+body.dark-mode .form-control[disabled] {
+  background-color: var(--form-bg) !important;
+  color: var(--form-text) !important;
+  border-color: #6c757d;
+}
+.form-control::placeholder { color: rgba(0,0,0,0.45); }
+body.dark-mode .form-control::placeholder { color: rgba(255,255,255,0.7); }
 .form-control:focus {
   background-color: var(--form-bg);
   color: var(--form-text);
@@ -192,6 +213,14 @@ pre {
   transition: background 0.2s, color 0.2s, border-color 0.2s;
 }
 body.dark-mode .profile-select {
+  background-color: var(--form-bg);
+  color: var(--form-text);
+  border-color: #495057;
+}
+/* Ensure all inputs in tiered rates area match dark mode */
+body.dark-mode #tier1Limit,
+body.dark-mode #tier1Rate,
+body.dark-mode #tier2Rate {
   background-color: var(--form-bg);
   color: var(--form-text);
   border-color: #495057;

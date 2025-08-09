@@ -27,11 +27,11 @@ function generateCSVTemplate() {
     const startDate = new Date(parseInt(startParts[0]), parseInt(startParts[1]) - 1, parseInt(startParts[2]));
     const endDate = new Date(parseInt(endParts[0]), parseInt(endParts[1]) - 1, parseInt(endParts[2]));
     
-    if (isNaN(startDate) || isNaN(endDate) || startDate > endDate) {
-      alert('Please enter valid billing period dates.');
+  if (isNaN(startDate) || isNaN(endDate) || startDate > endDate) {
+    alert('Please enter valid billing period dates.');
       resetButtonLoading(templateBtn, '<i class="bi bi-download"></i> Download CSV Template');
-      return;
-    }
+    return;
+  }
 
   let csvContent = 'Date,kWh Usage\n';
   for (let d = new Date(startDate); d <= endDate; d.setDate(d.getDate() + 1)) {
@@ -39,15 +39,15 @@ function generateCSVTemplate() {
     csvContent += `${formattedDate},0\n`;
   }
 
-    const blob = new Blob([csvContent], { type: 'text/csv' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = 'kwh_template.csv';
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-    URL.revokeObjectURL(url);
+  const blob = new Blob([csvContent], { type: 'text/csv' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = 'kwh_template.csv';
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
     
     // Reset button state
     resetButtonLoading(templateBtn, '<i class="bi bi-download"></i> Download CSV Template');
@@ -100,14 +100,14 @@ function generateKwhFields() {
     kwhFields.innerHTML = '';
     
     // Generate fields with staggered animation classes
-    for (let d = new Date(startDate); d <= endDate; d.setDate(d.getDate() + 1)) {
-      const formattedDate = ymd(d);
-      kwhFields.innerHTML += `
+  for (let d = new Date(startDate); d <= endDate; d.setDate(d.getDate() + 1)) {
+    const formattedDate = ymd(d);
+    kwhFields.innerHTML += `
         <div class="mb-2 kwh-field-row">
-          <label><i class="bi bi-battery-charging"></i> ${formattedDate} kWh Usage:</label>
+        <label><i class="bi bi-battery-charging"></i> ${formattedDate} kWh Usage:</label>
           <input type="number" step="0.01" class="form-control dailyKwh" data-date="${formattedDate}" oninput="saveData(); updateSummary();" data-bs-toggle="tooltip" data-bs-placement="right" title="Enter kWh used for EV charging on ${formattedDate}. Find this data in your charger app or utility bill.">
-        </div>`;
-    }
+      </div>`;
+  }
 
     // Complete the loading process
     completeFieldsLoading();
@@ -265,11 +265,11 @@ function importCSV() {
     
     // Use setTimeout to show loading state briefly
     setTimeout(() => {
-      kwhFields.innerHTML = htmlString;
-      saveData();
+    kwhFields.innerHTML = htmlString;
+    saveData();
 
-      // Show invalid row details below the kWh fields
-      let invalidMsgDiv = document.getElementById('invalidRowsMsg');
+    // Show invalid row details below the kWh fields
+    let invalidMsgDiv = document.getElementById('invalidRowsMsg');
     if (!invalidMsgDiv) {
       invalidMsgDiv = document.createElement('div');
       invalidMsgDiv.id = 'invalidRowsMsg';
@@ -294,11 +294,11 @@ function importCSV() {
       alert('The CSV file contains no valid data rows.');
     }
 
-      // Show the kWh fields box after import
-      const kwhFieldsBox = document.getElementById('kwhFieldsBox');
-      if (kwhFieldsBox) kwhFieldsBox.classList.add('show');
+    // Show the kWh fields box after import
+    const kwhFieldsBox = document.getElementById('kwhFieldsBox');
+    if (kwhFieldsBox) kwhFieldsBox.classList.add('show');
 
-      renderUsageChart(); // Add chart update after successful import
+    renderUsageChart(); // Add chart update after successful import
       updateSummary(); // Update summary after CSV import
       initializeTooltips(); // Re-initialize tooltips for CSV imported fields
       
@@ -322,8 +322,9 @@ function calculateTotal() {
   const costPerKwhBox = costPerKwhInput.closest('.billing-box');
   const calculateBtn = document.querySelector('button[onclick="calculateTotal()"]');
   const costPerKwh = parseFloat(costPerKwhInput.value);
+  const tiersOk = isUsingTieredRates() && validateTierInputs(true);
   
-  if (isNaN(costPerKwh)) {
+  if (!tiersOk && isNaN(costPerKwh)) {
     alert('Please enter a valid cost per kWh.');
     costPerKwhInput.classList.add('is-invalid');
     if (costPerKwhBox) {
@@ -343,14 +344,12 @@ function calculateTotal() {
   
   // Simulate async calculation for better UX
   setTimeout(() => {
-    const dailyKwhInputs = document.querySelectorAll('.dailyKwh');
-    let total = 0;
-    dailyKwhInputs.forEach(input => { total += parseFloat(input.value || 0); });
-    const reimbursement = total * costPerKwh;
-    const resultBox = document.getElementById('resultBox');
-    document.getElementById('result').innerText = `Total Reimbursement: $${reimbursement.toFixed(2)}`;
-    resultBox.classList.add('show');
-    resultBox.scrollIntoView({behavior: 'smooth', block: 'center', inline: 'nearest'});
+    const { totalKwh, totalCost } = computeTieredTotalsOverPeriod(isNaN(costPerKwh) ? 0 : costPerKwh);
+    const reimbursement = totalCost;
+  const resultBox = document.getElementById('resultBox');
+  document.getElementById('result').innerText = `Total Reimbursement: $${reimbursement.toFixed(2)}`;
+  resultBox.classList.add('show');
+  resultBox.scrollIntoView({behavior: 'smooth', block: 'center', inline: 'nearest'});
     
     // Reset button state
     resetButtonLoading(calculateBtn, '<i class="bi bi-calculator-fill"></i> Calculate Reimbursement');
@@ -390,12 +389,13 @@ function exportToExcel() {
   const costPerKwhBox = costPerKwhInput.closest('.billing-box');
   const exportBtn = document.querySelector('button[onclick="exportToExcel()"]');
   const costPerKwh = parseFloat(costPerKwhInput.value);
+  const tiersOk = isUsingTieredRates() && validateTierInputs(true);
   
   if (!startDateStr || !endDateStr) {
     alert('Please select the billing period start and end dates first.');
     return;
   }
-  if (isNaN(costPerKwh)) {
+  if (!tiersOk && isNaN(costPerKwh)) {
     alert('Please enter a valid cost per kWh.');
     costPerKwhInput.classList.add('is-invalid');
     if (costPerKwhBox) {
@@ -419,29 +419,26 @@ function exportToExcel() {
     const endParts = endDateStr.split('-');
     const startDate = new Date(parseInt(startParts[0]), parseInt(startParts[1]) - 1, parseInt(startParts[2]));
     const endDate = new Date(parseInt(endParts[0]), parseInt(endParts[1]) - 1, parseInt(endParts[2]));
-    if (isNaN(startDate) || isNaN(endDate) || startDate > endDate) {
-      alert('Please enter valid billing period dates.');
+  if (isNaN(startDate) || isNaN(endDate) || startDate > endDate) {
+    alert('Please enter valid billing period dates.');
       resetButtonLoading(exportBtn, '<i class="bi bi-file-earmark-excel-fill"></i> Export to Excel');
-      return;
-    }
+    return;
+  }
   let data = [];
-  let totalKwh = 0;
+  const tierResult = computeTieredDailyCostsMap(isNaN(costPerKwh) ? 0 : costPerKwh, startDate, endDate);
+  let totalKwh = tierResult.totalKwh;
   let totalCost = 0;
-  const dailyKwhInputs = document.querySelectorAll('.dailyKwh');
-  let kwhMap = {};
-  dailyKwhInputs.forEach(input => {
-    kwhMap[input.getAttribute('data-date')] = parseFloat(input.value || 0);
-  });
+  // Build rows with effective daily rate
   for (let d = new Date(startDate); d <= endDate; d.setDate(d.getDate() + 1)) {
     const dateStr = ymd(d);
-    const kwh = kwhMap[dateStr] || 0;
-    const dailyCost = kwh * costPerKwh;
-    totalKwh += kwh;
+    const kwh = tierResult.kwhMap[dateStr] || 0;
+    const dailyCost = tierResult.dailyCostMap[dateStr] || 0;
     totalCost += dailyCost;
+    const effectiveRate = kwh > 0 ? (dailyCost / kwh) : '';
     data.push({
       'Date': dateStr,
       'kWh Usage': kwh,
-      'Cost per kWh': costPerKwh,
+      'Cost per kWh': typeof effectiveRate === 'number' ? effectiveRate : '',
       'Daily Cost': dailyCost
     });
   }
@@ -462,11 +459,11 @@ function exportToExcel() {
     const dailyCostCell = ws[XLSX.utils.encode_cell({c: 3, r: R})];
     if (dailyCostCell) dailyCostCell.z = '$0.00';
     const costPerKwhCell = ws[XLSX.utils.encode_cell({c: 2, r: R})];
-    if (costPerKwhCell) costPerKwhCell.z = '$0.00';
+    if (costPerKwhCell) costPerKwhCell.z = '$0.000';
   }
-    // Format file name with billing period
-    const fileName = `ev_reimbursement_${startDateStr}_to_${endDateStr}.xlsx`;
-    XLSX.writeFile(wb, fileName);
+  // Format file name with billing period
+  const fileName = `ev_reimbursement_${startDateStr}_to_${endDateStr}.xlsx`;
+  XLSX.writeFile(wb, fileName);
     
     // Reset button state
     resetButtonLoading(exportBtn, '<i class="bi bi-file-earmark-excel-fill"></i> Export to Excel');
@@ -477,6 +474,10 @@ function saveData() {
   const startDate = document.getElementById('startDate').value;
   const endDate = document.getElementById('endDate').value;
   const costPerKwh = document.getElementById('costPerKwh').value;
+  const useTieredRates = document.getElementById('useTieredRates')?.checked ? 'true' : 'false';
+  const tier1Limit = document.getElementById('tier1Limit')?.value || '';
+  const tier1Rate = document.getElementById('tier1Rate')?.value || '';
+  const tier2Rate = document.getElementById('tier2Rate')?.value || '';
   const dailyKwhInputs = document.querySelectorAll('.dailyKwh');
   let dailyKwhData = {};
 
@@ -487,6 +488,10 @@ function saveData() {
   localStorage.setItem('startDate', startDate);
   localStorage.setItem('endDate', endDate);
   localStorage.setItem('costPerKwh', costPerKwh);
+  localStorage.setItem(getProfileKey('useTieredRates'), useTieredRates);
+  localStorage.setItem(getProfileKey('tier1Limit'), tier1Limit);
+  localStorage.setItem(getProfileKey('tier1Rate'), tier1Rate);
+  localStorage.setItem(getProfileKey('tier2Rate'), tier2Rate);
   localStorage.setItem('dailyKwhData', JSON.stringify(dailyKwhData));
 }
 
@@ -494,12 +499,25 @@ function loadData() {
   const startDate = localStorage.getItem(getProfileKey('startDate'));
   const endDate = localStorage.getItem(getProfileKey('endDate'));
   const costPerKwh = localStorage.getItem(getProfileKey('costPerKwh'));
+  const useTieredRates = localStorage.getItem(getProfileKey('useTieredRates')) === 'true';
+  const tier1Limit = localStorage.getItem(getProfileKey('tier1Limit')) || '';
+  const tier1Rate = localStorage.getItem(getProfileKey('tier1Rate')) || '';
+  const tier2Rate = localStorage.getItem(getProfileKey('tier2Rate')) || '';
   const dailyKwhData = JSON.parse(localStorage.getItem(getProfileKey('dailyKwhData'))) || {};
 
   // Populate input fields directly from profile data
   if (startDate) document.getElementById('startDate').value = startDate;
   if (endDate) document.getElementById('endDate').value = endDate;
   if (costPerKwh) document.getElementById('costPerKwh').value = costPerKwh;
+  const useTieredEl = document.getElementById('useTieredRates');
+  if (useTieredEl) useTieredEl.checked = useTieredRates;
+  const tier1LimitEl = document.getElementById('tier1Limit');
+  const tier1RateEl = document.getElementById('tier1Rate');
+  const tier2RateEl = document.getElementById('tier2Rate');
+  if (tier1LimitEl) tier1LimitEl.value = tier1Limit;
+  if (tier1RateEl) tier1RateEl.value = tier1Rate;
+  if (tier2RateEl) tier2RateEl.value = tier2Rate;
+  updateTierInputsState();
 
   // Update the global dailyKwhData for compatibility if needed elsewhere
   localStorage.setItem('dailyKwhData', JSON.stringify(dailyKwhData));
@@ -508,7 +526,7 @@ function loadData() {
   if (startDate && endDate) {
     // Add a subtle delay to show smooth loading when page loads with existing data
     setTimeout(() => {
-      generateKwhFields();
+    generateKwhFields();
     }, 100);
   }
   loadDailyKwh(); // Load values into the generated fields
@@ -635,8 +653,8 @@ function exportToPDF() {
   } else {
     endDateInput.classList.remove('is-invalid');
   }
-  // Validate cost per kWh
-  if (isNaN(costPerKwh)) {
+  // Validate cost per kWh only if not using tiers
+  if (!tiersOk && isNaN(costPerKwh)) {
     alert('Please enter a valid cost per kWh.');
     costPerKwhInput.classList.add('is-invalid');
     if (costPerKwhBox) {
@@ -659,26 +677,22 @@ function exportToPDF() {
     // Parse dates more carefully to avoid timezone issues
     const startDate = new Date(parseInt(startParts[0]), parseInt(startParts[1]) - 1, parseInt(startParts[2]));
     const endDate = new Date(parseInt(endParts[0]), parseInt(endParts[1]) - 1, parseInt(endParts[2]));
-    if (isNaN(startDate) || isNaN(endDate) || startDate > endDate) {
-      alert('Please enter valid billing period dates.');
+  if (isNaN(startDate) || isNaN(endDate) || startDate > endDate) {
+    alert('Please enter valid billing period dates.');
       resetButtonLoading(exportBtn, '<i class="bi bi-file-earmark-pdf-fill"></i> Export to PDF');
-      return;
-    }
+    return;
+  }
   let data = [];
-  let totalKwh = 0;
+  const tierResult = computeTieredDailyCostsMap(isNaN(costPerKwh) ? 0 : costPerKwh, startDate, endDate);
+  let totalKwh = tierResult.totalKwh;
   let totalCost = 0;
-  const dailyKwhInputs = document.querySelectorAll('.dailyKwh');
-  let kwhMap = {};
-  dailyKwhInputs.forEach(input => {
-    kwhMap[input.getAttribute('data-date')] = parseFloat(input.value || 0);
-  });
   for (let d = new Date(startDate); d <= endDate; d.setDate(d.getDate() + 1)) {
     const dateStr = ymd(d);
-    const kwh = kwhMap[dateStr] || 0;
-    const dailyCost = kwh * costPerKwh;
-    totalKwh += kwh;
+    const kwh = tierResult.kwhMap[dateStr] || 0;
+    const dailyCost = tierResult.dailyCostMap[dateStr] || 0;
     totalCost += dailyCost;
-    data.push([dateStr, kwh, `$${costPerKwh.toFixed(2)}`, `$${dailyCost.toFixed(2)}`]);
+    const effectiveRate = kwh > 0 ? (dailyCost / kwh) : 0;
+    data.push([dateStr, kwh, `$${effectiveRate.toFixed(3)}`, `$${dailyCost.toFixed(2)}`]);
   }
   data.push(['TOTAL', totalKwh, '', `$${totalCost.toFixed(2)}`]);
   const { jsPDF } = window.jspdf;
@@ -686,7 +700,10 @@ function exportToPDF() {
   doc.text('EV kWh Reimbursement Report', 14, 14);
   doc.setFontSize(10);
   doc.text(`Billing Period: ${startDateStr} to ${endDateStr}`, 14, 22);
-  doc.text(`Cost per kWh: $${costPerKwh.toFixed(2)}`, 14, 28);
+  // If using tiers, note it; otherwise show base rate
+  const usingTiers = isUsingTieredRates();
+  const headerRate = usingTiers ? 'Tiered Rates' : `$${costPerKwh.toFixed(2)}`;
+  doc.text(`Cost per kWh: ${headerRate}`, 14, 28);
   doc.autoTable({
     head: [['Date', 'kWh Usage', 'Cost per kWh', 'Daily Cost']],
     body: data,
@@ -700,7 +717,7 @@ function exportToPDF() {
       doc.text('Generated by EV kWh Reimbursement App', 14, doc.internal.pageSize.height - 10);
     }
   });
-    doc.save(`ev_reimbursement_${startDateStr}_to_${endDateStr}.pdf`);
+  doc.save(`ev_reimbursement_${startDateStr}_to_${endDateStr}.pdf`);
     
     // Reset button state
     resetButtonLoading(exportBtn, '<i class="bi bi-file-earmark-pdf-fill"></i> Export to PDF');
@@ -837,7 +854,8 @@ function renderUsageChart() {
   const startDateStr = document.getElementById('startDate').value;
   const endDateStr = document.getElementById('endDate').value;
   const costPerKwh = parseFloat(document.getElementById('costPerKwh').value);
-  if (!startDateStr || !endDateStr || isNaN(costPerKwh)) {
+  const tiersOk = isUsingTieredRates() && validateTierInputs(false);
+  if (!startDateStr || !endDateStr || (!tiersOk && isNaN(costPerKwh))) {
     if (usageChart) { usageChart.destroy(); usageChart = null; }
     chartBox.classList.remove('show');
     return;
@@ -855,17 +873,13 @@ function renderUsageChart() {
   let labels = [];
   let kwhData = [];
   let costData = [];
-  const dailyKwhInputs = document.querySelectorAll('.dailyKwh');
-  let kwhMap = {};
-  dailyKwhInputs.forEach(input => {
-    kwhMap[input.getAttribute('data-date')] = parseFloat(input.value || 0);
-  });
+  const tierResult = computeTieredDailyCostsMap(costPerKwh, startDate, endDate);
   for (let d = new Date(startDate); d <= endDate; d.setDate(d.getDate() + 1)) {
     const dateStr = ymd(d);
     labels.push(dateStr);
-    const kwh = kwhMap[dateStr] || 0;
+    const kwh = tierResult.kwhMap[dateStr] || 0;
     kwhData.push(kwh);
-    costData.push(kwh * costPerKwh);
+    costData.push((tierResult.dailyCostMap[dateStr] || 0));
   }
   if (usageChart) usageChart.destroy();
   chartBox.classList.add('show');
@@ -916,7 +930,7 @@ function renderUsageChart() {
               return '';
             }
           }
-        }
+        } 
       },
       scales: {
         x: { 
@@ -987,8 +1001,8 @@ function checkAndGenerateFields() {
   }
   
   // All validations passed, automatically generate the fields
-  generateKwhFields();
-}
+    generateKwhFields();
+  }
 
 // Initialize Bootstrap tooltips
 function initializeTooltips() {
@@ -1141,7 +1155,7 @@ function generateEmailSubject(type, rating) {
 
 function generateEmailBody(type, message, userInfo, rating) {
   const timestamp = new Date().toLocaleString();
-  const appVersion = '1.9.0'; // Current app version
+  const appVersion = '1.10.0'; // Current app version
   
   let body = `Hi Caleb,\n\n`;
   
@@ -1261,7 +1275,8 @@ function updateSummary() {
   });
   
   // Calculate metrics
-  const totalCost = totalKwh * costPerKwh;
+  const tierTotals = computeTieredTotalsOverPeriod(costPerKwh);
+  const totalCost = tierTotals.totalCost;
   const avgDaily = daysWithData > 0 ? totalKwh / daysWithData : 0;
   const completeness = totalDays > 0 ? Math.round((daysWithData / totalDays) * 100) : 0;
   
@@ -1300,4 +1315,134 @@ function updateSummary() {
     summaryBox.classList.add('show');
   }
 }
+
+// --- Tiered Rates Helpers ---
+function isUsingTieredRates() {
+  return !!document.getElementById('useTieredRates')?.checked;
+}
+
+function getTierSettings(baseRate) {
+  const useTiers = isUsingTieredRates();
+  if (!useTiers) {
+    return { useTiers: false, tier1Limit: 0, tier1Rate: baseRate, tier2Rate: baseRate };
+  }
+  const tier1Limit = parseFloat(document.getElementById('tier1Limit')?.value || '0') || 0;
+  const tier1Rate = parseFloat(document.getElementById('tier1Rate')?.value || `${baseRate}`);
+  const tier2RateInput = document.getElementById('tier2Rate')?.value;
+  const tier2Rate = tier2RateInput === '' ? baseRate : (parseFloat(tier2RateInput) || baseRate);
+  // Validate; if invalid, gracefully fall back to base rate
+  const valid = validateTierInputs(false);
+  if (!valid) {
+    return { useTiers: false, tier1Limit: 0, tier1Rate: baseRate, tier2Rate: baseRate };
+  }
+  return { useTiers: true, tier1Limit, tier1Rate, tier2Rate };
+}
+
+function computeTieredDailyCostsMap(baseRate, startDate, endDate) {
+  // Build kWh map from inputs
+  const dailyKwhInputs = document.querySelectorAll('.dailyKwh');
+  const kwhMap = {};
+  dailyKwhInputs.forEach(input => {
+    kwhMap[input.getAttribute('data-date')] = parseFloat(input.value || 0) || 0;
+  });
+
+  const settings = getTierSettings(baseRate);
+  const dailyCostMap = {};
+  let cumulative = 0;
+  let totalKwh = 0;
+  for (let d = new Date(startDate); d <= endDate; d.setDate(d.getDate() + 1)) {
+    const dateStr = ymd(d);
+    const kwh = kwhMap[dateStr] || 0;
+    totalKwh += kwh;
+    if (!settings.useTiers) {
+      dailyCostMap[dateStr] = kwh * baseRate;
+      continue;
+    }
+    // Tiered: first tier across the whole period cumulatively
+    let remainingTier1 = Math.max(0, settings.tier1Limit - cumulative);
+    const tier1KwhToday = Math.min(remainingTier1, kwh);
+    const tier2KwhToday = kwh - tier1KwhToday;
+    const cost = tier1KwhToday * settings.tier1Rate + tier2KwhToday * settings.tier2Rate;
+    dailyCostMap[dateStr] = cost;
+    cumulative += kwh;
+  }
+  return { dailyCostMap, kwhMap, totalKwh };
+}
+
+function computeTieredTotalsOverPeriod(baseRate) {
+  const startDateStr = document.getElementById('startDate').value;
+  const endDateStr = document.getElementById('endDate').value;
+  if (!startDateStr || !endDateStr) return { totalKwh: 0, totalCost: 0 };
+  const startParts = startDateStr.split('-');
+  const endParts = endDateStr.split('-');
+  const startDate = new Date(parseInt(startParts[0]), parseInt(startParts[1]) - 1, parseInt(startParts[2]));
+  const endDate = new Date(parseInt(endParts[0]), parseInt(endParts[1]) - 1, parseInt(endParts[2]));
+  const result = computeTieredDailyCostsMap(baseRate, startDate, endDate);
+  let totalCost = 0;
+  for (let d = new Date(startDate); d <= endDate; d.setDate(d.getDate() + 1)) {
+    totalCost += result.dailyCostMap[ymd(d)] || 0;
+  }
+  return { totalKwh: result.totalKwh, totalCost };
+}
+
+function updateTierInputsState() {
+  const enabled = isUsingTieredRates();
+  ['tier1Limit','tier1Rate','tier2Rate'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.disabled = !enabled;
+  });
+  // Validate when toggled
+  validateTierInputs(true);
+}
+
+// Validate tier inputs; when showAlerts is true, mark invalid fields and optionally alert once
+function validateTierInputs(showAlerts = false) {
+  const useTiers = isUsingTieredRates();
+  const limitEl = document.getElementById('tier1Limit');
+  const rate1El = document.getElementById('tier1Rate');
+  const rate2El = document.getElementById('tier2Rate');
+  if (!useTiers || !limitEl || !rate1El || !rate2El) return true;
+  const errors = [];
+  const limitVal = parseFloat(limitEl.value);
+  const rate1Val = parseFloat(rate1El.value);
+  const rate2Val = rate2El.value === '' ? null : parseFloat(rate2El.value);
+  
+  // Reset states
+  [limitEl, rate1El, rate2El].forEach(el => el.classList.remove('is-invalid'));
+  
+  let valid = true;
+  if (isNaN(limitVal) || limitVal < 0) {
+    valid = false;
+    limitEl.classList.add('is-invalid');
+    errors.push('Tier 1 Limit must be a non-negative number.');
+  }
+  if (isNaN(rate1Val) || rate1Val < 0) {
+    valid = false;
+    rate1El.classList.add('is-invalid');
+    errors.push('Tier 1 Rate must be a non-negative number.');
+  }
+  if (rate2Val !== null && (isNaN(rate2Val) || rate2Val < 0)) {
+    valid = false;
+    rate2El.classList.add('is-invalid');
+    errors.push('Tier 2 Rate must be a non-negative number.');
+  }
+  if (!valid && showAlerts && errors.length) {
+    alert('Please fix tiered rate settings:\n- ' + errors.join('\n- '));
+  }
+  return valid;
+}
+
+// Hook validation on tier inputs
+['tier1Limit','tier1Rate','tier2Rate','useTieredRates'].forEach(id => {
+  window.addEventListener('DOMContentLoaded', () => {
+    const el = document.getElementById(id);
+    if (!el) return;
+    el.addEventListener('input', () => {
+      validateTierInputs(false);
+    });
+    el.addEventListener('change', () => {
+      validateTierInputs(false);
+    });
+  });
+});
 

@@ -52,7 +52,32 @@
 
     <div class="billing-box mb-3">
       <label><i class="bi bi-lightning-charge-fill"></i> Cost per kWh ($):</label>
-      <input type="number" id="costPerKwh" step="0.01" class="form-control" aria-label="Cost per kWh" oninput="saveData()" data-bs-toggle="tooltip" data-bs-placement="top" title="Find this rate on your utility bill (e.g., $0.17 per kWh). Look for 'Energy Charge' or 'Usage Rate'.">
+      <input type="number" id="costPerKwh" step="0.01" class="form-control" aria-label="Cost per kWh" oninput="saveData(); renderUsageChart(); updateSummary();" data-bs-toggle="tooltip" data-bs-placement="top" title="Find this rate on your utility bill (e.g., $0.17 per kWh). Look for 'Energy Charge' or 'Usage Rate'.">
+    </div>
+
+    <!-- Tiered Rates (Optional) -->
+    <div class="billing-box mb-3">
+      <div class="form-check form-switch mb-2">
+        <input class="form-check-input" type="checkbox" id="useTieredRates" onchange="saveData(); renderUsageChart(); updateSummary(); updateTierInputsState();" aria-label="Use tiered rates">
+        <label class="form-check-label" for="useTieredRates" data-bs-toggle="tooltip" data-bs-placement="top" title="Enable if your utility charges a special rate for the first block of kWh (e.g., first 1000 kWh)"><i class="bi bi-sliders"></i> Use tiered rates</label>
+      </div>
+      <div class="row g-2">
+        <div class="col-6">
+          <label for="tier1Limit" class="form-label">Tier 1 Limit (kWh)</label>
+          <input type="number" min="0" step="1" class="form-control" id="tier1Limit" placeholder="e.g., 1000" oninput="saveData(); renderUsageChart(); updateSummary();" disabled>
+        </div>
+        <div class="col-6">
+          <label for="tier1Rate" class="form-label">Tier 1 Rate ($/kWh)</label>
+          <input type="number" min="0" step="0.0001" class="form-control" id="tier1Rate" placeholder="e.g., 0.12" oninput="saveData(); renderUsageChart(); updateSummary();" disabled>
+        </div>
+      </div>
+      <div class="row g-2 mt-2">
+        <div class="col-12">
+          <label for="tier2Rate" class="form-label">Tier 2 Rate ($/kWh, optional)</label>
+          <input type="number" min="0" step="0.0001" class="form-control" id="tier2Rate" placeholder="Leave blank to use base Cost per kWh" oninput="saveData(); renderUsageChart(); updateSummary();" disabled>
+        </div>
+      </div>
+      <small class="text-muted d-block mt-2">Example: First 1000 kWh at $0.12, then remaining at base rate (or custom Tier 2 rate if provided).</small>
     </div>
 
     <div class="billing-box mb-3">
@@ -206,7 +231,7 @@
     <div class="credit mt-2">
       <small style="color: var(--text-color); opacity: 0.8;">Data Privacy: All data is stored locally in your browser and never uploaded to any server.</small>
     </div>
-    <div class="credit mt-2">Version 1.9.0</div>
+    <div class="credit mt-2">Version 1.10.0</div>
     <div class="disclaimer mt-3 text-center">
       <small style="color: var(--text-color); opacity: 0.8;">
         <strong>Disclaimer:</strong> The accuracy of calculations and reimbursements depends on the data provided. Please ensure all input values, including kWh usage and cost per kWh, are accurate and verified. Siemens is not responsible for any discrepancies resulting from incorrect data entry.
@@ -492,6 +517,12 @@ Date,kWh Usage
           <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
         </div>
         <div class="modal-body">
+          <h6>Version 1.10.0 - December 21, 2024</h6>
+          <ul>
+            <li><strong>Tiered Rates (Basic):</strong> Added optional tiered billing support where the first N kWh in a billing period are charged at Tier 1 rate, and remaining kWh at Tier 2 or base rate. Includes validation, persistence per profile, and integration with chart/summary/exports.</li>
+            <li><strong>Validation & Fallbacks:</strong> Tier fields validate on the fly; if invalid, calculations safely fall back to base rate. When tiers are enabled and valid, base Cost per kWh can be blank.</li>
+            <li><strong>Dark Mode Polish:</strong> Improved modal and input readability in dark mode, including disabled inputs in tier settings.</li>
+          </ul>
           <h6>Version 1.9.0 - December 20, 2024</h6>
           <ul>
             <li><strong>Dashboard Summary View:</strong> Added comprehensive summary card above the chart showing Total kWh, Total Cost, Average Daily Usage, and data completeness percentage with color-coded progress bar</li>
