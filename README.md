@@ -42,6 +42,10 @@ A web-based application designed to help Siemens employees calculate and manage 
 - EV policy information
 - Contact support
 - Comprehensive help documentation
+- Dashboard summary view (Total kWh, Total Cost, Avg Daily, Data Completeness)
+- In-app Feedback & Support form with 1–5 star rating and mailto generation
+- Contextual tooltips across key inputs and actions
+- Polished loading states with Bootstrap spinners for async actions (CSV import, calculations, exports)
 
 ## 🚀 Getting Started
 
@@ -153,6 +157,17 @@ Requirements:
 
 ## 📝 Version History
 
+### Version 1.9.0
+- **Dashboard Summary View**: Added summary card above the chart showing Total kWh, Total Cost, Average Daily Usage, and data completeness with a color-coded progress bar. Updates in real time.
+- **Feedback & Support Form**: Replaced static email with an in-app feedback form, including a 1–5 star rating, feedback categories, and pre-filled mailto generation to `caleb.ohara@siemens.com`.
+- **Loading Animations**: Introduced Bootstrap spinners for async actions (CSV import, calculations, Excel/PDF exports) with descriptive loading text and disabled states to prevent duplicate actions.
+- **Contextual Tooltips**: Added helpful tooltips to date inputs, cost per kWh, CSV upload, chart legends, and primary actions.
+- **Automatic Field Generation**: Auto-generates daily kWh fields when both dates are selected and valid.
+- **Smooth UI Animations**: Fade-in transitions for the fields box and staggered animations for daily fields.
+- **Date Parsing Fix**: Resolved timezone-related offset that caused dates to appear a day early.
+- **Dark Mode Contrast**: Fixed text color in Feedback & Support modal and ensured good contrast across new components.
+- **Accessibility**: ARIA-friendly controls, keyboard-accessible star rating, and improved screen reader support.
+
 ### Version 1.8.0
 - **Icon Fix & Accessibility**: Fixed car icon typo and added proper ARIA attributes for screen reader support
 - **Reset Function Enhancement**: Unified key lists and improved form reset functionality with complete data clearing
@@ -224,4 +239,4 @@ This project is proprietary and confidential. All rights reserved.
 
 ---
 
-*Last updated: December 19, 2024*
+*Last updated: December 20, 2024*
