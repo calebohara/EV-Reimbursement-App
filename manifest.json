@@ -1,0 +1,17 @@
+{
+  "name": "EV kWh Reimbursement App",
+  "short_name": "EV Reimburse",
+  "description": "Calculate and manage EV charging reimbursements for Siemens employees",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#009999",
+  "icons": [
+    {
+      "src": "icons/icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}

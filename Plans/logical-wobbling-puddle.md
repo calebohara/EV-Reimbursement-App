@@ -1,160 +1,310 @@
-# EV Reimbursement App — Modular Redevelopment Plan
+# EV Reimbursement App v2.1 — Five New Features
 
 ## Context
 
-The EV kWh Reimbursement App is currently a single-page app with 3 files: `index.html` (606 lines), `script.js` (1448 lines), and `styles.css` (594 lines). While fully functional, the codebase has accumulated technical debt:
+The v2.0 modular redevelopment is complete with 13 ES modules. The user wants 5 new features that reduce monthly reimbursement friction:
 
-- **Monkey-patching**: `saveData`, `loadData`, and `generateKwhFields` are overwritten after definition to add profile scoping
-- **Date parsing duplication**: The same YYYY-MM-DD split-and-construct pattern appears 12+ times
-- **No modularity**: All 1448 lines of JS live in global scope in one file
-- **Mixed initialization**: Both `window.onload` and multiple `DOMContentLoaded` listeners
-- **Undefined reference**: `renderSummaryTable` called on line 729 but never defined
+1. **Multi-Month History** — Store past billing periods, browse and restore them
+2. **Saved Rate Presets** — Save utility rate structures for one-click reuse
+3. **Reimbursement Receipt Generator** — One-page PDF formatted for E2E Travel@Siemens
+4. **Month-over-Month Comparison** — Trend chart across archived periods
+5. **PWA** — Installable, offline-capable progressive web app
 
-The goal is to redevelop with clean ES module architecture while preserving every existing feature and maintaining zero-build-tool simplicity.
+## Current Storage Model (must evolve)
 
-## Architecture
+Each profile stores a flat set of keys: `Default__startDate`, `Default__endDate`, `Default__costPerKwh`, `Default__dailyKwhData`, etc. There is exactly ONE billing period per profile — no history.
+
+`computeTieredDailyCostsMap()` in `billing.js` is DOM-coupled (reads `.dailyKwh` inputs directly). For history records not in the DOM, we need a data-driven variant.
+
+---
+
+## Feature 1: Multi-Month History
+
+### Storage Changes (`js/storage.js`)
+
+Add new functions and a new per-profile key:
 
 ```
-index.html                 (semantic HTML, <script type="module">)
-css/
-  variables.css            (CSS custom properties, theme tokens)
-  base.css                 (reset, typography, layout)
-  components.css           (cards, modals, buttons, forms)
-  animations.css           (keyframes, transitions)
-  responsive.css           (media queries)
-js/
-  app.js                   (entry point — init, event wiring)
-  utils/dates.js           (parseLocalDate, ymd, dateRange)
-  storage.js               (profile-scoped localStorage wrapper)
-  profiles.js              (profile CRUD, dropdown UI)
-  billing.js               (tiered rate logic, cost calculations)
-  fields.js                (kWh field generation, validation, loading states)
-  csv.js                   (CSV template generation, import with validation)
-  chart.js                 (Chart.js wrapper, dark mode theming)
-  summary.js               (dashboard summary card updates)
-  exports/excel.js         (SheetJS Excel export)
-  exports/pdf.js           (jsPDF PDF export)
-  feedback.js              (star rating, form, mailto generation)
-  ui.js                    (tooltips, dark mode toggle, button loading helpers)
+ProfileName__history = JSON array of period snapshots
 ```
 
-## Key Refactoring Decisions
-
-### 1. ES Modules (`<script type="module">`)
-- Each file exports specific functions
-- `app.js` is the single entry point that imports and wires everything
-- No build step required — browsers natively support ES modules
-- **Note**: Must serve via HTTP (not `file://`) for modules. GitHub Pages works fine. For local dev, `npx serve .` or Python's `http.server`
-
-### 2. Centralized Date Parsing
-Extract `parseLocalDate(dateStr)` into `utils/dates.js` to eliminate the 12 duplicated `split('-')` → `new Date(...)` patterns. Also export `ymd(date)`, `dateRange(start, end)`, and `isValidDateRange(start, end)`.
-
-### 3. Profile-Scoped Storage
-Replace monkey-patching with a clean `Storage` module that natively supports profile scoping:
+Each snapshot:
 ```js
-// storage.js exports
-getItem(key)         // auto-scoped to current profile
-setItem(key, value)  // auto-scoped to current profile
-getCurrentProfile()
-setCurrentProfile(name)
-getProfiles() / setProfiles(list)
-saveAllFormData()    // reads DOM, writes to storage
-loadAllFormData()    // reads storage, writes to DOM
+{
+  id: crypto.randomUUID(),
+  label: "Feb 2026",
+  savedAt: new Date().toISOString(),
+  startDate, endDate, costPerKwh,
+  useTieredRates, tier1Limit, tier1Rate, tier2Rate,
+  dailyKwhData: { "2026-02-01": 15.5, ... },
+  totalKwh, totalCost
+}
 ```
 
-### 4. Clean Event Architecture
-- Single `DOMContentLoaded` listener in `app.js` that calls init functions from each module
-- No monkey-patching — each module owns its logic from the start
-- Event delegation where appropriate (kWh input changes)
+New API:
+- `getHistory()` — returns parsed array for current profile
+- `saveToHistory(snapshot)` — push to array
+- `deleteFromHistory(id)` — filter by id
+- `loadFromHistory(id)` — return single snapshot
+- Update `deleteProfileData()` to also remove `__history`
+- Update `FORM_KEYS`-adjacent constant to include `'history'`
 
-### 5. CSS Organization
-Split `styles.css` into logical files using `@import` in a main stylesheet. CSS custom properties already exist but will be expanded for better theming.
+### Billing Changes (`js/billing.js`)
 
-### 6. localStorage Backward Compatibility
-The new storage module will read both old-format keys (`startDate`, `dailyKwhData`) and new profile-scoped keys (`Default__startDate`) to prevent data loss for existing users.
+Add data-driven variant:
+```js
+export function computeCostsFromData(kwhMap, tierSettings, startDate, endDate)
+```
+Same logic as `computeTieredDailyCostsMap` but takes a plain kwhMap object instead of reading the DOM. The existing function can call this internally.
 
-## Feature Preservation Checklist
+### New Module (`js/history.js`)
 
-Every feature below MUST work identically in the redeveloped version:
+- `archiveCurrentPeriod()` — snapshot current form + computed totals → `saveToHistory()`
+- `renderHistoryList()` — show archived periods in a collapsible panel with date range, total cost, and actions (view, restore, delete)
+- `restorePeriod(id)` — load snapshot into form fields, regenerate kWh fields
+- `deletePeriod(id)` — confirm + remove from storage
+- Callback: `setOnHistoryChange(fn)` for UI updates
 
-- [ ] Profile management (add, delete, switch, Default protected)
-- [ ] Billing period date selection with auto field generation
-- [ ] Manual kWh entry with per-day fields
-- [ ] CSV template download with billing period dates
-- [ ] CSV import with validation (date range, format, error highlighting)
-- [ ] Cost per kWh input
-- [ ] Tiered rate billing (tier 1 limit, tier 1 rate, tier 2 rate, cumulative calculation)
-- [ ] Dual-axis Chart.js visualization (kWh + cost)
-- [ ] Dashboard summary (total kWh, total cost, avg daily, completeness %)
-- [ ] Calculate Reimbursement button with result display
-- [ ] Excel export with daily breakdown and totals
-- [ ] PDF export with professional formatting
-- [ ] Dark mode toggle with full component coverage
-- [ ] Feedback form (star rating, type, message, mailto generation)
-- [ ] Site help modal with comprehensive instructions
-- [ ] EV Policy modal with Siemens policy text
-- [ ] Changelog modal with version history
-- [ ] Travel@Siemens external link
-- [ ] Input validation (negative/high kWh warnings)
-- [ ] Loading spinners on all async operations
-- [ ] Tooltips on all interactive elements
-- [ ] ARIA labels and keyboard navigation
-- [ ] Mobile responsive layout (< 600px)
-- [ ] Smooth animations (field fade-in, result highlight, summary fade)
-- [ ] Progressive auto-save on all input changes
-- [ ] Reset function that clears all data
+### UI Changes (`index.html`)
+
+Add a "History" section below the billing period box:
+```html
+<div class="billing-box mb-3" id="historyBox">
+  <div class="d-flex justify-content-between align-items-center mb-2">
+    <h6><i class="bi bi-clock-history"></i> Billing History</h6>
+    <button data-action="archive-period" class="btn btn-sm btn-outline-success">
+      <i class="bi bi-archive"></i> Archive Current Period
+    </button>
+  </div>
+  <div id="historyList"><!-- rendered by history.js --></div>
+</div>
+```
+
+### App Wiring (`js/app.js`)
+
+- Import history module
+- Wire `archive-period` data-action
+- Call `renderHistoryList()` on init and profile change
+
+---
+
+## Feature 2: Saved Rate Presets
+
+### Storage (`js/storage.js`)
+
+Global (not profile-scoped) key:
+```
+ratePresets = JSON array of preset objects
+```
+
+Each preset:
+```js
+{
+  id: crypto.randomUUID(),
+  name: "PG&E E-TOU-D",
+  costPerKwh: 0.17,
+  useTieredRates: true,
+  tier1Limit: 1000,
+  tier1Rate: 0.12,
+  tier2Rate: 0.25
+}
+```
+
+New API:
+- `getRatePresets()` / `setRatePresets(arr)`
+- `saveRatePreset(preset)` / `deleteRatePreset(id)`
+
+### UI Changes (`index.html`)
+
+Add a preset selector inside the Cost per kWh billing box:
+```html
+<div class="d-flex gap-2 mb-2">
+  <select id="ratePresetSelect" class="form-select form-select-sm">
+    <option value="">Custom Rate</option>
+    <!-- populated by js -->
+  </select>
+  <button data-action="save-rate-preset" class="btn btn-sm btn-outline-primary">
+    <i class="bi bi-bookmark-plus"></i> Save
+  </button>
+  <button data-action="delete-rate-preset" class="btn btn-sm btn-outline-danger">
+    <i class="bi bi-trash"></i>
+  </button>
+</div>
+```
+
+### New Module (`js/presets.js`)
+
+- `initPresets()` — populate dropdown from storage
+- `applyPreset(id)` — fill costPerKwh, tier fields, and checkbox from preset
+- `saveCurrentAsPreset()` — prompt for name, snapshot current rate config
+- `deleteSelectedPreset()` — remove from storage, refresh dropdown
+
+---
+
+## Feature 3: Reimbursement Receipt Generator
+
+### New Module (`js/exports/receipt.js`)
+
+A specialized PDF export formatted as an expense receipt:
+
+```
+┌─────────────────────────────────────────────┐
+│  SIEMENS                                     │
+│  EV Charging Reimbursement Receipt           │
+│                                              │
+│  Employee: [from userInfo or profile name]   │
+│  Date Issued: [today]                        │
+│  Receipt #: EV-[YYYYMMDD]-[random4]          │
+│                                              │
+│  Billing Period: Jan 01 - Jan 31, 2026       │
+│  Rate: $0.17/kWh (or Tiered)                │
+│                                              │
+│  ┌──────────┬─────────┬──────────┐          │
+│  │ Date     │ kWh     │ Cost     │          │
+│  ├──────────┼─────────┼──────────┤          │
+│  │ 01/01    │ 15.50   │ $2.64    │          │
+│  │ 01/02    │ 12.30   │ $2.09    │          │
+│  │ ...      │         │          │          │
+│  ├──────────┼─────────┼──────────┤          │
+│  │ TOTAL    │ 465.00  │ $79.05   │          │
+│  └──────────┴─────────┴──────────┘          │
+│                                              │
+│  Submit via: E2E Travel@Siemens              │
+│  Expense Category: Fuel                      │
+│                                              │
+│  Signature: _______________  Date: ________  │
+│                                              │
+│  Generated by EV kWh Reimbursement App v2.1  │
+└─────────────────────────────────────────────┘
+```
+
+Uses jsPDF directly (already loaded via CDN). Can accept either DOM data (current period) or a history snapshot object via `computeCostsFromData()`.
+
+### App Wiring
+
+- Add `data-action="export-receipt"` button in the action buttons section
+- Wire in `app.js` switch case
+
+---
+
+## Feature 4: Month-over-Month Comparison
+
+### New Module (`js/trend.js`)
+
+- `renderTrendChart()` — reads history array, plots bar/line chart showing:
+  - X-axis: period labels ("Jan 2026", "Feb 2026", ...)
+  - Y-axis left: total kWh per period
+  - Y-axis right: total cost per period
+  - Optional: average daily kWh line
+- Uses Chart.js (already loaded)
+- Only shows when 2+ history records exist
+
+### UI Changes (`index.html`)
+
+Add a trend section below the existing chart:
+```html
+<div class="billing-box mb-3" id="trendBox">
+  <h6><i class="bi bi-graph-up-arrow"></i> Month-over-Month Trends</h6>
+  <canvas id="trendChart" height="120"></canvas>
+  <div id="trendInsight" class="text-muted small mt-2"></div>
+</div>
+```
+
+The `trendInsight` div shows text like: "Feb usage was 12% higher than Jan. Average monthly cost: $67.42"
+
+---
+
+## Feature 5: PWA (Progressive Web App)
+
+### Files to Create
+
+**`manifest.json`** (project root):
+```json
+{
+  "name": "EV kWh Reimbursement App",
+  "short_name": "EV Reimburse",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#009999",
+  "icons": [
+    { "src": "icons/icon-192.png", "sizes": "192x192", "type": "image/png" },
+    { "src": "icons/icon-512.png", "sizes": "512x512", "type": "image/png" }
+  ]
+}
+```
+
+**`sw.js`** (service worker, project root):
+- Cache-first strategy for app shell (HTML, CSS, JS files)
+- Network-first for CDN libraries (Bootstrap, Chart.js, etc.)
+- Versioned cache name for easy updates
+- Activate event cleans up old caches
+
+**`icons/`** directory:
+- Generate from existing `ev_favicon.png` at 192x192 and 512x512
+
+### HTML Changes (`index.html`)
+
+Add to `<head>`:
+```html
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#009999">
+<meta name="apple-mobile-web-app-capable" content="yes">
+```
+
+Add registration script at end of body (before module script):
+```html
+<script>
+  if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.register('sw.js');
+  }
+</script>
+```
+
+---
 
 ## Implementation Order
 
-1. **Create directory structure** — `js/`, `css/`, `js/utils/`, `js/exports/`
-2. **Extract `utils/dates.js`** — Central date utilities
-3. **Extract `storage.js`** — Profile-scoped localStorage with backward compat
-4. **Extract `ui.js`** — Button loading helpers, dark mode toggle, tooltips
-5. **Extract `billing.js`** — Tiered rate logic, cost computation
-6. **Extract `fields.js`** — kWh field generation, validation, loading states
-7. **Extract `csv.js`** — Template generation, CSV import
-8. **Extract `chart.js`** — Chart.js rendering with dark mode support
-9. **Extract `summary.js`** — Dashboard summary updates
-10. **Extract `exports/excel.js`** and **`exports/pdf.js`** — Export functions
-11. **Extract `profiles.js`** — Profile UI management
-12. **Extract `feedback.js`** — Feedback form and star rating
-13. **Create `app.js`** — Single entry point that imports and initializes all modules
-14. **Split CSS** — Break `styles.css` into organized partials
-15. **Rewrite `index.html`** — Clean semantic HTML with module script tag
-16. **Test all features** — Verify against feature checklist
+1. **Storage evolution** — Add history, presets, and data-driven billing APIs
+2. **History module** — Archive, list, restore, delete periods
+3. **Rate presets module** — Save/load/apply rate configurations
+4. **Receipt generator** — Specialized PDF receipt export
+5. **Trend chart** — Month-over-month comparison visualization
+6. **PWA** — manifest.json, service worker, icons
+7. **HTML updates** — All new UI sections and buttons
+8. **App.js wiring** — Import new modules, wire data-actions
+9. **CSS additions** — History list, trend box, preset selector styling
+10. **Version bump** to 2.1.0, changelog entry
 
-## Critical Files Modified
+## Files Modified
 
-| File | Action | Purpose |
-|------|--------|---------|
-| `index.html` | Rewrite | Clean HTML, `<script type="module">` |
-| `script.js` | Delete | Replaced by `js/` modules |
-| `styles.css` | Delete | Replaced by `css/` partials |
-| `js/app.js` | Create | Entry point |
-| `js/utils/dates.js` | Create | Date utilities |
-| `js/storage.js` | Create | localStorage wrapper |
-| `js/profiles.js` | Create | Profile management |
-| `js/billing.js` | Create | Tiered rates, calculations |
-| `js/fields.js` | Create | kWh field generation |
-| `js/csv.js` | Create | CSV import/export |
-| `js/chart.js` | Create | Chart rendering |
-| `js/summary.js` | Create | Dashboard summary |
-| `js/exports/excel.js` | Create | Excel export |
-| `js/exports/pdf.js` | Create | PDF export |
-| `js/feedback.js` | Create | Feedback form |
-| `js/ui.js` | Create | UI helpers |
-| `css/variables.css` | Create | CSS custom properties |
-| `css/base.css` | Create | Base styles |
-| `css/components.css` | Create | Component styles |
-| `css/animations.css` | Create | Keyframes |
-| `css/responsive.css` | Create | Media queries |
+| File | Changes |
+|------|---------|
+| `js/storage.js` | Add history + presets APIs |
+| `js/billing.js` | Add `computeCostsFromData()` data-driven variant |
+| `js/app.js` | Import new modules, wire actions, init calls |
+| `index.html` | History section, preset selector, receipt button, trend section, PWA meta |
+| `css/components.css` | History list, trend box, preset selector styles |
+| `README.md` | Document new features |
+
+## Files Created
+
+| File | Purpose |
+|------|---------|
+| `js/history.js` | Billing period archive management |
+| `js/presets.js` | Rate preset CRUD and UI |
+| `js/exports/receipt.js` | Reimbursement receipt PDF |
+| `js/trend.js` | Month-over-month comparison chart |
+| `manifest.json` | PWA manifest |
+| `sw.js` | Service worker for offline support |
+| `icons/icon-192.png` | PWA icon 192x192 |
+| `icons/icon-512.png` | PWA icon 512x512 |
 
 ## Verification
 
-1. **Local server**: `npx serve .` or `python3 -m http.server` (ES modules need HTTP)
-2. **Feature testing**: Walk through every item on the Feature Preservation Checklist
-3. **Profile data migration**: Create data in old format, verify it loads in new version
-4. **Dark mode**: Toggle and verify all modals, chart, inputs, summary
-5. **Mobile**: Resize to < 600px, verify layout
-6. **Exports**: Test CSV template, CSV import, Excel export, PDF export with sample data
-7. **Browser console**: Verify no errors or warnings
+1. **History**: Archive a period → verify it appears in history list → restore it → verify form populated → delete it
+2. **Presets**: Save a rate config → switch profiles → apply preset → verify fields filled
+3. **Receipt**: Generate receipt PDF → verify it has Siemens header, line items, total, signature line
+4. **Trends**: Archive 2+ periods → verify trend chart shows comparison → verify insight text
+5. **PWA**: Load page → check "Install" prompt in browser → toggle airplane mode → verify app loads offline
+6. **No regressions**: All existing features (calculate, export Excel/PDF, dark mode, CSV, profiles) still work

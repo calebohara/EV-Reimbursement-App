@@ -6,7 +6,10 @@
   <title>EV kWh Reimbursement App</title>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
-  <link rel="icon" type="image/png" href="ev_favicon.png">
+  <link rel="icon" type="image/svg+xml" href="icons/icon.svg">
+  <link rel="manifest" href="manifest.json">
+  <meta name="theme-color" content="#009999">
+  <meta name="apple-mobile-web-app-capable" content="yes">
   <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <link rel="stylesheet" href="css/variables.css">
@@ -59,6 +62,17 @@
 
     <!-- Cost per kWh -->
     <div class="billing-box mb-3">
+      <div class="d-flex gap-2 mb-2 align-items-center">
+        <select id="ratePresetSelect" class="form-select form-select-sm" aria-label="Rate Preset" data-bs-toggle="tooltip" data-bs-placement="top" title="Select a saved rate preset or use custom rate">
+          <option value="">Custom Rate</option>
+        </select>
+        <button data-action="save-rate-preset" class="btn btn-sm btn-outline-primary" title="Save current rate as preset" aria-label="Save Rate Preset">
+          <i class="bi bi-bookmark-plus"></i>
+        </button>
+        <button data-action="delete-rate-preset" class="btn btn-sm btn-outline-danger" title="Delete selected preset" aria-label="Delete Rate Preset">
+          <i class="bi bi-trash"></i>
+        </button>
+      </div>
       <label><i class="bi bi-lightning-charge-fill"></i> Cost per kWh ($):</label>
       <input type="number" id="costPerKwh" step="0.01" class="form-control" aria-label="Cost per kWh" data-bs-toggle="tooltip" data-bs-placement="top" title="Find this rate on your utility bill (e.g., $0.17 per kWh). Look for 'Energy Charge' or 'Usage Rate'.">
     </div>
@@ -112,6 +126,17 @@
       <div id="kwhFields">
         <!-- Dynamically generated kWh fields will go here -->
       </div>
+    </div>
+
+    <!-- Billing History -->
+    <div class="billing-box mb-3" id="historyBox">
+      <div class="d-flex justify-content-between align-items-center mb-2">
+        <h6 class="mb-0"><i class="bi bi-clock-history"></i> Billing History</h6>
+        <button data-action="archive-period" class="btn btn-sm btn-outline-success" aria-label="Archive Current Period" data-bs-toggle="tooltip" data-bs-placement="left" title="Save your current billing period to history for future reference and comparison">
+          <i class="bi bi-archive"></i> Archive Current Period
+        </button>
+      </div>
+      <div id="historyList"><!-- rendered by history.js --></div>
     </div>
 
     <!-- Dashboard Summary Card -->
@@ -182,6 +207,13 @@
       <canvas id="usageChart" height="120" aria-label="kWh Usage and Cost Chart"></canvas>
     </div>
 
+    <!-- Month-over-Month Trends -->
+    <div class="billing-box mb-3" id="trendBox">
+      <h6 class="mb-2"><i class="bi bi-graph-up-arrow"></i> Month-over-Month Trends</h6>
+      <canvas id="trendChart" height="120" aria-label="Month-over-Month Trend Chart"></canvas>
+      <div id="trendInsight" class="text-muted small mt-2"></div>
+    </div>
+
     <!-- Action Buttons -->
     <div class="billing-box mb-3">
       <div class="row mb-3 d-flex justify-content-center button-row-spacing">
@@ -198,6 +230,14 @@
         </div>
         <div class="col-6 d-flex justify-content-center align-items-center">
           <button class="btn btn-danger w-100" data-action="export-pdf" aria-label="Export to PDF" data-bs-toggle="tooltip" data-bs-placement="top" title="Generate a professional PDF report for expense submission"><i class="bi bi-file-earmark-pdf-fill"></i> Export to PDF</button>
+        </div>
+      </div>
+      <div class="row mb-3 d-flex justify-content-center button-row-spacing">
+        <div class="col-6 d-flex justify-content-center align-items-center">
+          <button class="btn btn-success w-100" data-action="export-receipt" aria-label="Generate Receipt" data-bs-toggle="tooltip" data-bs-placement="top" title="Generate a Siemens-formatted reimbursement receipt for E2E Travel submission"><i class="bi bi-receipt"></i> Generate Receipt</button>
+        </div>
+        <div class="col-6 d-flex justify-content-center align-items-center">
+          <!-- Placeholder for symmetry or future button -->
         </div>
       </div>
       <div class="row mb-3 d-flex justify-content-center button-row-spacing">
@@ -227,7 +267,7 @@
     <div class="credit mt-2">
       <small style="color: var(--text-color); opacity: 0.8;">Data Privacy: All data is stored locally in your browser and never uploaded to any server.</small>
     </div>
-    <div class="credit mt-2">Version 2.0.0</div>
+    <div class="credit mt-2">Version 2.1.0</div>
     <div class="disclaimer mt-3 text-center">
       <small style="color: var(--text-color); opacity: 0.8;">
         <strong>Disclaimer:</strong> The accuracy of calculations and reimbursements depends on the data provided. Please ensure all input values, including kWh usage and cost per kWh, are accurate and verified. Siemens is not responsible for any discrepancies resulting from incorrect data entry.
@@ -506,6 +546,14 @@ Date,kWh Usage
           <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
         </div>
         <div class="modal-body">
+          <h6>Version 2.1.0 - February 28, 2026</h6>
+          <ul>
+            <li><strong>Multi-Month History:</strong> Archive billing periods and browse, restore, or delete past records. Track your reimbursement history over time.</li>
+            <li><strong>Saved Rate Presets:</strong> Save and reuse utility rate configurations (flat or tiered) with one-click preset selection.</li>
+            <li><strong>Reimbursement Receipt:</strong> Generate a professional Siemens-formatted PDF receipt with receipt number, line items, totals, and signature line for E2E Travel submission.</li>
+            <li><strong>Month-over-Month Trends:</strong> Compare archived billing periods with an interactive trend chart showing kWh usage, costs, and average daily consumption over time.</li>
+            <li><strong>Progressive Web App (PWA):</strong> Install the app to your device for offline access with service worker caching and app manifest.</li>
+          </ul>
           <h6>Version 2.0.0 - February 28, 2026</h6>
           <ul>
             <li><strong>Modular Architecture:</strong> Complete codebase refactor from monolithic single-file to ES module architecture with 13 focused modules across separate files.</li>
@@ -599,6 +647,13 @@ Date,kWh Usage
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.7.0/jspdf.plugin.autotable.min.js"></script>
+
+  <!-- Service Worker Registration -->
+  <script>
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.register('sw.js');
+    }
+  </script>
 
   <!-- App entry point (ES Module) -->
   <script type="module" src="js/app.js"></script>

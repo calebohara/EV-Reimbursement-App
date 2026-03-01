@@ -30,6 +30,23 @@ A web-based application designed to help Siemens employees calculate and manage 
 ### Export Options
 - **Excel**: Daily breakdown with effective rate and currency formatting via SheetJS
 - **PDF**: Professional report with billing period header and tiered rate notation via jsPDF
+- **Receipt**: Siemens-formatted reimbursement receipt with receipt number, line items, signature line
+
+### Billing History
+- Archive billing periods for future reference
+- Browse, restore, or delete past records
+- Month-over-month trend chart comparing archived periods (kWh, cost, avg daily)
+- Insight text showing usage changes and average monthly cost
+
+### Saved Rate Presets
+- Save utility rate configurations (flat or tiered) as named presets
+- One-click preset selection from dropdown
+- Global presets shared across profiles
+
+### Progressive Web App
+- Installable on desktop and mobile devices
+- Offline-capable with service worker caching
+- App manifest with standalone display mode
 
 ### Additional Features
 - Dark mode with full component coverage (inputs, modals, chart)
@@ -43,10 +60,13 @@ A web-based application designed to help Siemens employees calculate and manage 
 
 ## Architecture
 
-Version 2.0 uses ES modules with no build tools required:
+Version 2.1 uses ES modules with no build tools required:
 
 ```
 index.html                  Semantic HTML, <script type="module">
+manifest.json               PWA manifest
+sw.js                       Service worker for offline support
+icons/icon.svg              PWA app icon
 css/
   variables.css             CSS custom properties and theme tokens
   base.css                  Reset, typography, layout, modal theming
@@ -56,15 +76,19 @@ css/
 js/
   app.js                    Entry point — imports, init, event delegation
   utils/dates.js            parseLocalDate, ymd, forEachDay, dayCount
-  storage.js                Profile-scoped localStorage wrapper
+  storage.js                Profile-scoped localStorage + history + presets
   profiles.js               Profile CRUD and dropdown UI
   billing.js                Tiered rate logic and cost calculations
   fields.js                 kWh field generation and validation
   csv.js                    CSV template download and import
   chart.js                  Chart.js dual-axis visualization
   summary.js                Dashboard summary card updates
+  history.js                Billing period archive management
+  presets.js                Rate preset CRUD and UI
+  trend.js                  Month-over-month comparison chart
   exports/excel.js          SheetJS Excel export
   exports/pdf.js            jsPDF + autoTable PDF export
+  exports/receipt.js        Siemens-formatted receipt PDF
   feedback.js               Star rating form and mailto generation
   ui.js                     Dark mode, button loading, tooltips
 ```
@@ -160,6 +184,14 @@ Date,kWh Usage
 - **Callback pattern** for cross-module communication (chart/summary updates)
 
 ## Version History
+
+### Version 2.1.0 (February 28, 2026)
+- **Multi-Month History**: Archive billing periods, browse/restore/delete past records
+- **Saved Rate Presets**: Save and reuse utility rate configurations with one-click selection
+- **Reimbursement Receipt**: Siemens-formatted PDF receipt with receipt number, line items, signature line
+- **Month-over-Month Trends**: Interactive comparison chart across archived periods
+- **PWA**: Installable progressive web app with offline support via service worker
+- **Data-driven billing**: New `computeCostsFromData()` API for history and receipt generation
 
 ### Version 2.0.0 (February 28, 2026)
 - **Modular Architecture**: Complete refactor from monolithic single-file to 13 ES modules

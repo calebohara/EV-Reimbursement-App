@@ -121,6 +121,53 @@ export function deleteProfileData(profileName) {
   FORM_KEYS.forEach(key => {
     localStorage.removeItem(`${profileName}__${key}`);
   });
+  localStorage.removeItem(`${profileName}__history`);
+}
+
+// --- History (profile-scoped) ---
+
+export function getHistory() {
+  const raw = localStorage.getItem(profileKey('history'));
+  return raw ? JSON.parse(raw) : [];
+}
+
+export function saveToHistory(snapshot) {
+  const history = getHistory();
+  history.push(snapshot);
+  localStorage.setItem(profileKey('history'), JSON.stringify(history));
+}
+
+export function deleteFromHistory(id) {
+  const history = getHistory().filter(h => h.id !== id);
+  localStorage.setItem(profileKey('history'), JSON.stringify(history));
+}
+
+export function loadFromHistory(id) {
+  return getHistory().find(h => h.id === id) || null;
+}
+
+// --- Rate Presets (global, not profile-scoped) ---
+
+const PRESETS_KEY = 'ratePresets';
+
+export function getRatePresets() {
+  const raw = localStorage.getItem(PRESETS_KEY);
+  return raw ? JSON.parse(raw) : [];
+}
+
+export function setRatePresets(presets) {
+  localStorage.setItem(PRESETS_KEY, JSON.stringify(presets));
+}
+
+export function saveRatePreset(preset) {
+  const presets = getRatePresets();
+  presets.push(preset);
+  setRatePresets(presets);
+}
+
+export function deleteRatePreset(id) {
+  const presets = getRatePresets().filter(p => p.id !== id);
+  setRatePresets(presets);
 }
 
 // --- Dark mode (not profile-scoped) ---

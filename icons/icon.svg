@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <rect width="512" height="512" rx="64" fill="#009999"/>
+  <g transform="translate(256,240)" fill="white">
+    <!-- EV Car body -->
+    <path d="M-120,40 L-100,-20 L-60,-60 L60,-60 L100,-20 L120,40 Z" fill="white" opacity="0.95"/>
+    <!-- Windshield -->
+    <path d="M-55,-55 L-30,-15 L50,-15 L75,-55 Z" fill="#009999" opacity="0.6"/>
+    <!-- Wheels -->
+    <circle cx="-70" cy="50" r="22" fill="#333"/>
+    <circle cx="-70" cy="50" r="12" fill="#666"/>
+    <circle cx="70" cy="50" r="22" fill="#333"/>
+    <circle cx="70" cy="50" r="12" fill="#666"/>
+    <!-- Lightning bolt -->
+    <path d="M-10,-120 L10,-120 L5,-80 L20,-80 L-5,-40 L0,-75 L-15,-75 Z" fill="#FFD700" stroke="white" stroke-width="2"/>
+  </g>
+  <!-- kWh text -->
+  <text x="256" y="380" text-anchor="middle" font-family="Arial,sans-serif" font-size="48" font-weight="bold" fill="white" opacity="0.9">kWh</text>
+</svg>

@@ -74,17 +74,12 @@ export function updateTierInputsState() {
 }
 
 /**
- * Compute daily costs with cumulative tiered billing across the period.
+ * Compute daily costs from a plain kwhMap object (data-driven, no DOM access).
+ * Used by history, receipt, and trend modules.
+ * tierSettings: { useTiers, tier1Limit, tier1Rate, tier2Rate }
  * Returns { dailyCostMap, kwhMap, totalKwh }
  */
-export function computeTieredDailyCostsMap(baseRate, startDate, endDate) {
-  const dailyKwhInputs = document.querySelectorAll('.dailyKwh');
-  const kwhMap = {};
-  dailyKwhInputs.forEach(input => {
-    kwhMap[input.getAttribute('data-date')] = parseFloat(input.value || 0) || 0;
-  });
-
-  const settings = getTierSettings(baseRate);
+export function computeCostsFromData(kwhMap, tierSettings, baseRate, startDate, endDate) {
   const dailyCostMap = {};
   let cumulative = 0;
   let totalKwh = 0;
@@ -94,19 +89,34 @@ export function computeTieredDailyCostsMap(baseRate, startDate, endDate) {
     const kwh = kwhMap[dateStr] || 0;
     totalKwh += kwh;
 
-    if (!settings.useTiers) {
+    if (!tierSettings.useTiers) {
       dailyCostMap[dateStr] = kwh * baseRate;
       return;
     }
 
-    const remainingTier1 = Math.max(0, settings.tier1Limit - cumulative);
+    const remainingTier1 = Math.max(0, tierSettings.tier1Limit - cumulative);
     const tier1KwhToday = Math.min(remainingTier1, kwh);
     const tier2KwhToday = kwh - tier1KwhToday;
-    dailyCostMap[dateStr] = tier1KwhToday * settings.tier1Rate + tier2KwhToday * settings.tier2Rate;
+    dailyCostMap[dateStr] = tier1KwhToday * tierSettings.tier1Rate + tier2KwhToday * tierSettings.tier2Rate;
     cumulative += kwh;
   });
 
   return { dailyCostMap, kwhMap, totalKwh };
+}
+
+/**
+ * Compute daily costs with cumulative tiered billing across the period.
+ * Reads kWh data from DOM inputs. Returns { dailyCostMap, kwhMap, totalKwh }
+ */
+export function computeTieredDailyCostsMap(baseRate, startDate, endDate) {
+  const dailyKwhInputs = document.querySelectorAll('.dailyKwh');
+  const kwhMap = {};
+  dailyKwhInputs.forEach(input => {
+    kwhMap[input.getAttribute('data-date')] = parseFloat(input.value || 0) || 0;
+  });
+
+  const settings = getTierSettings(baseRate);
+  return computeCostsFromData(kwhMap, settings, baseRate, startDate, endDate);
 }
 
 /**

@@ -13,10 +13,14 @@ import { renderUsageChart } from './chart.js';
 import { updateSummary } from './summary.js';
 import { exportToExcel } from './exports/excel.js';
 import { exportToPDF } from './exports/pdf.js';
+import { exportReceipt } from './exports/receipt.js';
 import { initializeFeedbackForm, submitFeedback } from './feedback.js';
 import { showButtonLoading, resetButtonLoading, scrollToAndHighlight } from './ui.js';
 import { parseLocalDate } from './utils/dates.js';
 import { computeTieredTotals } from './billing.js';
+import { archiveCurrentPeriod, renderHistoryList, restorePeriod, deletePeriod, setOnHistoryChange } from './history.js';
+import { initPresets, applyPreset, saveCurrentAsPreset, deleteSelectedPreset, setOnPresetApply } from './presets.js';
+import { renderTrendChart } from './trend.js';
 
 // --- Cross-module callbacks ---
 
@@ -31,10 +35,20 @@ setOnFieldsGenerated(onDataChange);
 // When CSV is imported
 setOnImportComplete(onDataChange);
 
+// When history changes, re-render history list and trend chart
+setOnHistoryChange(() => {
+  renderHistoryList();
+  renderTrendChart();
+});
+
+// When a preset is applied, update chart/summary
+setOnPresetApply(onDataChange);
+
 // When profile changes, reload everything
 setOnProfileChange(() => {
   storage.loadFormData();
   updateTierInputsState();
+  initPresets();
 
   const startDate = document.getElementById('startDate').value;
   const endDate = document.getElementById('endDate').value;
@@ -51,6 +65,8 @@ setOnProfileChange(() => {
 
   attachKwhValidation();
   onDataChange();
+  renderHistoryList();
+  renderTrendChart();
 });
 
 // --- Calculate reimbursement ---
@@ -117,6 +133,9 @@ document.addEventListener('DOMContentLoaded', () => {
   storage.loadFormData();
   updateTierInputsState();
 
+  // Rate presets
+  initPresets();
+
   // Generate fields if dates exist
   const startDate = document.getElementById('startDate').value;
   const endDate = document.getElementById('endDate').value;
@@ -134,6 +153,10 @@ document.addEventListener('DOMContentLoaded', () => {
   renderUsageChart();
   updateSummary();
 
+  // History list and trend chart
+  renderHistoryList();
+  renderTrendChart();
+
   // Ensure result box is hidden on load
   const resultBox = document.getElementById('resultBox');
   if (resultBox) {
@@ -150,6 +173,14 @@ document.addEventListener('DOMContentLoaded', () => {
       if (box) box.classList.remove('highlight');
     }
   });
+
+  // Rate preset dropdown — apply on change
+  const presetSelect = document.getElementById('ratePresetSelect');
+  if (presetSelect) {
+    presetSelect.addEventListener('change', () => {
+      applyPreset(presetSelect.value);
+    });
+  }
 
   // Progressive saving — auto-save on all input/change events
   ['input', 'change'].forEach(evt => {
@@ -191,20 +222,38 @@ document.addEventListener('DOMContentLoaded', () => {
 // Using event delegation for clean module integration
 
 document.addEventListener('click', (e) => {
-  const action = e.target.closest('[data-action]')?.dataset.action;
-  if (!action) return;
+  const actionEl = e.target.closest('[data-action]');
+  if (!actionEl) return;
+  const action = actionEl.dataset.action;
 
   switch (action) {
     case 'reset': resetForm(); break;
     case 'calculate': calculateTotal(); break;
     case 'export-excel': exportToExcel(); break;
     case 'export-pdf': exportToPDF(); break;
+    case 'export-receipt': exportReceipt(); break;
     case 'download-csv-template': generateCSVTemplate(); break;
     case 'import-csv': importCSV(); break;
     case 'submit-feedback': submitFeedback(); break;
+    case 'archive-period': archiveCurrentPeriod(); break;
+    case 'save-rate-preset': saveCurrentAsPreset(); break;
+    case 'delete-rate-preset': deleteSelectedPreset(); break;
     case 'toggle-dark-mode':
       toggleDarkMode();
-      setTimeout(() => onDataChange(), 100);
+      setTimeout(() => {
+        onDataChange();
+        renderTrendChart();
+      }, 100);
+      break;
+    case 'restore-period':
+      restorePeriod(actionEl.dataset.historyId);
+      // After restore, regenerate fields with restored data
+      setTimeout(() => {
+        generateKwhFields();
+      }, 200);
+      break;
+    case 'delete-period':
+      deletePeriod(actionEl.dataset.historyId);
       break;
   }
 });
