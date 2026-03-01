@@ -3,38 +3,39 @@
  * Cache-first for app shell, network-first for CDN libraries.
  */
 
-const CACHE_NAME = 'ev-reimburse-v2.1.1';
+const CACHE_NAME = 'ev-reimburse-v2.1.2';
 
-const APP_SHELL = [
-  '/',
-  '/index.html',
-  '/css/variables.css',
-  '/css/base.css',
-  '/css/components.css',
-  '/css/animations.css',
-  '/css/responsive.css?v=2.1.1',
-  '/js/app.js',
-  '/js/storage.js',
-  '/js/profiles.js',
-  '/js/billing.js',
-  '/js/fields.js',
-  '/js/csv.js',
-  '/js/chart.js',
-  '/js/summary.js',
-  '/js/ui.js',
-  '/js/feedback.js',
-  '/js/history.js',
-  '/js/presets.js',
-  '/js/trend.js',
-  '/js/utils/dates.js',
-  '/js/exports/excel.js',
-  '/js/exports/pdf.js',
-  '/js/exports/receipt.js',
-  '/icons/icon.svg',
-  '/icons/og-image.png',
-  '/icons/apple-touch-icon.png',
-  '/icons/favicon-32x32.png',
-  '/manifest.json'
+// Relative paths — resolved against SW scope at install time
+const APP_SHELL_RELATIVE = [
+  './',
+  './index.html',
+  './css/variables.css',
+  './css/base.css',
+  './css/components.css',
+  './css/animations.css',
+  './css/responsive.css?v=2.1.1',
+  './js/app.js',
+  './js/storage.js',
+  './js/profiles.js',
+  './js/billing.js',
+  './js/fields.js',
+  './js/csv.js',
+  './js/chart.js',
+  './js/summary.js',
+  './js/ui.js',
+  './js/feedback.js',
+  './js/history.js',
+  './js/presets.js',
+  './js/trend.js',
+  './js/utils/dates.js',
+  './js/exports/excel.js',
+  './js/exports/pdf.js',
+  './js/exports/receipt.js',
+  './icons/icon.svg',
+  './icons/og-image.png',
+  './icons/apple-touch-icon.png',
+  './icons/favicon-32x32.png',
+  './manifest.json'
 ];
 
 const CDN_URLS = [
@@ -47,11 +48,13 @@ const CDN_URLS = [
   'https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.7.0/jspdf.plugin.autotable.min.js'
 ];
 
-// Install — cache app shell
+// Install — cache app shell using absolute URLs resolved from SW scope
 self.addEventListener('install', (event) => {
+  const scope = self.registration.scope;
+  const appShell = APP_SHELL_RELATIVE.map(p => new URL(p, scope).href);
   event.waitUntil(
     caches.open(CACHE_NAME).then((cache) => {
-      return cache.addAll(APP_SHELL);
+      return cache.addAll(appShell);
     }).then(() => self.skipWaiting())
   );
 });
