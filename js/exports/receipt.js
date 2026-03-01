@@ -148,10 +148,6 @@ function generateReceiptPDF(data) {
   const leftCol = 14;
   const rightCol = pageWidth / 2 + 10;
 
-  doc.text(`Employee: ${profileName}`, leftCol, y);
-  doc.text(`Date Issued: ${today.toLocaleDateString('en-US')}`, rightCol, y);
-  y += 7;
-
   doc.text(`Receipt #: ${receiptNo}`, leftCol, y);
   const rateStr = useTieredRates ? 'Tiered Rates' : `$${costPerKwh.toFixed(2)}/kWh`;
   doc.text(`Rate: ${rateStr}`, rightCol, y);
@@ -186,16 +182,6 @@ function generateReceiptPDF(data) {
   doc.text('Submit via: E2E Travel@Siemens', leftCol, y);
   y += 6;
   doc.text('Expense Category: Fuel', leftCol, y);
-  y += 12;
-
-  // Signature line
-  doc.setDrawColor(100, 100, 100);
-  doc.line(leftCol, y, leftCol + 70, y);
-  doc.line(pageWidth - 14 - 50, y, pageWidth - 14, y);
-  y += 5;
-  doc.setFontSize(8);
-  doc.text('Signature', leftCol, y);
-  doc.text('Date', pageWidth - 14 - 50, y);
 
   // Footer
   y = doc.internal.pageSize.height - 15;

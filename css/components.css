@@ -213,15 +213,18 @@ body.dark-mode .loading-spinner {
 
 .summary-stat {
   display: flex;
+  flex-direction: column;
   align-items: center;
-  gap: 12px;
-  padding: 16px;
+  text-align: center;
+  gap: 8px;
+  padding: 16px 12px;
   background: var(--container-bg);
   border-radius: 12px;
   border: 1px solid rgba(0, 0, 0, 0.05);
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
   transition: transform 0.2s, box-shadow 0.2s;
   height: 100%;
+  overflow: hidden;
 }
 
 .summary-stat:hover {
@@ -249,6 +252,7 @@ body.dark-mode .summary-stat {
 .stat-content {
   flex-grow: 1;
   min-width: 0;
+  width: 100%;
 }
 
 .stat-value {
@@ -257,6 +261,7 @@ body.dark-mode .summary-stat {
   color: var(--text-color);
   line-height: 1.2;
   margin-bottom: 2px;
+  white-space: nowrap;
 }
 
 .stat-label {

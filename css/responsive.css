@@ -2,8 +2,8 @@
 
 @media (max-width: 768px) {
   .summary-stat {
-    padding: 12px;
-    gap: 8px;
+    padding: 10px 8px;
+    gap: 6px;
   }
 
   .stat-icon {
@@ -83,8 +83,8 @@
 
   /* Summary mobile */
   .summary-stat {
-    padding: 10px;
-    gap: 6px;
+    padding: 8px 6px;
+    gap: 4px;
   }
 
   .stat-icon {
@@ -94,11 +94,11 @@
   }
 
   .stat-value {
-    font-size: 1rem;
+    font-size: 0.95rem;
   }
 
   .stat-label {
-    font-size: 0.65rem;
+    font-size: 0.6rem;
   }
 
   /* Modal footer mobile */
