@@ -384,7 +384,7 @@ Date,kWh Usage
             <li>Use the profile selector to switch between different profiles</li>
             <li>Add new profiles using the "+" button</li>
             <li>Delete existing profiles using the "-" button (Default profile cannot be deleted)</li>
-            <li>Each profile maintains its own separate data</li>
+            <li>Each profile maintains its own separate data, including billing history</li>
           </ul>
 
           <h6>2. Billing Period Setup</h6>
@@ -408,63 +408,92 @@ Date,kWh Usage
             </li>
           </ul>
 
-          <h6>4. Cost Calculation</h6>
+          <h6>4. Cost Calculation &amp; Rate Presets</h6>
           <ul>
-            <li>Enter your cost per kWh in dollars</li>
-            <li>The app will automatically calculate daily and total costs</li>
-            <li>View real-time cost calculations in the chart</li>
+            <li>Enter your cost per kWh in dollars for flat-rate billing</li>
+            <li><strong>Tiered Rates:</strong> Enable the "Use Tiered Rates" checkbox for multi-tier billing
+              <ul>
+                <li>Set a Tier 1 kWh limit, Tier 1 rate, and Tier 2 rate</li>
+                <li>Tiers are calculated cumulatively across the entire billing period</li>
+              </ul>
+            </li>
+            <li><strong>Saved Presets:</strong> Save your utility rate configuration for one-click reuse
+              <ul>
+                <li>Use the preset dropdown to select a saved rate configuration</li>
+                <li>Click the bookmark icon to save the current rate as a new preset</li>
+                <li>Presets are shared across all profiles</li>
+              </ul>
+            </li>
           </ul>
 
-          <h6>5. Data Visualization</h6>
+          <h6>5. Dashboard Summary</h6>
           <ul>
-            <li>Interactive chart shows daily kWh usage and costs</li>
-            <li>Hover over data points for detailed information</li>
+            <li>View real-time stats after calculating: Total kWh, Total Cost, Average Daily Usage, and Data Completeness</li>
+            <li>Stats update automatically as you enter or modify data</li>
+            <li>Color-coded progress bar tracks how many days have data entered</li>
+          </ul>
+
+          <h6>6. Data Visualization</h6>
+          <ul>
+            <li>Interactive dual-axis chart shows daily kWh usage and costs</li>
+            <li>Hover over data points for detailed tooltips with date, kWh, cost, and effective rate</li>
             <li>Chart updates automatically as you enter data</li>
           </ul>
 
-          <h6>6. Export Options</h6>
+          <h6>7. Billing History</h6>
           <ul>
-            <li><strong>Excel Export:</strong> Download a detailed Excel report with:
+            <li><strong>Archive:</strong> Save your current billing period to history using "Archive Current Period"</li>
+            <li><strong>Browse:</strong> View all archived periods with date range, total kWh, and total cost</li>
+            <li><strong>Restore:</strong> Load a past period back into the form to review or re-export</li>
+            <li><strong>Delete:</strong> Remove archived periods you no longer need</li>
+            <li>Each profile maintains its own separate history</li>
+          </ul>
+
+          <h6>8. Month-over-Month Trends</h6>
+          <ul>
+            <li>Automatically appears when you have 2 or more archived periods</li>
+            <li>Compares total kWh, total cost, and average daily usage across periods</li>
+            <li>Insight text shows percentage changes and average monthly cost</li>
+          </ul>
+
+          <h6>9. Export Options</h6>
+          <ul>
+            <li><strong>Excel Export:</strong> Detailed spreadsheet with daily breakdown, effective rates, and currency formatting</li>
+            <li><strong>PDF Export:</strong> Professional report with billing period header and tiered rate notation</li>
+            <li><strong>Reimbursement Receipt:</strong> Siemens-formatted PDF receipt with:
               <ul>
-                <li>Daily kWh usage</li>
-                <li>Cost per kWh</li>
-                <li>Daily costs</li>
-                <li>Total calculations</li>
-              </ul>
-            </li>
-            <li><strong>PDF Export:</strong> Generate a professional PDF report with:
-              <ul>
-                <li>Billing period summary</li>
-                <li>Daily usage and costs</li>
-                <li>Total calculations</li>
-                <li>Professional formatting</li>
+                <li>Receipt number, employee name, and billing period</li>
+                <li>Line-item daily breakdown with costs</li>
+                <li>Submission instructions and signature line</li>
               </ul>
             </li>
           </ul>
 
-          <h6>7. Additional Features</h6>
+          <h6>10. Additional Features</h6>
           <ul>
             <li><strong>Dark Mode:</strong> Toggle between light and dark themes using the moon icon</li>
+            <li><strong>Installable App:</strong> Install as a Progressive Web App for offline use and quick access from your home screen</li>
             <li><strong>Data Persistence:</strong> All data is automatically saved in your browser</li>
-            <li><strong>Input Validation:</strong> Real-time validation of kWh values and dates</li>
+            <li><strong>Input Validation:</strong> Real-time validation with warnings for unusually high kWh values</li>
             <li><strong>Travel@Siemens:</strong> Quick access to Siemens travel portal</li>
             <li><strong>EV Policy:</strong> Access to Siemens EV policy information</li>
-            <li><strong>Contact Support:</strong> Get help or report issues</li>
+            <li><strong>Feedback:</strong> Submit feedback with star rating via the Contact/Feedback form</li>
           </ul>
 
-          <h6>8. Data Privacy</h6>
+          <h6>11. Data Privacy</h6>
           <ul>
-            <li>All data is stored locally in your browser</li>
-            <li>No data is uploaded to any server</li>
+            <li>All data is stored locally in your browser — nothing is uploaded to any server</li>
             <li>Each profile's data is kept separate</li>
+            <li>Regular exports are recommended for backup</li>
           </ul>
 
-          <h6>9. Tips for Best Results</h6>
+          <h6>12. Tips for Best Results</h6>
           <ul>
+            <li>Save your utility rate as a preset so you don't have to re-enter it each month</li>
+            <li>Archive each billing period before starting a new one to build your history</li>
             <li>Use the CSV template for bulk data entry</li>
-            <li>Regularly export your data for backup</li>
-            <li>Check the chart for unusual patterns in usage</li>
-            <li>Use the reset function if you need to start over</li>
+            <li>Check the trend chart to track your usage patterns over time</li>
+            <li>Generate a receipt PDF for easy expense submission via Travel@Siemens</li>
           </ul>
         </div>
         <div class="modal-footer">
