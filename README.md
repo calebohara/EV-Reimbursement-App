@@ -1,228 +1,221 @@
 # EV kWh Reimbursement App
 
-A web-based application designed to help Siemens employees calculate and manage their electric vehicle (EV) charging reimbursements. This application provides a user-friendly interface for tracking kWh usage, calculating costs, and generating reports for reimbursement purposes.
+A web-based application designed to help Siemens employees calculate and manage their electric vehicle (EV) charging reimbursements. Track kWh usage, calculate costs, and generate reports for reimbursement purposes.
 
-## 🌟 Features
+## Features
 
 ### Profile Management
-- Create and manage multiple profiles
-- Switch between different profiles
-- Each profile maintains separate data
+- Create and manage multiple profiles for separate vehicles or billing periods
+- Switch between profiles with independent data storage
 - Default profile cannot be deleted
 
 ### Data Entry
-- Manual entry of daily kWh usage
-- CSV import functionality with validation
-- Download CSV template for easy data entry
-- Automatic field generation based on billing period
+- Manual entry of daily kWh usage with per-day input fields
+- CSV import with validation (date range, format, error highlighting)
+- Download pre-formatted CSV template with billing period dates
+- Automatic field generation when both dates are selected
 
 ### Cost Calculation
-- Set cost per kWh
-- Automatic calculation of daily and total costs
-- Real-time cost updates
-- Support for different billing periods
+- Base cost per kWh input
+- Optional tiered rate billing (Tier 1 limit, Tier 1 rate, Tier 2 rate)
+- Cumulative tier calculation across the billing period
+- Real-time cost updates as data changes
 
 ### Data Visualization
-- Interactive chart showing daily kWh usage
-- Cost visualization
-- Hover functionality for detailed information
-- Automatic chart updates
+- Interactive dual-axis Chart.js chart (kWh usage + daily cost)
+- Dashboard summary: Total kWh, Total Cost, Avg Daily, Data Completeness %
+- Color-coded progress bar for data entry tracking
+- Tooltips with date, kWh, cost, and effective rate on hover
 
 ### Export Options
-- Excel export with detailed breakdown
-- PDF export with professional formatting
-- Comprehensive data reporting
-- Customizable export formats
+- **Excel**: Daily breakdown with effective rate and currency formatting via SheetJS
+- **PDF**: Professional report with billing period header and tiered rate notation via jsPDF
 
 ### Additional Features
-- Dark mode support
-- Local data storage
-- Input validation
-- Quick access to Siemens travel portal
-- EV policy information
-- Contact support
-- Comprehensive help documentation
-- Dashboard summary view (Total kWh, Total Cost, Avg Daily, Data Completeness)
-- In-app Feedback & Support form with 1–5 star rating and mailto generation
-- Contextual tooltips across key inputs and actions
-- Polished loading states with Bootstrap spinners for async actions (CSV import, calculations, exports)
+- Dark mode with full component coverage (inputs, modals, chart)
+- Feedback form with 1-5 star rating, categories, and mailto generation
+- Contextual tooltips on all interactive elements
+- Input validation (negative values, unusually high kWh warnings)
+- Loading spinners on all async operations
+- ARIA labels and keyboard navigation for accessibility
+- Mobile responsive layout (< 600px)
+- All data stored locally in the browser (no server)
 
-## 🚀 Getting Started
+## Architecture
+
+Version 2.0 uses ES modules with no build tools required:
+
+```
+index.html                  Semantic HTML, <script type="module">
+css/
+  variables.css             CSS custom properties and theme tokens
+  base.css                  Reset, typography, layout, modal theming
+  components.css            Cards, buttons, profile box, summary stats
+  animations.css            Keyframes and transitions
+  responsive.css            Media queries (768px, 600px breakpoints)
+js/
+  app.js                    Entry point — imports, init, event delegation
+  utils/dates.js            parseLocalDate, ymd, forEachDay, dayCount
+  storage.js                Profile-scoped localStorage wrapper
+  profiles.js               Profile CRUD and dropdown UI
+  billing.js                Tiered rate logic and cost calculations
+  fields.js                 kWh field generation and validation
+  csv.js                    CSV template download and import
+  chart.js                  Chart.js dual-axis visualization
+  summary.js                Dashboard summary card updates
+  exports/excel.js          SheetJS Excel export
+  exports/pdf.js            jsPDF + autoTable PDF export
+  feedback.js               Star rating form and mailto generation
+  ui.js                     Dark mode, button loading, tooltips
+```
+
+## Getting Started
 
 ### Prerequisites
 - Modern web browser (Chrome, Firefox, Safari, Edge)
-- Internet connection for initial load
-- JavaScript enabled
+- Internet connection for CDN libraries on first load
 
-### Installation
+### Running Locally
 
-#### Option 1: Using Git (Recommended)
-1. Ensure Git is installed on your computer
-   - Windows: Download from [git-scm.com](https://git-scm.com/download/win)
-   - Mac: Install via Terminal using `git --version` (prompts installation if not present)
-   - Linux: Install via package manager (e.g., `sudo apt-get install git` for Ubuntu)
-2. Open your terminal/command prompt
-3. Navigate to the directory where you want to install the application
-4. Clone the repository:
+ES modules require an HTTP server (they don't work with `file://` URLs).
+
 ```bash
+# Clone the repository
 git clone https://github.com/calebohara/EV-Reimbursement-App.git
-```
-5. Navigate into the project directory:
-```bash
 cd EV-Reimbursement-App
+
+# Serve with any local HTTP server:
+python3 -m http.server 8080
+# or
+npx serve .
 ```
-6. Open `index.html` in your web browser
 
-#### Option 2: Direct Download (No Git Required)
-1. Visit the repository at [https://github.com/calebohara/EV-Reimbursement-App](https://github.com/calebohara/EV-Reimbursement-App)
-2. Click the green "Code" button
-3. Select "Download ZIP"
-4. Extract the downloaded ZIP file to your desired location
-5. Open the extracted folder
-6. Open `index.html` in your web browser
+Then open `http://localhost:8080` in your browser.
 
-The application will be installed in a new directory called `EV-Reimbursement-App` in your chosen location. For example:
-- If you run the command in `C:\Users\YourName\Documents`, the application will be installed in `C:\Users\YourName\Documents\EV-Reimbursement-App`
-- If you run the command in `/Users/YourName/Documents`, the application will be installed in `/Users/YourName/Documents/EV-Reimbursement-App`
+### GitHub Pages
 
-No additional installation steps required as this is a client-side application.
+The app works directly on GitHub Pages with no build step — just push and it's live.
 
-## 💻 Usage
+### Direct Download
+
+1. Visit [github.com/calebohara/EV-Reimbursement-App](https://github.com/calebohara/EV-Reimbursement-App)
+2. Click **Code** > **Download ZIP**
+3. Extract and serve the folder with a local HTTP server (see above)
+
+## Usage
 
 ### Profile Setup
-1. Select or create a profile using the profile selector
-2. Use the "+" button to add new profiles
-3. Use the "-" button to delete existing profiles
+1. Select or create a profile using the dropdown
+2. Use **+** to add new profiles, **-** to delete (Default is protected)
 
 ### Data Entry
-1. Select billing period start and end dates
-2. Choose data entry method:
-   - Manual entry: Use generated fields
-   - CSV import: Upload formatted CSV file
-   - Template: Download and fill CSV template
+1. Select billing period start and end dates (fields auto-generate)
+2. Enter kWh usage manually or import from CSV
+3. Download the CSV template for bulk data entry
 
 ### Cost Calculation
-1. Enter cost per kWh
-2. Input daily kWh usage
-3. Click "Calculate Reimbursement"
-4. View results in the dedicated result box
+1. Enter cost per kWh (or enable tiered rates for multi-tier billing)
+2. Click **Calculate Reimbursement** to see the total
+3. View the dashboard summary and chart for visual breakdown
 
-### Exporting Data
-1. Click "Export to Excel" for detailed spreadsheet
-2. Click "Export to PDF" for formatted report
-3. Access Travel@Siemens portal for submission
+### Exporting
+1. **Export to Excel** for a detailed spreadsheet with daily data and totals
+2. **Export to PDF** for a professional report suitable for expense submission
+3. Use **Travel@Siemens** link to access the Siemens travel portal
 
-## 📊 CSV Format
+## CSV Format
 
-The application accepts CSV files with the following structure:
 ```
 Date,kWh Usage
 2024-01-01,10.5
 2024-01-02,12.0
 ```
 
-Requirements:
-- First row must be header row
-- Dates in YYYY-MM-DD format
+- First row must be the header: `Date,kWh Usage`
+- Dates in `YYYY-MM-DD` format
 - kWh values must be numeric
-- No blank rows or columns
+- Dates must fall within the selected billing period
 
-## 🔒 Data Privacy
+## Data Privacy
 
-- All data is stored locally in the browser
+- All data is stored locally in your browser via localStorage
 - No data is uploaded to any server
-- Each profile's data is kept separate
+- Each profile's data is stored with a scoped key prefix
 - Regular exports recommended for backup
 
-## 🛠️ Technical Details
+## Technical Details
 
 ### Built With
-- HTML5
-- CSS3
-- JavaScript
-- Bootstrap 5.3.0
-- Chart.js
-- XLSX.js
-- jsPDF
+- HTML5 + CSS3 + JavaScript (ES Modules)
+- Bootstrap 5.3.0 + Bootstrap Icons 1.10.5
+- Chart.js (interactive charting)
+- SheetJS / XLSX 0.18.5 (Excel export)
+- jsPDF 2.5.1 + jsPDF-AutoTable 3.7.0 (PDF export)
 
-### Dependencies
-```html
-- Bootstrap 5.3.0
-- Bootstrap Icons 1.10.5
-- Chart.js
-- XLSX.js 0.18.5
-- jsPDF 2.5.1
-- jsPDF-AutoTable 3.7.0
-```
+### Key Design Decisions
+- **ES Modules** (`<script type="module">`) for native browser module system with no build step
+- **Event delegation** via `data-action` attributes replacing inline `onclick` handlers
+- **Profile-scoped localStorage** with backward compatibility for pre-profile data
+- **Centralized date parsing** eliminating timezone bugs from duplicated patterns
+- **Callback pattern** for cross-module communication (chart/summary updates)
 
-## 📝 Version History
+## Version History
 
-### Version 1.10.0
-- **Tiered Rates (Basic):** Optional tiered billing where the first N kWh of the billing period are charged at Tier 1 rate and remaining kWh at Tier 2 (or base rate). Includes validation, per-profile persistence, and integration into chart, summary, calculations, and exports.
-- **Validation & Fallbacks:** Tier inputs validate on the fly; when tiers are enabled and valid, base cost may be blank. If tier inputs are invalid, calculations fall back to the base cost per kWh.
-- **Dark Mode Polish:** Improved readability of modal text, placeholders, and disabled inputs (including tiered fields) in dark mode.
+### Version 2.0.0 (February 28, 2026)
+- **Modular Architecture**: Complete refactor from monolithic single-file to 13 ES modules
+- **Centralized Date Parsing**: Eliminated 12+ duplicate patterns with shared utilities
+- **Clean Event Architecture**: Replaced monkey-patching and inline handlers with data-action delegation
+- **CSS Organization**: Split into 5 files (variables, base, components, animations, responsive)
+- **Profile Storage Refactor**: Clean scoped wrapper with backward compatibility
+- **All existing features preserved**: Zero functionality removed
 
-### Version 1.9.0
-- **Dashboard Summary View**: Added summary card above the chart showing Total kWh, Total Cost, Average Daily Usage, and data completeness with a color-coded progress bar. Updates in real time.
-- **Feedback & Support Form**: Replaced static email with an in-app feedback form, including a 1–5 star rating, feedback categories, and pre-filled mailto generation to `caleb.ohara@siemens.com`.
-- **Loading Animations**: Introduced Bootstrap spinners for async actions (CSV import, calculations, Excel/PDF exports) with descriptive loading text and disabled states to prevent duplicate actions.
-- **Contextual Tooltips**: Added helpful tooltips to date inputs, cost per kWh, CSV upload, chart legends, and primary actions.
-- **Automatic Field Generation**: Auto-generates daily kWh fields when both dates are selected and valid.
-- **Smooth UI Animations**: Fade-in transitions for the fields box and staggered animations for daily fields.
-- **Date Parsing Fix**: Resolved timezone-related offset that caused dates to appear a day early.
-- **Dark Mode Contrast**: Fixed text color in Feedback & Support modal and ensured good contrast across new components.
-- **Accessibility**: ARIA-friendly controls, keyboard-accessible star rating, and improved screen reader support.
+### Version 1.10.0 (December 21, 2024)
+- Tiered rate billing with cumulative tier calculation
+- Tier input validation with fallback to base rate
+- Dark mode polish for modals and disabled inputs
 
-### Version 1.8.0
-- **Icon Fix & Accessibility**: Fixed car icon typo and added proper ARIA attributes for screen reader support
-- **Reset Function Enhancement**: Unified key lists and improved form reset functionality with complete data clearing
-- **Local Date Formatting**: Replaced UTC-based date formatting with local timezone support to prevent date shifts
-- **Anti-Debug Removal**: Removed unnecessary event listeners that blocked developer tools and context menus
-- **Chart Theming**: Added dynamic dark mode support for charts with automatic color adaptation
-- **Profile Management**: Enhanced multi-user support with improved data persistence and profile switching
-- **Input Validation**: Added real-time validation for kWh inputs with warning messages
-- **Progressive Saving**: Implemented automatic data saving on all input changes
-- **Chart Visualization**: Added interactive Chart.js integration with dual-axis support for kWh and cost data
-- **CSV Import/Export**: Enhanced CSV functionality with comprehensive validation and error handling
-- **Export Features**: Added Excel and PDF export capabilities with professional formatting
-- **Dark Mode**: Implemented complete dark mode theming throughout the application
-- **Accessibility**: Improved ARIA labels, screen reader support, and keyboard navigation
+### Version 1.9.0 (December 20, 2024)
+- Dashboard summary view with real-time stats
+- Feedback form with star rating and mailto generation
+- Loading animations for async operations
+- Contextual tooltips across the app
+- Automatic field generation on date selection
+- Date parsing timezone fix
 
-### Version 1.7.0
-- Enhanced Site Help content
-- Improved CSV import functionality
-- Styled result display
-- Implemented scrollable input fields
-- Redesigned action buttons layout
+### Version 1.8.0 (December 19, 2024)
+- Chart.js dual-axis visualization
+- Profile management with scoped persistence
+- CSV import/export with validation
+- Excel and PDF export
+- Dark mode theming
+- Input validation and progressive saving
+- ARIA labels and accessibility improvements
 
-### Version 1.6.0
-- Added CSV template download feature
+### Version 1.7.0 (May 27, 2024)
+- Enhanced Site Help, CSV import updates, scrollable fields, button layout redesign
 
-### Version 1.5.0
-- Enhanced CSV import functionality
-- Improved error handling
+### Version 1.6.0 (May 25, 2025)
+- CSV template download feature
 
-### Version 1.4.0
-- Added EV Policy information
-- Implemented policy modal
+### Version 1.5.0 (May 25, 2025)
+- Enhanced CSV import with error handling
 
-### Version 1.3.0
+### Version 1.4.0 (April 15, 2025)
+- EV Policy modal
+
+### Version 1.3.0 (March 10, 2025)
 - Improved Site Help modal
-- Enhanced user experience
 
-### Version 1.2.0
-- Added Site Help feature
-- Implemented help modal
+### Version 1.2.0 (February 20, 2025)
+- Site Help feature
 
-### Version 1.1.0
-- Added Travel@Siemens integration
-- Implemented portal link
+### Version 1.1.0 (January 5, 2025)
+- Travel@Siemens integration
 
-### Version 1.0.0
-- Initial release
-- Core functionality implementation
+### Version 1.0.0 (December 1, 2024)
+- Initial release with core kWh reimbursement functionality
 
-## 👥 Contributing
+## Contributing
 
 1. Fork the repository
 2. Create your feature branch (`git checkout -b feature/AmazingFeature`)
@@ -230,18 +223,18 @@ Requirements:
 4. Push to the branch (`git push origin feature/AmazingFeature`)
 5. Open a Pull Request
 
-## 📧 Contact
+## Contact
 
 Caleb O'Hara - caleb.ohara@siemens.com
 
-## ⚠️ Disclaimer
+## Disclaimer
 
 The accuracy of calculations and reimbursements depends on the data provided. Please ensure all input values, including kWh usage and cost per kWh, are accurate and verified. Siemens is not responsible for any discrepancies resulting from incorrect data entry.
 
-## 📄 License
+## License
 
 This project is proprietary and confidential. All rights reserved.
 
 ---
 
-*Last updated: December 21, 2024*
+*Last updated: February 28, 2026*
