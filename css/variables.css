@@ -1,0 +1,19 @@
+/* CSS Custom Properties — Light & Dark Theme Tokens */
+
+:root {
+  --bg-color: #f5f5f7;
+  --text-color: #212529;
+  --container-bg: #ffffff;
+  --pre-bg: #f8f9fa;
+  --form-bg: #ffffff;
+  --form-text: #212529;
+}
+
+body.dark-mode {
+  --bg-color: #212529;
+  --text-color: #f5f5f7;
+  --container-bg: #343a40;
+  --pre-bg: #495057;
+  --form-bg: #495057;
+  --form-text: #f5f5f7;
+}

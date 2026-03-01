@@ -1,0 +1,134 @@
+/**
+ * Profile-scoped localStorage wrapper.
+ * All get/set operations are automatically scoped to the current profile.
+ * Includes backward compatibility for unscoped keys (pre-profile data).
+ */
+
+const PROFILE_LIST_KEY = 'profiles';
+const CURRENT_PROFILE_KEY = 'currentProfile';
+const DEFAULT_PROFILE = 'Default';
+const FORM_KEYS = ['startDate', 'endDate', 'costPerKwh', 'dailyKwhData',
+  'useTieredRates', 'tier1Limit', 'tier1Rate', 'tier2Rate'];
+
+// --- Profile management ---
+
+export function getProfiles() {
+  return JSON.parse(localStorage.getItem(PROFILE_LIST_KEY) || '["Default"]');
+}
+
+export function setProfiles(profiles) {
+  localStorage.setItem(PROFILE_LIST_KEY, JSON.stringify(profiles));
+}
+
+export function getCurrentProfile() {
+  return localStorage.getItem(CURRENT_PROFILE_KEY) || DEFAULT_PROFILE;
+}
+
+export function setCurrentProfile(name) {
+  localStorage.setItem(CURRENT_PROFILE_KEY, name);
+}
+
+// --- Scoped get/set ---
+
+function profileKey(key) {
+  return `${getCurrentProfile()}__${key}`;
+}
+
+export function getItem(key) {
+  // Try profile-scoped key first, then fall back to unscoped (backward compat)
+  let val = localStorage.getItem(profileKey(key));
+  if (val === null) {
+    val = localStorage.getItem(key);
+  }
+  return val;
+}
+
+export function setItem(key, value) {
+  localStorage.setItem(profileKey(key), value);
+}
+
+export function removeItem(key) {
+  localStorage.removeItem(profileKey(key));
+  localStorage.removeItem(key); // also clear unscoped for clean migration
+}
+
+// --- Bulk form operations ---
+
+export function saveFormData() {
+  const data = {};
+
+  // Simple inputs
+  ['startDate', 'endDate', 'costPerKwh'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) data[id] = el.value;
+  });
+
+  // Tiered rates
+  const useTieredEl = document.getElementById('useTieredRates');
+  data.useTieredRates = useTieredEl?.checked ? 'true' : 'false';
+  ['tier1Limit', 'tier1Rate', 'tier2Rate'].forEach(id => {
+    const el = document.getElementById(id);
+    data[id] = el?.value || '';
+  });
+
+  // Daily kWh data from input fields
+  const dailyKwhInputs = document.querySelectorAll('.dailyKwh');
+  const dailyKwhData = {};
+  dailyKwhInputs.forEach(input => {
+    dailyKwhData[input.getAttribute('data-date')] = input.value;
+  });
+  data.dailyKwhData = JSON.stringify(dailyKwhData);
+
+  // Write all to storage
+  for (const [key, val] of Object.entries(data)) {
+    setItem(key, val);
+  }
+}
+
+export function loadFormData() {
+  const startDate = getItem('startDate');
+  const endDate = getItem('endDate');
+  const costPerKwh = getItem('costPerKwh');
+
+  if (startDate) document.getElementById('startDate').value = startDate;
+  if (endDate) document.getElementById('endDate').value = endDate;
+  if (costPerKwh) document.getElementById('costPerKwh').value = costPerKwh;
+
+  // Tiered rates
+  const useTiered = getItem('useTieredRates') === 'true';
+  const useTieredEl = document.getElementById('useTieredRates');
+  if (useTieredEl) useTieredEl.checked = useTiered;
+
+  ['tier1Limit', 'tier1Rate', 'tier2Rate'].forEach(id => {
+    const el = document.getElementById(id);
+    const val = getItem(id);
+    if (el && val) el.value = val;
+  });
+
+  return { startDate, endDate, costPerKwh };
+}
+
+export function getDailyKwhData() {
+  const raw = getItem('dailyKwhData');
+  return raw ? JSON.parse(raw) : {};
+}
+
+export function clearFormData() {
+  FORM_KEYS.forEach(key => removeItem(key));
+}
+
+export function deleteProfileData(profileName) {
+  FORM_KEYS.forEach(key => {
+    localStorage.removeItem(`${profileName}__${key}`);
+  });
+}
+
+// --- Dark mode (not profile-scoped) ---
+
+export function getDarkMode() {
+  return localStorage.getItem('darkMode') === 'true';
+}
+
+export function setDarkMode(enabled) {
+  localStorage.setItem('darkMode', enabled ? 'true' : 'false');
+}

@@ -9,12 +9,16 @@
   <link rel="icon" type="image/png" href="ev_favicon.png">
   <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-  <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="css/variables.css">
+  <link rel="stylesheet" href="css/base.css">
+  <link rel="stylesheet" href="css/components.css">
+  <link rel="stylesheet" href="css/animations.css">
+  <link rel="stylesheet" href="css/responsive.css">
 </head>
 <body>
   <div class="container mt-5">
     <div class="siemens-header">SIEMENS</div>
-    <button class="btn btn-secondary btn-dark-mode" onclick="toggleDarkMode()" aria-label="Toggle dark mode"><i class="bi bi-moon-fill"></i></button>
+    <button class="btn btn-secondary btn-dark-mode" data-action="toggle-dark-mode" aria-label="Toggle dark mode"><i class="bi bi-moon-fill"></i></button>
     <button class="btn btn-info btn-site-help" data-bs-toggle="modal" data-bs-target="#siteHelpModal" title="Site Help" aria-label="Site Help">
       <i class="bi bi-question-circle-fill"></i>
     </button>
@@ -23,6 +27,7 @@
       <i class="bi bi-car-front-fill" aria-hidden="true"></i>
       EV kWh Reimbursement
     </h2>
+
     <!-- Profile Selector Card -->
     <div class="billing-box mb-4 profile-box d-flex align-items-center gap-2 flex-wrap">
       <label for="profileSelect" class="form-label mb-0" style="min-width:90px;">Profile:</label>
@@ -30,56 +35,60 @@
       <button class="btn btn-success btn-sm profile-btn" id="addProfileBtn" aria-label="Add Profile" data-bs-toggle="tooltip" data-bs-placement="top" title="Create a new profile to track separate billing periods or vehicles">+</button>
       <button class="btn btn-danger btn-sm profile-btn" id="deleteProfileBtn" aria-label="Delete Profile" data-bs-toggle="tooltip" data-bs-placement="top" title="Delete the currently selected profile (Default profile cannot be deleted)">&minus;</button>
     </div>
+
+    <!-- Billing Period -->
     <div class="billing-box mb-4">
       <div class="row mb-3">
         <div class="col-6">
           <label for="startDate"><i class="bi bi-calendar-date-fill"></i> Billing Period Start:</label>
-          <input type="date" id="startDate" class="form-control" aria-label="Billing Period Start" onchange="saveData(); checkAndGenerateFields();" data-bs-toggle="tooltip" data-bs-placement="top" title="Select your utility billing period start date. Find this on your monthly utility bill.">
+          <input type="date" id="startDate" class="form-control" aria-label="Billing Period Start" data-bs-toggle="tooltip" data-bs-placement="top" title="Select your utility billing period start date. Find this on your monthly utility bill.">
         </div>
         <div class="col-6">
           <label for="endDate"><i class="bi bi-calendar-date-fill"></i> Billing Period End:</label>
-          <input type="date" id="endDate" class="form-control" aria-label="Billing Period End" onchange="saveData(); checkAndGenerateFields();" data-bs-toggle="tooltip" data-bs-placement="top" title="Select your utility billing period end date. Find this on your monthly utility bill.">
+          <input type="date" id="endDate" class="form-control" aria-label="Billing Period End" data-bs-toggle="tooltip" data-bs-placement="top" title="Select your utility billing period end date. Find this on your monthly utility bill.">
         </div>
       </div>
       <div class="row mb-1">
         <div class="col-12">
-          <button class="btn btn-warning w-100" onclick="resetForm()" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Clear all data and start over with a fresh form">
+          <button class="btn btn-warning w-100" data-action="reset" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Clear all data and start over with a fresh form">
             <i class="bi bi-arrow-counterclockwise"></i> Reset
           </button>
         </div>
       </div>
     </div>
 
+    <!-- Cost per kWh -->
     <div class="billing-box mb-3">
       <label><i class="bi bi-lightning-charge-fill"></i> Cost per kWh ($):</label>
-      <input type="number" id="costPerKwh" step="0.01" class="form-control" aria-label="Cost per kWh" oninput="saveData(); renderUsageChart(); updateSummary();" data-bs-toggle="tooltip" data-bs-placement="top" title="Find this rate on your utility bill (e.g., $0.17 per kWh). Look for 'Energy Charge' or 'Usage Rate'.">
+      <input type="number" id="costPerKwh" step="0.01" class="form-control" aria-label="Cost per kWh" data-bs-toggle="tooltip" data-bs-placement="top" title="Find this rate on your utility bill (e.g., $0.17 per kWh). Look for 'Energy Charge' or 'Usage Rate'.">
     </div>
 
     <!-- Tiered Rates (Optional) -->
     <div class="billing-box mb-3">
       <div class="form-check form-switch mb-2">
-        <input class="form-check-input" type="checkbox" id="useTieredRates" onchange="saveData(); renderUsageChart(); updateSummary(); updateTierInputsState();" aria-label="Use tiered rates">
+        <input class="form-check-input" type="checkbox" id="useTieredRates" aria-label="Use tiered rates">
         <label class="form-check-label" for="useTieredRates" data-bs-toggle="tooltip" data-bs-placement="top" title="Enable if your utility charges a special rate for the first block of kWh (e.g., first 1000 kWh)"><i class="bi bi-sliders"></i> Use tiered rates</label>
       </div>
       <div class="row g-2">
         <div class="col-6">
           <label for="tier1Limit" class="form-label">Tier 1 Limit (kWh)</label>
-          <input type="number" min="0" step="1" class="form-control" id="tier1Limit" placeholder="e.g., 1000" oninput="saveData(); renderUsageChart(); updateSummary();" disabled>
+          <input type="number" min="0" step="1" class="form-control" id="tier1Limit" placeholder="e.g., 1000" disabled>
         </div>
         <div class="col-6">
           <label for="tier1Rate" class="form-label">Tier 1 Rate ($/kWh)</label>
-          <input type="number" min="0" step="0.0001" class="form-control" id="tier1Rate" placeholder="e.g., 0.12" oninput="saveData(); renderUsageChart(); updateSummary();" disabled>
+          <input type="number" min="0" step="0.0001" class="form-control" id="tier1Rate" placeholder="e.g., 0.12" disabled>
         </div>
       </div>
       <div class="row g-2 mt-2">
         <div class="col-12">
           <label for="tier2Rate" class="form-label">Tier 2 Rate ($/kWh, optional)</label>
-          <input type="number" min="0" step="0.0001" class="form-control" id="tier2Rate" placeholder="Leave blank to use base Cost per kWh" oninput="saveData(); renderUsageChart(); updateSummary();" disabled>
+          <input type="number" min="0" step="0.0001" class="form-control" id="tier2Rate" placeholder="Leave blank to use base Cost per kWh" disabled>
         </div>
       </div>
       <small class="text-muted d-block mt-2">Example: First 1000 kWh at $0.12, then remaining at base rate (or custom Tier 2 rate if provided).</small>
     </div>
 
+    <!-- CSV Upload -->
     <div class="billing-box mb-3">
       <label><i class="bi bi-filetype-csv"></i> Got your kWh data ready? Upload your CSV file below!</label>
       <div class="file-help-group">
@@ -90,14 +99,15 @@
       </div>
       <div class="row mt-2">
         <div class="col-6">
-          <button class="btn btn-secondary w-100" onclick="generateCSVTemplate()" aria-label="Download CSV Template" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Download a pre-formatted CSV template with your billing period dates"><i class="bi bi-download"></i> Download CSV Template</button>
+          <button class="btn btn-secondary w-100" data-action="download-csv-template" aria-label="Download CSV Template" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Download a pre-formatted CSV template with your billing period dates"><i class="bi bi-download"></i> Download CSV Template</button>
         </div>
         <div class="col-6">
-          <button class="btn btn-primary w-100" onclick="importCSV()" aria-label="Import from CSV" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Upload your completed CSV file to automatically fill in all kWh usage fields"><i class="bi bi-upload"></i> Import from CSV</button>
+          <button class="btn btn-primary w-100" data-action="import-csv" aria-label="Import from CSV" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Upload your completed CSV file to automatically fill in all kWh usage fields"><i class="bi bi-upload"></i> Import from CSV</button>
         </div>
       </div>
     </div>
 
+    <!-- kWh Fields (dynamically generated) -->
     <div id="kwhFieldsBox" class="billing-box mb-3">
       <div id="kwhFields">
         <!-- Dynamically generated kWh fields will go here -->
@@ -105,60 +115,44 @@
     </div>
 
     <!-- Dashboard Summary Card -->
-    <div class="billing-box mb-3" id="summaryBox" style="display: none;">
+    <div class="billing-box mb-3" id="summaryBox">
       <div class="d-flex justify-content-between align-items-center mb-3">
         <h6 class="mb-0"><i class="bi bi-speedometer2"></i> Dashboard Summary</h6>
         <small class="text-muted" data-bs-toggle="tooltip" data-bs-placement="left" title="Quick overview of your billing period usage and costs. Updates automatically as you enter data.">
           <i class="bi bi-info-circle"></i> Auto-updating
         </small>
       </div>
-      
       <div class="row g-3">
-        <!-- Total kWh -->
         <div class="col-6 col-md-3">
           <div class="summary-stat">
-            <div class="stat-icon text-primary">
-              <i class="bi bi-lightning-charge-fill"></i>
-            </div>
+            <div class="stat-icon text-primary"><i class="bi bi-lightning-charge-fill"></i></div>
             <div class="stat-content">
               <div class="stat-value" id="totalKwh">0.00</div>
               <div class="stat-label">Total kWh</div>
             </div>
           </div>
         </div>
-        
-        <!-- Total Cost -->
         <div class="col-6 col-md-3">
           <div class="summary-stat">
-            <div class="stat-icon text-success">
-              <i class="bi bi-currency-dollar"></i>
-            </div>
+            <div class="stat-icon text-success"><i class="bi bi-currency-dollar"></i></div>
             <div class="stat-content">
               <div class="stat-value" id="totalCost">$0.00</div>
               <div class="stat-label">Total Cost</div>
             </div>
           </div>
         </div>
-        
-        <!-- Average Daily Usage -->
         <div class="col-6 col-md-3">
           <div class="summary-stat">
-            <div class="stat-icon text-info">
-              <i class="bi bi-graph-up"></i>
-            </div>
+            <div class="stat-icon text-info"><i class="bi bi-graph-up"></i></div>
             <div class="stat-content">
               <div class="stat-value" id="avgDaily">0.00</div>
               <div class="stat-label">Avg Daily kWh</div>
             </div>
           </div>
         </div>
-        
-        <!-- Data Completeness -->
         <div class="col-6 col-md-3">
           <div class="summary-stat">
-            <div class="stat-icon text-warning">
-              <i class="bi bi-clipboard-data"></i>
-            </div>
+            <div class="stat-icon text-warning"><i class="bi bi-clipboard-data"></i></div>
             <div class="stat-content">
               <div class="stat-value" id="completeness">0%</div>
               <div class="stat-label">Data Complete</div>
@@ -166,8 +160,6 @@
           </div>
         </div>
       </div>
-      
-      <!-- Progress Bar -->
       <div class="mt-3">
         <div class="d-flex justify-content-between align-items-center mb-1">
           <small class="text-muted">Data Entry Progress</small>
@@ -179,6 +171,7 @@
       </div>
     </div>
 
+    <!-- Chart -->
     <div class="billing-box mb-3" id="chartBox">
       <div class="d-flex justify-content-between align-items-center mb-2">
         <h6 class="mb-0"><i class="bi bi-bar-chart-fill"></i> Usage & Cost Visualization</h6>
@@ -189,13 +182,14 @@
       <canvas id="usageChart" height="120" aria-label="kWh Usage and Cost Chart"></canvas>
     </div>
 
+    <!-- Action Buttons -->
     <div class="billing-box mb-3">
       <div class="row mb-3 d-flex justify-content-center button-row-spacing">
         <div class="col-6 d-flex justify-content-center align-items-center">
-          <button class="btn btn-success w-100" onclick="calculateTotal()" aria-label="Calculate Reimbursement" data-bs-toggle="tooltip" data-bs-placement="top" title="Calculate your total reimbursement amount based on kWh usage and cost per kWh"><i class="bi bi-calculator-fill"></i> Calculate Reimbursement</button>
+          <button class="btn btn-success w-100" data-action="calculate" aria-label="Calculate Reimbursement" data-bs-toggle="tooltip" data-bs-placement="top" title="Calculate your total reimbursement amount based on kWh usage and cost per kWh"><i class="bi bi-calculator-fill"></i> Calculate Reimbursement</button>
         </div>
         <div class="col-6 d-flex justify-content-center align-items-center">
-          <button class="btn btn-info w-100" onclick="exportToExcel()" aria-label="Export to Excel" data-bs-toggle="tooltip" data-bs-placement="top" title="Download a detailed Excel spreadsheet with all your usage data and calculations"><i class="bi bi-file-earmark-excel-fill"></i> Export to Excel</button>
+          <button class="btn btn-info w-100" data-action="export-excel" aria-label="Export to Excel" data-bs-toggle="tooltip" data-bs-placement="top" title="Download a detailed Excel spreadsheet with all your usage data and calculations"><i class="bi bi-file-earmark-excel-fill"></i> Export to Excel</button>
         </div>
       </div>
       <div class="row mb-3 d-flex justify-content-center button-row-spacing">
@@ -203,7 +197,7 @@
           <a href="https://travel.siemens.cloud" target="_blank" rel="noopener" class="btn btn-primary w-100" aria-label="Travel@Siemens"><i class="bi bi-globe"></i> Travel@Siemens</a>
         </div>
         <div class="col-6 d-flex justify-content-center align-items-center">
-          <button class="btn btn-danger w-100" onclick="exportToPDF()" aria-label="Export to PDF" data-bs-toggle="tooltip" data-bs-placement="top" title="Generate a professional PDF report for expense submission"><i class="bi bi-file-earmark-pdf-fill"></i> Export to PDF</button>
+          <button class="btn btn-danger w-100" data-action="export-pdf" aria-label="Export to PDF" data-bs-toggle="tooltip" data-bs-placement="top" title="Generate a professional PDF report for expense submission"><i class="bi bi-file-earmark-pdf-fill"></i> Export to PDF</button>
         </div>
       </div>
       <div class="row mb-3 d-flex justify-content-center button-row-spacing">
@@ -221,17 +215,19 @@
       </div>
     </div>
 
+    <!-- Result -->
     <div id="resultBox" class="result-box" aria-live="polite" aria-atomic="true">
       <div class="result" id="result"></div>
     </div>
 
+    <!-- Footer -->
     <div class="footer-divider">
       <div class="credit">Created by: Caleb O'Hara</div>
     </div>
     <div class="credit mt-2">
       <small style="color: var(--text-color); opacity: 0.8;">Data Privacy: All data is stored locally in your browser and never uploaded to any server.</small>
     </div>
-    <div class="credit mt-2">Version 1.10.0</div>
+    <div class="credit mt-2">Version 2.0.0</div>
     <div class="disclaimer mt-3 text-center">
       <small style="color: var(--text-color); opacity: 0.8;">
         <strong>Disclaimer:</strong> The accuracy of calculations and reimbursements depends on the data provided. Please ensure all input values, including kWh usage and cost per kWh, are accurate and verified. Siemens is not responsible for any discrepancies resulting from incorrect data entry.
@@ -280,33 +276,28 @@ Date,kWh Usage
         </div>
         <div class="modal-body">
           <form id="feedbackForm">
-            <!-- App Rating Section -->
             <div class="mb-4">
               <label class="form-label"><i class="bi bi-star-fill"></i> Rate this app:</label>
               <div class="star-rating" id="starRating" data-bs-toggle="tooltip" data-bs-placement="right" title="Click to rate your experience with the app">
-                <span class="star" data-rating="1">★</span>
-                <span class="star" data-rating="2">★</span>
-                <span class="star" data-rating="3">★</span>
-                <span class="star" data-rating="4">★</span>
-                <span class="star" data-rating="5">★</span>
+                <span class="star" data-rating="1">&#9733;</span>
+                <span class="star" data-rating="2">&#9733;</span>
+                <span class="star" data-rating="3">&#9733;</span>
+                <span class="star" data-rating="4">&#9733;</span>
+                <span class="star" data-rating="5">&#9733;</span>
               </div>
               <small class="form-text text-muted mt-1" id="ratingText">Click the stars to rate your experience</small>
             </div>
-
-            <!-- Feedback Type -->
             <div class="mb-3">
               <label for="feedbackType" class="form-label"><i class="bi bi-tag"></i> Feedback Type:</label>
               <select class="form-select" id="feedbackType" data-bs-toggle="tooltip" data-bs-placement="top" title="Choose the type of feedback you're providing">
-                <option value="feature">💡 Feature Request</option>
-                <option value="bug">🐛 Bug Report</option>
-                <option value="improvement">🔧 Improvement Suggestion</option>
-                <option value="question">❓ Question</option>
-                <option value="compliment">👍 Compliment</option>
-                <option value="other">💬 Other</option>
+                <option value="feature">Feature Request</option>
+                <option value="bug">Bug Report</option>
+                <option value="improvement">Improvement Suggestion</option>
+                <option value="question">Question</option>
+                <option value="compliment">Compliment</option>
+                <option value="other">Other</option>
               </select>
             </div>
-
-            <!-- Message Text Area -->
             <div class="mb-3">
               <label for="feedbackMessage" class="form-label"><i class="bi bi-chat-text"></i> Your Message:</label>
               <textarea class="form-control" id="feedbackMessage" rows="4" placeholder="Share your thoughts, suggestions, or report any issues you've encountered..." data-bs-toggle="tooltip" data-bs-placement="top" title="Describe your feedback in detail"></textarea>
@@ -314,8 +305,6 @@ Date,kWh Usage
                 <small class="text-muted">Your feedback helps improve the app for everyone!</small>
               </div>
             </div>
-
-            <!-- User Info (Optional) -->
             <div class="mb-3">
               <label for="userInfo" class="form-label"><i class="bi bi-person"></i> Your Name/Department (optional):</label>
               <input type="text" class="form-control" id="userInfo" placeholder="e.g., John Smith - IT Department" data-bs-toggle="tooltip" data-bs-placement="top" title="Optional: Help us know who to follow up with">
@@ -330,7 +319,7 @@ Date,kWh Usage
           </div>
           <div class="footer-actions">
             <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-            <button type="button" class="btn btn-primary" onclick="submitFeedback()" id="submitFeedbackBtn">
+            <button type="button" class="btn btn-primary" data-action="submit-feedback" id="submitFeedbackBtn">
               <i class="bi bi-envelope"></i> Send Feedback
             </button>
           </div>
@@ -457,22 +446,22 @@ Date,kWh Usage
           <h5>5.6.3 SIEMENS-PROVIDED EV CHARGER & INSTALLATION</h5>
           <ul>
             <li>By ordering an electric vehicle (EV), an eligible employee agrees to utilize the home charger provided under this Policy as the employee's primary charging method. The employee agrees to use public chargers only on an exception basis, for example when away from home for an extended trip. Siemens will take appropriate action if it determines that an employee is using public chargers on a regular basis in a manner that is non-compliant with this Policy. If an eligible employee resides in a location where the installation of a home charger is not possible (e.g., apartment, subject to HOA restrictions, etc.), the employee should obtain approval from their manager for Siemens Industry, Inc. Policy Smart Infrastructure 25 an exception to use public charging. In this event, the eligible driver shall notify FMS via email that a home charger will not be needed.</li>
-            <li>In the event an eligible employee orders an electric vehicle (EV), Siemens will allow the employee to order a Siemens VersiCharge™ home charger through the fleet management provider at no cost to the employee (but see Home Charger Hardware Tax discussion below). Alternatively, the employee may order an EV charger from a Siemens approved source as directed by FMS or Wheels. In the event an employee orders an EV charger via a method outside of the fleet management provider, the employee will expense the cost of the charger through the T&E process under expense category "Fuel."</li>
+            <li>In the event an eligible employee orders an electric vehicle (EV), Siemens will allow the employee to order a Siemens VersiCharge&#8482; home charger through the fleet management provider at no cost to the employee (but see Home Charger Hardware Tax discussion below). Alternatively, the employee may order an EV charger from a Siemens approved source as directed by FMS or Wheels. In the event an employee orders an EV charger via a method outside of the fleet management provider, the employee will expense the cost of the charger through the T&amp;E process under expense category "Fuel."</li>
             <li>In addition to providing a charger, Siemens will cover the cost of installation of the charger up to $1,500 (amounts may vary per business unit and are subject to change). The employee will use a local, licensed professional contractor to install the home charger. When hiring a contractor, employee will ensure the following:
               <ul>
                 <li>Contractor is licensed and insured in the state where the work is being done</li>
-                <li>Contractor is in receipt of and complies with the VersiCharge™ Manual</li>
+                <li>Contractor is in receipt of and complies with the VersiCharge&#8482; Manual</li>
                 <li>Work is performed in accordance with applicable state and local regulations and building codes</li>
                 <li>A detailed invoice is provided, showing the goods and services provided and the amount paid</li>
               </ul>
             </li>
             <li>Siemens supports the cost of installation of a 208/240VAC connected NEMA 6-50 plug, which should not exceed $1,500. If the cost of installation exceeds $1,500 PKK, the employee must submit documentation of the cost to request prior written authorization from the employee's supervisor. Such written authorization, signed by the employee's supervisor, should also be submitted as a receipt in the E2E Travel@Siemens tool. However, Siemens will not reimburse any costs associated with upgrading the electrical systems of the employee's residence. All installation services must be itemized on an invoice and submitted via E2E Travel@Siemens along with the request for reimbursement. Siemens will fund up to $1,500 for services only pertaining to the enablement of EV charging. If required after consultation with Siemens legal counsel, employees in certain states may be eligible for additional reimbursement.</li>
             <li>The employee can seek reimbursement of allowable installation costs in E2E Travel@Siemens using the expense category "Fuel."</li>
-            <li>Employee agrees to indemnify Siemens, and Siemens will not be responsible for any damages, liabilities, losses, or expenses arising from the charger, its use or its installation. Upon successful installation of the charger, the employee will pay the contractor and expense the installation through the T&E process.</li>
+            <li>Employee agrees to indemnify Siemens, and Siemens will not be responsible for any damages, liabilities, losses, or expenses arising from the charger, its use or its installation. Upon successful installation of the charger, the employee will pay the contractor and expense the installation through the T&amp;E process.</li>
             <li>In addition, Siemens recommends, but does not require, that the homeowner connect the charger to the cloud, unlocking a host of features including reporting, monitoring and remote start/stop of charging. The charger can be connected via either ethernet (CAT 5/6) or Wi-Fi. Please note that the charger requires a strong Wi-Fi signal to be commissioned via Wi-Fi.</li>
-            <li>To enable a connected charger to the cloud, please follow the video instructions for commissioning found at: conVersiCharge™ Mobile App Charger Setup.</li>
+            <li>To enable a connected charger to the cloud, please follow the video instructions for commissioning found at: conVersiCharge&#8482; Mobile App Charger Setup.</li>
             <li>Siemens continues to focus on user experience and is working diligently to incorporate home charging, in addition to adding networks/services to make it easier to charge faster and many more public places.</li>
-            <li>Home charging: A standard 120V will charge your vehicle, but at a slower pace until you can install Siemens VersiCharge™ 40 Amp Level 2 Charger. In rare cases, a Siemens VersiCharge™ unit may not be provided and you will be directed to purchase an EV charger from a supplier/source identified by FMS. In this event, use your corporate AMEX as the payment method and enter the expense into E2E Travel@Siemens using the expense category "Fuel."</li>
+            <li>Home charging: A standard 120V will charge your vehicle, but at a slower pace until you can install Siemens VersiCharge&#8482; 40 Amp Level 2 Charger. In rare cases, a Siemens VersiCharge&#8482; unit may not be provided and you will be directed to purchase an EV charger from a supplier/source identified by FMS. In this event, use your corporate AMEX as the payment method and enter the expense into E2E Travel@Siemens using the expense category "Fuel."</li>
             <li>Home Charger Hardware Tax: Twenty percent (20%) of the value/price of the EV charger will be included in the taxable income of the EV drivers, subject to appropriate U.S. Federal and state income and payroll taxes. The total amount to be taxed will be provided ratio payroll by FMS or E2E Travel@Siemens.</li>
             <li>PUD adjustment: EV drivers get a reduction in their personal use deduction (PUD) of $25/month, which equates to $12.50/check for businesses that are paid twice/month.</li>
             <li>Home Charger Install Tax: Siemens will fund up to $1,500 for installation of an EV charger. Twenty percent (20%) of the reimbursed installation costs will be included in the taxable income of the EV drivers, subject to appropriate U.S. Federal and state income and payroll taxes. The total amount to be taxed will be provided to payroll via E2E Travel@Siemens.</li>
@@ -482,10 +471,10 @@ Date,kWh Usage
                 <li>Identify the electric rate (cost/kWh) on the monthly utility bill</li>
                 <li>Multiply the monthly consumption amount (kWh) x the average electric rate (cost/kWh)</li>
               </ul>
-              <p>Example: 250 kWh x $0.17/kWh = $42.50 (amount to be submitted through the T&E process).</p>
+              <p>Example: 250 kWh x $0.17/kWh = $42.50 (amount to be submitted through the T&amp;E process).</p>
             </li>
             <li>To receive reimbursement for documented home charging expenses, enter the expense into E2E Travel@Siemens under the expense category "Fuel." All home charging expenses submitted must include a screen shot from your mobile app showing the kWh charged and a copy of the related monthly utility bill.</li>
-            <li>The Siemens VersiCharge™ home charger should be used strictly for charging of a company vehicle. In the event an employee changes residence after the charger is installed in their home, the employee will be responsible for the cost to upgrade or transfer the home charger to the new residence. In addition, if the employee's eligibility to participate in the company vehicle Program is discontinued, the employee will not be required to reimburse Siemens for any costs associated with the EV charger installation. The employee will be fully responsible for any continued use or removal of the charger.</li>
+            <li>The Siemens VersiCharge&#8482; home charger should be used strictly for charging of a company vehicle. In the event an employee changes residence after the charger is installed in their home, the employee will be responsible for the cost to upgrade or transfer the home charger to the new residence. In addition, if the employee's eligibility to participate in the company vehicle Program is discontinued, the employee will not be required to reimburse Siemens for any costs associated with the EV charger installation. The employee will be fully responsible for any continued use or removal of the charger.</li>
           </ul>
 
           <h5>5.6.4 EV PUBLIC PAYMENT CARD/APP</h5>
@@ -495,7 +484,7 @@ Date,kWh Usage
             <li>ChargePoint (public charging): Note, not all ChargePoint locations have DC fast chargers, but they are continuing to grow their network.</li>
             <li>Non-ChargePoint Public Charging expenses: Right now the process is to set up your own individual accounts with charging networks in your area that you can use. When setting up your accounts with other charging networks such as EVGo, Flow, etc., you will need to enter your corporate AMEX as the payment method. Transaction receipts will be required for any transaction exceeding $75.00. Non-ChargePoint Public Charging expenses should be entered in E2E Travel@Siemens under the expense category "Fuel."</li>
             <li>Public Charging Network expansion: Siemens FMS is currently working with Siemens eMobility on expanding your ability to charge easily on other (DC Fast) charging stations across the U.S.</li>
-            <li>Charging services applied to this card will be paid via a direct-bill process through Wheels. T&E expense reports may be used ONLY when charging is required outside of the designated network.</li>
+            <li>Charging services applied to this card will be paid via a direct-bill process through Wheels. T&amp;E expense reports may be used ONLY when charging is required outside of the designated network.</li>
             <li>If the EV public charging payment solution is a physical card, lost, misplaced or stolen cards must be promptly reported to Wheels at EVsupport@wheels.com.</li>
             <li>Charging at EV public charging stations must be for EV charging ONLY, regardless of the payment method. No other charges besides EV charging will be reimbursed.</li>
             <li>Public Charging for Fleet Rental: In the event an electric vehicle is provided for your interim rental, public charging should be used via your Amex card and the charges are to be expensed through E2E Travel@Siemens using the expense category "Fuel."</li>
@@ -517,10 +506,19 @@ Date,kWh Usage
           <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
         </div>
         <div class="modal-body">
+          <h6>Version 2.0.0 - February 28, 2026</h6>
+          <ul>
+            <li><strong>Modular Architecture:</strong> Complete codebase refactor from monolithic single-file to ES module architecture with 13 focused modules across separate files.</li>
+            <li><strong>Centralized Date Parsing:</strong> Eliminated 12+ duplicate date parsing patterns with shared utility functions, preventing timezone-related bugs.</li>
+            <li><strong>Clean Event Architecture:</strong> Replaced monkey-patching patterns and inline onclick handlers with data-action delegation and proper module imports.</li>
+            <li><strong>CSS Organization:</strong> Split monolithic stylesheet into 5 organized files: variables, base, components, animations, and responsive.</li>
+            <li><strong>Profile Storage Refactor:</strong> Clean profile-scoped localStorage wrapper with backward compatibility for existing user data.</li>
+            <li><strong>All existing features preserved:</strong> Profiles, tiered billing, dark mode, chart visualization, CSV import/export, Excel/PDF export, feedback form, tooltips, animations, and accessibility features all work identically.</li>
+          </ul>
           <h6>Version 1.10.0 - December 21, 2024</h6>
           <ul>
             <li><strong>Tiered Rates (Basic):</strong> Added optional tiered billing support where the first N kWh in a billing period are charged at Tier 1 rate, and remaining kWh at Tier 2 or base rate. Includes validation, persistence per profile, and integration with chart/summary/exports.</li>
-            <li><strong>Validation & Fallbacks:</strong> Tier fields validate on the fly; if invalid, calculations safely fall back to base rate. When tiers are enabled and valid, base Cost per kWh can be blank.</li>
+            <li><strong>Validation &amp; Fallbacks:</strong> Tier fields validate on the fly; if invalid, calculations safely fall back to base rate. When tiers are enabled and valid, base Cost per kWh can be blank.</li>
             <li><strong>Dark Mode Polish:</strong> Improved modal and input readability in dark mode, including disabled inputs in tier settings.</li>
           </ul>
           <h6>Version 1.9.0 - December 20, 2024</h6>
@@ -538,7 +536,7 @@ Date,kWh Usage
           </ul>
           <h6>Version 1.8.0 - December 19, 2024</h6>
           <ul>
-            <li><strong>Icon Fix & Accessibility:</strong> Fixed car icon typo and added proper ARIA attributes for screen reader support</li>
+            <li><strong>Icon Fix &amp; Accessibility:</strong> Fixed car icon typo and added proper ARIA attributes for screen reader support</li>
             <li><strong>Reset Function Enhancement:</strong> Unified key lists and improved form reset functionality with complete data clearing</li>
             <li><strong>Local Date Formatting:</strong> Replaced UTC-based date formatting with local timezone support to prevent date shifts</li>
             <li><strong>Anti-Debug Removal:</strong> Removed unnecessary event listeners that blocked developer tools and context menus</li>
@@ -597,10 +595,12 @@ Date,kWh Usage
     </div>
   </div>
 
+  <!-- CDN Libraries (loaded before module script) -->
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.7.0/jspdf.plugin.autotable.min.js"></script>
-  <script src="script.js"></script>
 
+  <!-- App entry point (ES Module) -->
+  <script type="module" src="js/app.js"></script>
 </body>
 </html>

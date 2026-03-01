@@ -1,0 +1,85 @@
+/* Keyframe animations and transitions */
+
+@keyframes highlightBox {
+  0% { box-shadow: 0 0 0 0.4rem rgba(220, 53, 69, 0.25); }
+  100% { box-shadow: 0 6px 24px 0 rgba(0, 0, 0, 0.10), 0 1.5px 4px 0 rgba(0, 0, 0, 0.08); }
+}
+
+@keyframes successHighlight {
+  0% { box-shadow: 0 0 0 0.4rem rgba(40, 167, 69, 0.25); }
+  100% { box-shadow: 0 6px 24px 0 rgba(0, 0, 0, 0.10), 0 1.5px 4px 0 rgba(0, 0, 0, 0.08); }
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 0.7; }
+  50% { opacity: 1; }
+}
+
+@keyframes fadeInSlide {
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Billing box highlight animation */
+.billing-box.highlight {
+  animation: highlightBox 0.7s;
+}
+
+/* Result box animation */
+.result-box.show {
+  animation: successHighlight 0.7s;
+}
+
+/* Summary box animation */
+#summaryBox.show {
+  animation: fadeInUp 0.5s ease-out;
+}
+
+/* Summary box transition */
+#summaryBox {
+  opacity: 0;
+  transform: translateY(-10px);
+  transition: opacity 0.5s ease-out, transform 0.5s ease-out;
+}
+
+#summaryBox.show {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* kWh field row staggered animation */
+.kwh-field-row {
+  opacity: 0;
+  transform: translateX(-10px);
+  animation: fadeInSlide 0.3s ease-out forwards;
+}
+
+.kwh-field-row:nth-child(1) { animation-delay: 0.05s; }
+.kwh-field-row:nth-child(2) { animation-delay: 0.10s; }
+.kwh-field-row:nth-child(3) { animation-delay: 0.15s; }
+.kwh-field-row:nth-child(4) { animation-delay: 0.20s; }
+.kwh-field-row:nth-child(5) { animation-delay: 0.25s; }
+.kwh-field-row:nth-child(6) { animation-delay: 0.30s; }
+.kwh-field-row:nth-child(7) { animation-delay: 0.35s; }
+.kwh-field-row:nth-child(8) { animation-delay: 0.40s; }
+.kwh-field-row:nth-child(9) { animation-delay: 0.45s; }
+.kwh-field-row:nth-child(10) { animation-delay: 0.50s; }
+.kwh-field-row:nth-child(n+11) { animation-delay: 0.55s; }

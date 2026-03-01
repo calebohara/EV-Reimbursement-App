@@ -1,0 +1,108 @@
+/* Base styles — typography, layout, general elements */
+
+body {
+  background-color: var(--bg-color);
+  color: var(--text-color);
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+.container {
+  max-width: 600px;
+  padding: 20px;
+  background-color: var(--container-bg);
+  border-radius: 15px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+  position: relative;
+}
+
+pre {
+  background-color: var(--pre-bg);
+  padding: 10px;
+  border-radius: 5px;
+}
+
+/* Form controls */
+.form-control {
+  background-color: var(--form-bg);
+  color: var(--form-text);
+  border: 1px solid #ced4da;
+}
+
+.form-control:disabled,
+.form-control[disabled] {
+  background-color: var(--form-bg) !important;
+  color: var(--form-text) !important;
+  opacity: 0.75;
+  border-color: #adb5bd;
+}
+
+body.dark-mode .form-control:disabled,
+body.dark-mode .form-control[disabled] {
+  background-color: var(--form-bg) !important;
+  color: var(--form-text) !important;
+  border-color: #6c757d;
+}
+
+.form-control::placeholder {
+  color: rgba(0, 0, 0, 0.45);
+}
+
+body.dark-mode .form-control::placeholder {
+  color: rgba(255, 255, 255, 0.7);
+}
+
+.form-control:focus {
+  background-color: var(--form-bg);
+  color: var(--form-text);
+  border-color: #86b7fe;
+  box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.25);
+}
+
+/* Branding */
+.siemens-header {
+  font-size: 1.5rem;
+  font-weight: bold;
+  text-align: center;
+  color: #009999;
+  margin-bottom: 15px;
+}
+
+/* Footer */
+.footer-divider {
+  border-top: 1px solid #dee2e6;
+  margin-top: 30px;
+  padding-top: 15px;
+}
+
+.credit {
+  font-size: 0.875rem;
+  text-align: center;
+  color: #6c757d;
+}
+
+/* Modal theming */
+.modal-content {
+  background-color: var(--container-bg);
+  color: var(--text-color);
+}
+
+body.dark-mode .modal-content .form-label,
+body.dark-mode .modal-content label,
+body.dark-mode .modal-content p,
+body.dark-mode .modal-content li,
+body.dark-mode .modal-content small {
+  color: var(--text-color);
+}
+
+body.dark-mode .text-muted {
+  color: #c8ced6 !important;
+}
+
+/* Dark mode tiered rate inputs */
+body.dark-mode #tier1Limit,
+body.dark-mode #tier1Rate,
+body.dark-mode #tier2Rate {
+  background-color: var(--form-bg);
+  color: var(--form-text);
+  border-color: #495057;
+}
