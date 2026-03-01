@@ -1,5 +1,16 @@
 /* Responsive styles — mobile optimization */
 
+/* ── Uniform action buttons (all viewports) ── */
+.button-row-spacing .btn,
+.button-row-spacing .btn.w-100 {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 54px;
+  white-space: nowrap;
+  font-size: 0.95rem;
+}
+
 @media (max-width: 768px) {
   .summary-stat {
     padding: 10px 8px;
@@ -22,7 +33,9 @@
 }
 
 @media (max-width: 600px) {
-  .container {
+  /* Reduce top margin on mobile */
+  .container.mt-5 {
+    margin-top: 1rem !important;
     max-width: 100vw;
     padding: 8px;
     border-radius: 0;
@@ -35,7 +48,7 @@
 
   .btn,
   .form-control {
-    font-size: 1.05rem;
+    font-size: 1rem;
     min-height: 44px;
   }
 
@@ -59,26 +72,43 @@
     left: 4px;
   }
 
-  /* Profile box mobile */
+  /* Profile box mobile — label stacks, select + buttons stay inline */
   .profile-box {
-    flex-direction: column;
-    align-items: center;
+    flex-wrap: wrap;
+    justify-content: center;
     padding: 10px 6px;
     border-radius: 10px;
     text-align: center;
   }
 
   .profile-box label {
+    width: 100%;
     margin-bottom: 4px;
     text-align: center;
   }
 
-  .profile-select,
-  .profile-btn {
-    width: 100%;
-    margin-bottom: 6px;
+  .profile-select {
+    flex: 1 1 auto;
+    min-width: 0;
+    max-width: calc(100% - 112px);
     margin-left: 0;
     margin-right: 0;
+  }
+
+  .profile-btn {
+    width: 48px !important;
+    min-width: 48px;
+    flex: 0 0 48px;
+  }
+
+  /* Action buttons — uniform height, allow text wrap */
+  .button-row-spacing .btn,
+  .button-row-spacing .btn.w-100 {
+    min-height: 48px;
+    font-size: 0.88rem;
+    padding: 8px 6px;
+    white-space: normal;
+    line-height: 1.2;
   }
 
   /* Summary mobile */
@@ -99,6 +129,16 @@
 
   .stat-label {
     font-size: 0.6rem;
+  }
+
+  /* History items mobile */
+  .history-item {
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .history-actions {
+    align-self: flex-end;
   }
 
   /* Modal footer mobile */

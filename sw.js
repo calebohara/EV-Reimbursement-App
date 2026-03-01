@@ -3,7 +3,7 @@
  * Cache-first for app shell, network-first for CDN libraries.
  */
 
-const CACHE_NAME = 'ev-reimburse-v2.1.0';
+const CACHE_NAME = 'ev-reimburse-v2.1.1';
 
 const APP_SHELL = [
   '/',
@@ -12,7 +12,7 @@ const APP_SHELL = [
   '/css/base.css',
   '/css/components.css',
   '/css/animations.css',
-  '/css/responsive.css',
+  '/css/responsive.css?v=2.1.1',
   '/js/app.js',
   '/js/storage.js',
   '/js/profiles.js',
@@ -31,6 +31,9 @@ const APP_SHELL = [
   '/js/exports/pdf.js',
   '/js/exports/receipt.js',
   '/icons/icon.svg',
+  '/icons/og-image.png',
+  '/icons/apple-touch-icon.png',
+  '/icons/favicon-32x32.png',
   '/manifest.json'
 ];
 
