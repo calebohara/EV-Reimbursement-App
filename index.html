@@ -12,6 +12,8 @@
   <link rel="manifest" href="manifest.json">
   <meta name="theme-color" content="#009999">
   <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <meta name="apple-mobile-web-app-title" content="EV Reimburse">
   <meta name="description" content="Calculate, track, and export your EV charging reimbursement. Tiered rates, billing history, PDF receipts, and trend analysis.">
   <!-- Open Graph -->
   <meta property="og:type" content="website">
@@ -28,8 +30,8 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <link rel="stylesheet" href="css/variables.css?v=3.0">
-  <link rel="stylesheet" href="css/base.css?v=3.3">
-  <link rel="stylesheet" href="css/components.css?v=3.1">
+  <link rel="stylesheet" href="css/base.css?v=3.4">
+  <link rel="stylesheet" href="css/components.css?v=3.2">
   <link rel="stylesheet" href="css/animations.css?v=3.0">
   <link rel="stylesheet" href="css/responsive.css?v=3.1">
 </head>
@@ -506,11 +508,87 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.7.0/jspdf.plugin.autotable.min.js"></script>
   <script type="module" src="js/app.js"></script>
 
-  <!-- Service Worker -->
+  <!-- PWA Install Banner -->
+  <div id="pwaInstallBanner" class="pwa-banner" hidden>
+    <div class="pwa-banner-inner">
+      <img src="icons/icon-192.png" alt="App Icon" class="pwa-banner-icon">
+      <div class="pwa-banner-text">
+        <strong>EV Reimburse</strong>
+        <small>Install for quick access & offline use</small>
+      </div>
+      <button id="pwaInstallBtn" class="pwa-banner-btn">Install</button>
+      <button id="pwaDismissBtn" class="pwa-banner-dismiss" aria-label="Dismiss">&times;</button>
+    </div>
+  </div>
+
+  <!-- Service Worker + PWA Install -->
   <script>
     if ('serviceWorker' in navigator) {
       navigator.serviceWorker.register('sw.js').catch(() => {});
     }
+
+    // PWA Install Prompt
+    (function() {
+      let deferredPrompt = null;
+      const banner = document.getElementById('pwaInstallBanner');
+      const installBtn = document.getElementById('pwaInstallBtn');
+      const dismissBtn = document.getElementById('pwaDismissBtn');
+
+      // Check if already dismissed recently (24 hours)
+      const dismissed = localStorage.getItem('pwa-install-dismissed');
+      if (dismissed && Date.now() - parseInt(dismissed) < 86400000) return;
+
+      // Check if already installed
+      if (window.matchMedia('(display-mode: standalone)').matches) return;
+      if (window.navigator.standalone === true) return;
+
+      // Android: listen for beforeinstallprompt
+      window.addEventListener('beforeinstallprompt', (e) => {
+        e.preventDefault();
+        deferredPrompt = e;
+        showBanner();
+      });
+
+      // iOS: show manual instructions
+      const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+      if (isIOS && !window.navigator.standalone) {
+        setTimeout(() => showBanner(true), 3000);
+      }
+
+      function showBanner(isManual) {
+        banner.hidden = false;
+        requestAnimationFrame(() => banner.classList.add('show'));
+
+        if (isManual) {
+          installBtn.textContent = 'How to Install';
+          installBtn.addEventListener('click', () => {
+            alert('Tap the Share button (box with arrow) in Safari, then tap "Add to Home Screen".');
+          });
+        }
+      }
+
+      installBtn.addEventListener('click', async () => {
+        if (!deferredPrompt) return;
+        deferredPrompt.prompt();
+        const result = await deferredPrompt.userChoice;
+        deferredPrompt = null;
+        banner.classList.remove('show');
+        setTimeout(() => banner.hidden = true, 400);
+      });
+
+      dismissBtn.addEventListener('click', () => {
+        banner.classList.remove('show');
+        setTimeout(() => banner.hidden = true, 400);
+        localStorage.setItem('pwa-install-dismissed', Date.now().toString());
+      });
+
+      // Hide after install
+      window.addEventListener('appinstalled', () => {
+        banner.classList.remove('show');
+        setTimeout(() => banner.hidden = true, 400);
+        deferredPrompt = null;
+      });
+    })();
   </script>
 </body>
 </html>

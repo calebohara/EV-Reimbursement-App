@@ -3,7 +3,7 @@
  * Cache-first for app shell, network-first for CDN libraries.
  */
 
-const CACHE_NAME = 'ev-reimburse-v2.1.2';
+const CACHE_NAME = 'ev-reimburse-v3.0.0';
 
 // Relative paths — resolved against SW scope at install time
 const APP_SHELL_RELATIVE = [
@@ -13,7 +13,7 @@ const APP_SHELL_RELATIVE = [
   './css/base.css',
   './css/components.css',
   './css/animations.css',
-  './css/responsive.css?v=2.1.1',
+  './css/responsive.css',
   './js/app.js',
   './js/storage.js',
   './js/profiles.js',
@@ -32,6 +32,8 @@ const APP_SHELL_RELATIVE = [
   './js/exports/pdf.js',
   './js/exports/receipt.js',
   './icons/icon.svg',
+  './icons/icon-192.png',
+  './icons/icon-512.png',
   './icons/og-image.png',
   './icons/apple-touch-icon.png',
   './icons/favicon-32x32.png',
