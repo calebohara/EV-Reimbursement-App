@@ -1,162 +1,235 @@
 /* Responsive styles — mobile optimization */
 
-/* ── Uniform action buttons (all viewports) ── */
-.button-row-spacing .btn,
-.button-row-spacing .btn.w-100 {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  min-height: 54px;
-  white-space: nowrap;
-  font-size: 0.95rem;
-}
-
+/* ── Medium screens ── */
 @media (max-width: 768px) {
-  .summary-stat {
-    padding: 10px 8px;
-    gap: 6px;
+  .stat-chip {
+    padding: 8px 6px;
   }
 
-  .stat-icon {
-    font-size: 1.25rem;
+  .stat-chip-value {
+    font-size: var(--text-base);
+  }
+
+  .stat-chip-label {
+    font-size: 0.65rem;
+  }
+
+  .hero-amount {
+    font-size: 2rem;
+  }
+}
+
+/* ── Small screens (mobile) ── */
+@media (max-width: 600px) {
+  :root {
+    --header-height: 48px;
+  }
+
+  .app-main {
+    padding: var(--space-md) var(--space-sm) var(--space-xl);
+  }
+
+  .section {
+    padding: var(--space-md) var(--space-sm);
+    border-radius: var(--radius-md);
+    margin-bottom: var(--space-sm);
+  }
+
+  .section-label {
+    font-size: var(--text-sm);
+    margin-bottom: var(--space-sm);
+  }
+
+  .step-badge {
+    width: 22px;
+    height: 22px;
+    font-size: var(--text-xs);
+  }
+
+  /* Header compact */
+  .header-inner {
+    padding: 0 var(--space-sm);
+  }
+
+  .header-brand {
+    font-size: var(--text-xs);
+  }
+
+  .header-title {
+    font-size: var(--text-sm);
+  }
+
+  .icon-btn {
     width: 32px;
     height: 32px;
+    font-size: 1rem;
   }
 
-  .stat-value {
-    font-size: 1.1rem;
+  /* Fields stack vertically */
+  .field-row {
+    flex-direction: column;
+    gap: var(--space-sm);
   }
 
-  .stat-label {
-    font-size: 0.7rem;
-  }
-}
-
-@media (max-width: 600px) {
-  /* Reduce top margin on mobile */
-  .container.mt-5 {
-    margin-top: 1rem !important;
-    max-width: 100vw;
-    padding: 8px;
-    border-radius: 0;
-  }
-
-  .billing-box {
-    padding: 12px 6px 8px 6px;
-    border-radius: 10px;
-  }
-
-  .btn,
+  .field-input,
   .form-control {
-    font-size: 1rem;
+    font-size: var(--text-base);
     min-height: 44px;
+    padding: 10px;
   }
 
-  label,
-  .credit,
-  .result {
-    font-size: 1rem;
+  .field-label {
+    font-size: var(--text-xs);
   }
 
-  .siemens-header {
-    font-size: 1.1rem;
+  /* Rate row stacks */
+  .rate-row {
+    flex-direction: column;
+    align-items: stretch;
+    gap: var(--space-sm);
   }
 
-  .btn-dark-mode {
-    top: 4px;
-    right: 4px;
-  }
-
-  .btn-site-help {
-    top: 4px;
-    left: 4px;
-  }
-
-  /* Profile box mobile — label stacks, select + buttons stay inline */
-  .profile-box {
-    flex-wrap: wrap;
-    justify-content: center;
-    padding: 10px 6px;
-    border-radius: 10px;
-    text-align: center;
-  }
-
-  .profile-box label {
+  .preset-controls {
     width: 100%;
-    margin-bottom: 4px;
-    text-align: center;
+  }
+
+  .preset-select {
+    flex: 1;
+    max-width: none;
+    min-width: 0;
+  }
+
+  /* Profile bar */
+  .profile-bar {
+    gap: var(--space-xs);
   }
 
   .profile-select {
-    flex: 1 1 auto;
-    min-width: 0;
-    max-width: calc(100% - 112px);
-    margin-left: 0;
-    margin-right: 0;
+    font-size: var(--text-sm);
   }
 
-  .profile-btn {
-    width: 48px !important;
-    min-width: 48px;
-    flex: 0 0 48px;
+  .btn-icon-sm {
+    width: 36px;
+    height: 36px;
   }
 
-  /* Action buttons — uniform height, allow text wrap */
-  .button-row-spacing .btn,
-  .button-row-spacing .btn.w-100 {
-    min-height: 48px;
-    font-size: 0.88rem;
-    padding: 8px 6px;
-    white-space: normal;
-    line-height: 1.2;
+  /* CSV row compact */
+  .csv-row {
+    flex-wrap: wrap;
+    gap: var(--space-xs);
   }
 
-  /* Summary mobile */
-  .summary-stat {
-    padding: 8px 6px;
-    gap: 4px;
+  .csv-input {
+    width: 100%;
+    flex: none;
   }
 
-  .stat-icon {
-    font-size: 1.1rem;
-    width: 28px;
-    height: 28px;
+  .btn-sm-action {
+    flex: 1;
+    justify-content: center;
   }
 
-  .stat-value {
-    font-size: 0.95rem;
+  /* Summary stats */
+  .stat-chip {
+    padding: 6px 4px;
   }
 
-  .stat-label {
+  .stat-chip-value {
+    font-size: var(--text-sm);
+  }
+
+  .stat-chip-label {
     font-size: 0.6rem;
   }
 
-  /* History items mobile */
+  /* Hero result */
+  .hero-amount {
+    font-size: 1.75rem;
+  }
+
+  .hero-result {
+    padding: var(--space-md) var(--space-sm);
+  }
+
+  /* CTA button */
+  .btn-primary-cta {
+    padding: 12px var(--space-md);
+    font-size: var(--text-sm);
+  }
+
+  /* Export buttons stack on very small */
+  .export-row {
+    gap: var(--space-xs);
+  }
+
+  .btn-export {
+    padding: 8px 6px;
+    font-size: var(--text-xs);
+    gap: 4px;
+  }
+
+  /* History items stack */
   .history-item {
     flex-direction: column;
     gap: 8px;
+    padding: 10px;
   }
 
   .history-actions {
     align-self: flex-end;
+    margin-left: 0;
   }
 
-  /* Modal footer mobile */
+  /* Footer */
+  .footer-links {
+    gap: var(--space-xs);
+    font-size: var(--text-xs);
+  }
+
+  .app-footer {
+    padding: var(--space-md) var(--space-sm) var(--space-xl);
+  }
+
+  /* Modals */
   .modal-footer {
     flex-direction: column;
     gap: 12px;
   }
 
-  .modal-footer .footer-info {
+  .modal-footer .footer-info,
+  .modal-footer small {
     text-align: center;
-  }
-
-  .modal-footer .footer-actions {
-    justify-content: center;
   }
 
   .star-rating {
     justify-content: center;
     font-size: 1.6rem;
+  }
+
+  /* Collapsible sections */
+  .collapsible-header {
+    font-size: var(--text-xs);
+  }
+}
+
+/* ── Very small screens ── */
+@media (max-width: 360px) {
+  .summary-stats-row {
+    flex-direction: column;
+    gap: var(--space-xs);
+  }
+
+  .stat-chip {
+    flex-direction: row;
+    justify-content: space-between;
+    padding: 8px 12px;
+  }
+
+  .export-row {
+    flex-direction: column;
+  }
+
+  .btn-export {
+    width: 100%;
   }
 }

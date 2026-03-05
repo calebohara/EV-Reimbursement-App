@@ -1,13 +1,13 @@
 /* Keyframe animations and transitions */
 
 @keyframes highlightBox {
-  0% { box-shadow: 0 0 0 0.4rem rgba(220, 53, 69, 0.25); }
-  100% { box-shadow: 0 6px 24px 0 rgba(0, 0, 0, 0.10), 0 1.5px 4px 0 rgba(0, 0, 0, 0.08); }
+  0% { box-shadow: 0 0 0 4px rgba(220, 53, 69, 0.25); }
+  100% { box-shadow: var(--shadow-sm); }
 }
 
 @keyframes successHighlight {
-  0% { box-shadow: 0 0 0 0.4rem rgba(40, 167, 69, 0.25); }
-  100% { box-shadow: 0 6px 24px 0 rgba(0, 0, 0, 0.10), 0 1.5px 4px 0 rgba(0, 0, 0, 0.08); }
+  0% { box-shadow: 0 0 0 4px rgba(0, 153, 153, 0.3); }
+  100% { box-shadow: none; }
 }
 
 @keyframes spin {
@@ -30,7 +30,7 @@
 @keyframes fadeInUp {
   from {
     opacity: 0;
-    transform: translateY(20px);
+    transform: translateY(12px);
   }
   to {
     opacity: 1;
@@ -38,48 +38,72 @@
   }
 }
 
-/* Billing box highlight animation */
+/* Section highlight animation (scrollToAndHighlight) */
+.section.highlight,
 .billing-box.highlight {
-  animation: highlightBox 0.7s;
+  animation: highlightBox 0.7s var(--ease-out);
 }
 
-/* Result box animation */
+/* Hero result show animation */
+.hero-result.show {
+  animation: fadeInUp 0.4s var(--ease-out);
+}
+
+/* Result box animation (old class) */
 .result-box.show {
-  animation: successHighlight 0.7s;
+  animation: successHighlight 0.7s var(--ease-out);
 }
 
 /* Summary box animation */
-#summaryBox.show {
-  animation: fadeInUp 0.5s ease-out;
-}
-
-/* Summary box transition */
 #summaryBox {
   opacity: 0;
-  transform: translateY(-10px);
-  transition: opacity 0.5s ease-out, transform 0.5s ease-out;
+  transform: translateY(-8px);
+  transition: opacity 0.4s var(--ease-out),
+              transform 0.4s var(--ease-out);
 }
 
 #summaryBox.show {
   opacity: 1;
   transform: translateY(0);
+  animation: fadeInUp 0.4s var(--ease-out);
 }
 
 /* kWh field row staggered animation */
 .kwh-field-row {
   opacity: 0;
-  transform: translateX(-10px);
-  animation: fadeInSlide 0.3s ease-out forwards;
+  transform: translateX(-8px);
+  animation: fadeInSlide 0.25s var(--ease-out) forwards;
 }
 
-.kwh-field-row:nth-child(1) { animation-delay: 0.05s; }
-.kwh-field-row:nth-child(2) { animation-delay: 0.10s; }
-.kwh-field-row:nth-child(3) { animation-delay: 0.15s; }
-.kwh-field-row:nth-child(4) { animation-delay: 0.20s; }
-.kwh-field-row:nth-child(5) { animation-delay: 0.25s; }
-.kwh-field-row:nth-child(6) { animation-delay: 0.30s; }
-.kwh-field-row:nth-child(7) { animation-delay: 0.35s; }
-.kwh-field-row:nth-child(8) { animation-delay: 0.40s; }
-.kwh-field-row:nth-child(9) { animation-delay: 0.45s; }
-.kwh-field-row:nth-child(10) { animation-delay: 0.50s; }
-.kwh-field-row:nth-child(n+11) { animation-delay: 0.55s; }
+.kwh-field-row:nth-child(1) { animation-delay: 0.03s; }
+.kwh-field-row:nth-child(2) { animation-delay: 0.06s; }
+.kwh-field-row:nth-child(3) { animation-delay: 0.09s; }
+.kwh-field-row:nth-child(4) { animation-delay: 0.12s; }
+.kwh-field-row:nth-child(5) { animation-delay: 0.15s; }
+.kwh-field-row:nth-child(6) { animation-delay: 0.18s; }
+.kwh-field-row:nth-child(7) { animation-delay: 0.21s; }
+.kwh-field-row:nth-child(8) { animation-delay: 0.24s; }
+.kwh-field-row:nth-child(9) { animation-delay: 0.27s; }
+.kwh-field-row:nth-child(10) { animation-delay: 0.30s; }
+.kwh-field-row:nth-child(n+11) { animation-delay: 0.33s; }
+
+/* Collapsible body transition */
+.collapsible-body {
+  animation: fadeInUp 0.3s var(--ease-out);
+}
+
+/* Smooth transitions for theme switching */
+.section,
+.app-header,
+.app-footer,
+.profile-select,
+.field-input,
+.btn-icon-sm,
+.btn-export,
+.stat-chip,
+.history-item {
+  transition: background var(--duration-normal) var(--ease-out),
+              color var(--duration-normal) var(--ease-out),
+              border-color var(--duration-normal) var(--ease-out),
+              box-shadow var(--duration-normal) var(--ease-out);
+}

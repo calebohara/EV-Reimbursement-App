@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1, user-scalable=no">
-  <title>EV kWh Reimbursement App</title>
+  <title>EV kWh Reimbursement</title>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
   <link rel="icon" type="image/svg+xml" href="icons/icon.svg">
@@ -27,270 +27,264 @@
   <meta name="twitter:image" content="icons/og-image.png">
   <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-  <link rel="stylesheet" href="css/variables.css">
-  <link rel="stylesheet" href="css/base.css">
-  <link rel="stylesheet" href="css/components.css">
-  <link rel="stylesheet" href="css/animations.css">
-  <link rel="stylesheet" href="css/responsive.css?v=2.1.1">
+  <link rel="stylesheet" href="css/variables.css?v=3.0">
+  <link rel="stylesheet" href="css/base.css?v=3.3">
+  <link rel="stylesheet" href="css/components.css?v=3.1">
+  <link rel="stylesheet" href="css/animations.css?v=3.0">
+  <link rel="stylesheet" href="css/responsive.css?v=3.1">
 </head>
 <body>
-  <div class="container mt-5 mb-5">
-    <div class="siemens-header">SIEMENS</div>
-    <button class="btn btn-secondary btn-dark-mode" data-action="toggle-dark-mode" aria-label="Toggle dark mode"><i class="bi bi-moon-fill"></i></button>
-    <button class="btn btn-info btn-site-help" data-bs-toggle="modal" data-bs-target="#siteHelpModal" title="Site Help" aria-label="Site Help">
-      <i class="bi bi-question-circle-fill"></i>
-    </button>
 
-    <h2 class="mb-4 text-center">
-      <i class="bi bi-car-front-fill" aria-hidden="true"></i>
-      EV kWh Reimbursement
-    </h2>
+  <!-- ═══ FIXED HEADER ═══ -->
+  <header class="app-header">
+    <div class="header-inner">
+      <span class="header-brand">SIEMENS</span>
+      <span class="header-title">EV Reimbursement</span>
+      <div class="header-actions">
+        <button class="icon-btn" data-bs-toggle="modal" data-bs-target="#siteHelpModal" aria-label="Help" title="Help">
+          <i class="bi bi-question-circle"></i>
+        </button>
+        <button class="icon-btn" data-action="toggle-dark-mode" aria-label="Toggle dark mode" title="Toggle dark mode">
+          <i class="bi bi-moon-fill"></i>
+        </button>
+      </div>
+    </div>
+  </header>
 
-    <!-- Profile Selector Card -->
-    <div class="billing-box mb-4 profile-box d-flex align-items-center gap-2 flex-wrap">
-      <label for="profileSelect" class="form-label mb-0" style="min-width:90px;">Profile:</label>
-      <select id="profileSelect" class="form-select profile-select" style="max-width:180px;" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Switch between different profiles to track separate billing periods or vehicles"></select>
-      <button class="btn btn-success btn-sm profile-btn" id="addProfileBtn" aria-label="Add Profile" data-bs-toggle="tooltip" data-bs-placement="top" title="Create a new profile to track separate billing periods or vehicles">+</button>
-      <button class="btn btn-danger btn-sm profile-btn" id="deleteProfileBtn" aria-label="Delete Profile" data-bs-toggle="tooltip" data-bs-placement="top" title="Delete the currently selected profile (Default profile cannot be deleted)">&minus;</button>
+  <!-- ═══ MAIN CONTENT ═══ -->
+  <main class="app-main">
+
+    <!-- Profile (compact) -->
+    <div class="profile-bar">
+      <select id="profileSelect" class="profile-select" title="Switch profile"></select>
+      <button class="btn-icon-sm btn-icon-success" id="addProfileBtn" aria-label="Add Profile" title="New profile">
+        <i class="bi bi-plus"></i>
+      </button>
+      <button class="btn-icon-sm btn-icon-danger" id="deleteProfileBtn" aria-label="Delete Profile" title="Delete profile">
+        <i class="bi bi-dash"></i>
+      </button>
     </div>
 
-    <!-- Billing Period -->
-    <div class="billing-box mb-4">
-      <div class="row mb-3">
-        <div class="col-6">
-          <label for="startDate"><i class="bi bi-calendar-date-fill"></i> Billing Period Start:</label>
-          <input type="date" id="startDate" class="form-control" aria-label="Billing Period Start" data-bs-toggle="tooltip" data-bs-placement="top" title="Select your utility billing period start date. Find this on your monthly utility bill.">
+    <!-- ─── STEP 1: BILLING SETUP ─── -->
+    <section class="section" id="setupSection">
+      <div class="section-label">
+        <span class="step-badge">1</span>
+        Billing Period
+      </div>
+
+      <div class="field-row">
+        <div class="field-group">
+          <label for="startDate" class="field-label">Start</label>
+          <input type="date" id="startDate" class="field-input" aria-label="Start date">
         </div>
-        <div class="col-6">
-          <label for="endDate"><i class="bi bi-calendar-date-fill"></i> Billing Period End:</label>
-          <input type="date" id="endDate" class="form-control" aria-label="Billing Period End" data-bs-toggle="tooltip" data-bs-placement="top" title="Select your utility billing period end date. Find this on your monthly utility bill.">
+        <div class="field-group">
+          <label for="endDate" class="field-label">End</label>
+          <input type="date" id="endDate" class="field-input" aria-label="End date">
         </div>
       </div>
-      <div class="row mb-1">
-        <div class="col-12">
-          <button class="btn btn-warning w-100" data-action="reset" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Clear all data and start over with a fresh form">
-            <i class="bi bi-arrow-counterclockwise"></i> Reset
+
+      <div class="rate-row">
+        <div class="field-group flex-grow-1">
+          <label for="costPerKwh" class="field-label">Rate ($/kWh)</label>
+          <input type="number" id="costPerKwh" step="0.01" class="field-input" placeholder="0.17" aria-label="Cost per kWh">
+        </div>
+        <div class="preset-controls">
+          <select id="ratePresetSelect" class="preset-select" aria-label="Rate Preset" title="Saved rate presets">
+            <option value="">Custom</option>
+          </select>
+          <button data-action="save-rate-preset" class="btn-icon-sm" title="Save preset" aria-label="Save Rate Preset">
+            <i class="bi bi-bookmark-plus"></i>
+          </button>
+          <button data-action="delete-rate-preset" class="btn-icon-sm btn-icon-danger" title="Delete preset" aria-label="Delete Preset">
+            <i class="bi bi-trash3"></i>
           </button>
         </div>
       </div>
-    </div>
 
-    <!-- Cost per kWh -->
-    <div class="billing-box mb-3">
-      <div class="d-flex gap-2 mb-2 align-items-center">
-        <select id="ratePresetSelect" class="form-select form-select-sm" aria-label="Rate Preset" data-bs-toggle="tooltip" data-bs-placement="top" title="Select a saved rate preset or use custom rate">
-          <option value="">Custom Rate</option>
-        </select>
-        <button data-action="save-rate-preset" class="btn btn-sm btn-outline-primary" title="Save current rate as preset" aria-label="Save Rate Preset">
-          <i class="bi bi-bookmark-plus"></i>
-        </button>
-        <button data-action="delete-rate-preset" class="btn btn-sm btn-outline-danger" title="Delete selected preset" aria-label="Delete Rate Preset">
-          <i class="bi bi-trash"></i>
-        </button>
+      <!-- Tiered Rates (hidden by default, revealed on toggle) -->
+      <div class="tier-toggle">
+        <label class="toggle-label" for="useTieredRates">
+          <input class="toggle-input" type="checkbox" id="useTieredRates">
+          <span class="toggle-switch"></span>
+          <span class="toggle-text">Tiered rates</span>
+        </label>
       </div>
-      <label><i class="bi bi-lightning-charge-fill"></i> Cost per kWh ($):</label>
-      <input type="number" id="costPerKwh" step="0.01" class="form-control" aria-label="Cost per kWh" data-bs-toggle="tooltip" data-bs-placement="top" title="Find this rate on your utility bill (e.g., $0.17 per kWh). Look for 'Energy Charge' or 'Usage Rate'.">
-    </div>
 
-    <!-- Tiered Rates (Optional) -->
-    <div class="billing-box mb-3">
-      <div class="form-check form-switch mb-2">
-        <input class="form-check-input" type="checkbox" id="useTieredRates" aria-label="Use tiered rates">
-        <label class="form-check-label" for="useTieredRates" data-bs-toggle="tooltip" data-bs-placement="top" title="Enable if your utility charges a special rate for the first block of kWh (e.g., first 1000 kWh)"><i class="bi bi-sliders"></i> Use tiered rates</label>
-      </div>
-      <div class="row g-2">
-        <div class="col-6">
-          <label for="tier1Limit" class="form-label">Tier 1 Limit (kWh)</label>
-          <input type="number" min="0" step="1" class="form-control" id="tier1Limit" placeholder="e.g., 1000" disabled>
-        </div>
-        <div class="col-6">
-          <label for="tier1Rate" class="form-label">Tier 1 Rate ($/kWh)</label>
-          <input type="number" min="0" step="0.0001" class="form-control" id="tier1Rate" placeholder="e.g., 0.12" disabled>
-        </div>
-      </div>
-      <div class="row g-2 mt-2">
-        <div class="col-12">
-          <label for="tier2Rate" class="form-label">Tier 2 Rate ($/kWh, optional)</label>
-          <input type="number" min="0" step="0.0001" class="form-control" id="tier2Rate" placeholder="Leave blank to use base Cost per kWh" disabled>
-        </div>
-      </div>
-      <small class="text-muted d-block mt-2">Example: First 1000 kWh at $0.12, then remaining at base rate (or custom Tier 2 rate if provided).</small>
-    </div>
-
-    <!-- CSV Upload -->
-    <div class="billing-box mb-3">
-      <label><i class="bi bi-filetype-csv"></i> Got your kWh data ready? Upload your CSV file below!</label>
-      <div class="file-help-group">
-        <input type="file" accept=".csv" id="csvFile" class="form-control" aria-label="Upload CSV file" data-bs-toggle="tooltip" data-bs-placement="top" title="Upload your kWh usage data. Download the CSV template first for easy formatting!">
-        <button class="btn btn-info" data-bs-toggle="modal" data-bs-target="#helpModal" title="CSV Format Help" aria-label="CSV Format Help">
-          <i class="bi bi-question-circle-fill"></i>
-        </button>
-      </div>
-      <div class="row mt-2">
-        <div class="col-6">
-          <button class="btn btn-secondary w-100" data-action="download-csv-template" aria-label="Download CSV Template" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Download a pre-formatted CSV template with your billing period dates"><i class="bi bi-download"></i> Download CSV Template</button>
-        </div>
-        <div class="col-6">
-          <button class="btn btn-primary w-100" data-action="import-csv" aria-label="Import from CSV" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Upload your completed CSV file to automatically fill in all kWh usage fields"><i class="bi bi-upload"></i> Import from CSV</button>
-        </div>
-      </div>
-    </div>
-
-    <!-- kWh Fields (dynamically generated) -->
-    <div id="kwhFieldsBox" class="billing-box mb-3">
-      <div id="kwhFields">
-        <!-- Dynamically generated kWh fields will go here -->
-      </div>
-    </div>
-
-    <!-- Billing History -->
-    <div class="billing-box mb-3" id="historyBox">
-      <div class="d-flex justify-content-between align-items-center mb-2">
-        <h6 class="mb-0"><i class="bi bi-clock-history"></i> Billing History</h6>
-        <button data-action="archive-period" class="btn btn-sm btn-outline-success" aria-label="Archive Current Period" data-bs-toggle="tooltip" data-bs-placement="left" title="Save your current billing period to history for future reference and comparison">
-          <i class="bi bi-archive"></i> Archive Current Period
-        </button>
-      </div>
-      <div id="historyList"><!-- rendered by history.js --></div>
-    </div>
-
-    <!-- Dashboard Summary Card -->
-    <div class="billing-box mb-3" id="summaryBox">
-      <div class="d-flex justify-content-between align-items-center mb-3">
-        <h6 class="mb-0"><i class="bi bi-speedometer2"></i> Dashboard Summary</h6>
-        <small class="text-muted" data-bs-toggle="tooltip" data-bs-placement="left" title="Quick overview of your billing period usage and costs. Updates automatically as you enter data.">
-          <i class="bi bi-info-circle"></i> Auto-updating
-        </small>
-      </div>
-      <div class="row g-3">
-        <div class="col-6 col-md-3">
-          <div class="summary-stat">
-            <div class="stat-icon text-primary"><i class="bi bi-lightning-charge-fill"></i></div>
-            <div class="stat-content">
-              <div class="stat-value" id="totalKwh">0.00</div>
-              <div class="stat-label">Total kWh</div>
-            </div>
+      <div class="tier-fields" id="tierFields">
+        <div class="field-row">
+          <div class="field-group">
+            <label for="tier1Limit" class="field-label">Tier 1 Limit (kWh)</label>
+            <input type="number" min="0" step="1" class="field-input" id="tier1Limit" placeholder="1000" disabled>
+          </div>
+          <div class="field-group">
+            <label for="tier1Rate" class="field-label">Tier 1 Rate ($/kWh)</label>
+            <input type="number" min="0" step="0.0001" class="field-input" id="tier1Rate" placeholder="0.12" disabled>
           </div>
         </div>
-        <div class="col-6 col-md-3">
-          <div class="summary-stat">
-            <div class="stat-icon text-success"><i class="bi bi-currency-dollar"></i></div>
-            <div class="stat-content">
-              <div class="stat-value" id="totalCost">$0.00</div>
-              <div class="stat-label">Total Cost</div>
-            </div>
+        <div class="field-group">
+          <label for="tier2Rate" class="field-label">Tier 2 Rate ($/kWh, optional)</label>
+          <input type="number" min="0" step="0.0001" class="field-input" id="tier2Rate" placeholder="Leave blank for base rate" disabled>
+        </div>
+      </div>
+
+      <div class="section-actions">
+        <button class="btn-text btn-text-warning" data-action="reset">
+          <i class="bi bi-arrow-counterclockwise"></i> Reset
+        </button>
+      </div>
+    </section>
+
+    <!-- ─── STEP 2: DAILY USAGE ─── -->
+    <section class="section" id="usageSection">
+      <div class="section-label">
+        <span class="step-badge">2</span>
+        Daily Usage
+        <button class="btn-text btn-text-small ms-auto" data-bs-toggle="modal" data-bs-target="#helpModal">
+          <i class="bi bi-info-circle"></i> CSV help
+        </button>
+      </div>
+
+      <!-- CSV compact row -->
+      <div class="csv-row">
+        <input type="file" accept=".csv" id="csvFile" class="csv-input" aria-label="Upload CSV file">
+        <button class="btn-sm-action" data-action="download-csv-template" title="Download template">
+          <i class="bi bi-download"></i>
+        </button>
+        <button class="btn-sm-action btn-sm-primary" data-action="import-csv" title="Import CSV">
+          <i class="bi bi-upload"></i> Import
+        </button>
+      </div>
+
+      <!-- kWh Fields (dynamically generated) -->
+      <div id="kwhFieldsBox" class="kwh-container">
+        <div id="kwhFields"></div>
+      </div>
+    </section>
+
+    <!-- ─── STEP 3: YOUR REIMBURSEMENT (Hero Result) ─── -->
+    <section class="section section-result" id="resultSection">
+      <div class="section-label">
+        <span class="step-badge step-badge-success">3</span>
+        Your Reimbursement
+      </div>
+
+      <!-- Dashboard stats (inline) -->
+      <div id="summaryBox" class="summary-inline">
+        <div class="summary-stats-row">
+          <div class="stat-chip">
+            <span class="stat-chip-value" id="totalKwh">0.00</span>
+            <span class="stat-chip-label">kWh</span>
+          </div>
+          <div class="stat-chip">
+            <span class="stat-chip-value" id="avgDaily">0.00</span>
+            <span class="stat-chip-label">avg/day</span>
+          </div>
+          <div class="stat-chip">
+            <span class="stat-chip-value" id="completeness">0%</span>
+            <span class="stat-chip-label">complete</span>
           </div>
         </div>
-        <div class="col-6 col-md-3">
-          <div class="summary-stat">
-            <div class="stat-icon text-info"><i class="bi bi-graph-up"></i></div>
-            <div class="stat-content">
-              <div class="stat-value" id="avgDaily">0.00</div>
-              <div class="stat-label">Avg Daily kWh</div>
-            </div>
-          </div>
-        </div>
-        <div class="col-6 col-md-3">
-          <div class="summary-stat">
-            <div class="stat-icon text-warning"><i class="bi bi-clipboard-data"></i></div>
-            <div class="stat-content">
-              <div class="stat-value" id="completeness">0%</div>
-              <div class="stat-label">Data Complete</div>
-            </div>
+        <div class="progress-row">
+          <span class="progress-text"><span id="daysWithData">0</span>/<span id="totalDays">0</span> days</span>
+          <div class="progress-track">
+            <div class="progress-bar" role="progressbar" id="progressBar" style="width: 0%" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"></div>
           </div>
         </div>
       </div>
-      <div class="mt-3">
-        <div class="d-flex justify-content-between align-items-center mb-1">
-          <small class="text-muted">Data Entry Progress</small>
-          <small class="text-muted"><span id="daysWithData">0</span> of <span id="totalDays">0</span> days</small>
-        </div>
-        <div class="progress" style="height: 6px;">
-          <div class="progress-bar" role="progressbar" id="progressBar" style="width: 0%" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"></div>
-        </div>
-      </div>
-    </div>
 
-    <!-- Chart -->
-    <div class="billing-box mb-3" id="chartBox">
-      <div class="d-flex justify-content-between align-items-center mb-2">
-        <h6 class="mb-0"><i class="bi bi-bar-chart-fill"></i> Usage & Cost Visualization</h6>
-        <small class="text-muted" data-bs-toggle="tooltip" data-bs-placement="left" title="Blue line shows daily kWh usage (left axis). Green line shows daily cost in dollars (right axis). Hover over data points for details.">
-          <i class="bi bi-info-circle"></i> Chart Help
-        </small>
+      <!-- Hero Total -->
+      <div id="resultBox" class="hero-result">
+        <div class="hero-amount" id="result"></div>
       </div>
-      <canvas id="usageChart" height="120" aria-label="kWh Usage and Cost Chart"></canvas>
-    </div>
 
-    <!-- Month-over-Month Trends -->
-    <div class="billing-box mb-3" id="trendBox">
-      <h6 class="mb-2"><i class="bi bi-graph-up-arrow"></i> Month-over-Month Trends</h6>
-      <canvas id="trendChart" height="120" aria-label="Month-over-Month Trend Chart"></canvas>
-      <div id="trendInsight" class="text-muted small mt-2"></div>
-    </div>
+      <!-- Primary CTA -->
+      <button class="btn-primary-cta" data-action="calculate">
+        <i class="bi bi-calculator-fill"></i> Calculate Reimbursement
+      </button>
 
-    <!-- Action Buttons -->
-    <div class="billing-box mb-3">
-      <div class="row mb-3 d-flex justify-content-center button-row-spacing">
-        <div class="col-6 d-flex justify-content-center align-items-center">
-          <button class="btn btn-success w-100" data-action="calculate" aria-label="Calculate Reimbursement" data-bs-toggle="tooltip" data-bs-placement="top" title="Calculate your total reimbursement amount based on kWh usage and cost per kWh"><i class="bi bi-calculator-fill"></i> Calculate Reimbursement</button>
-        </div>
-        <div class="col-6 d-flex justify-content-center align-items-center">
-          <button class="btn btn-info w-100" data-action="export-excel" aria-label="Export to Excel" data-bs-toggle="tooltip" data-bs-placement="top" title="Download a detailed Excel spreadsheet with all your usage data and calculations"><i class="bi bi-file-earmark-excel-fill"></i> Export to Excel</button>
-        </div>
+      <!-- Export actions (contextual, appear after result) -->
+      <div class="export-row" id="exportRow">
+        <button class="btn-export" data-action="export-receipt" title="Generate Receipt">
+          <i class="bi bi-receipt"></i> Receipt
+        </button>
+        <button class="btn-export" data-action="export-excel" title="Export Excel">
+          <i class="bi bi-file-earmark-excel"></i> Excel
+        </button>
+        <button class="btn-export" data-action="export-pdf" title="Export PDF">
+          <i class="bi bi-file-earmark-pdf"></i> PDF
+        </button>
       </div>
-      <div class="row mb-3 d-flex justify-content-center button-row-spacing">
-        <div class="col-6 d-flex justify-content-center align-items-center">
-          <a href="https://travel.siemens.cloud" target="_blank" rel="noopener" class="btn btn-primary w-100" aria-label="Travel@Siemens"><i class="bi bi-globe"></i> Travel@Siemens</a>
-        </div>
-        <div class="col-6 d-flex justify-content-center align-items-center">
-          <button class="btn btn-danger w-100" data-action="export-pdf" aria-label="Export to PDF" data-bs-toggle="tooltip" data-bs-placement="top" title="Generate a professional PDF report for expense submission"><i class="bi bi-file-earmark-pdf-fill"></i> Export to PDF</button>
-        </div>
-      </div>
-      <div class="row mb-3 d-flex justify-content-center button-row-spacing">
-        <div class="col-6 d-flex justify-content-center align-items-center">
-          <button class="btn btn-success w-100" data-action="export-receipt" aria-label="Generate Receipt" data-bs-toggle="tooltip" data-bs-placement="top" title="Generate a Siemens-formatted reimbursement receipt for E2E Travel submission"><i class="bi bi-receipt"></i> Generate Receipt</button>
-        </div>
-        <div class="col-6 d-flex justify-content-center align-items-center">
-          <!-- Placeholder for symmetry or future button -->
-        </div>
-      </div>
-      <div class="row mb-3 d-flex justify-content-center button-row-spacing">
-        <div class="col-6 d-flex justify-content-center align-items-center">
-          <button class="btn btn-primary w-100" data-bs-toggle="modal" data-bs-target="#evPolicyModal" aria-label="EV Policy"><i class="bi bi-file-earmark-text"></i> EV Policy</button>
-        </div>
-        <div class="col-6 d-flex justify-content-center align-items-center">
-          <button class="btn btn-primary w-100" data-bs-toggle="modal" data-bs-target="#contactModal" aria-label="Contact"><i class="bi bi-clock-history"></i> Contact</button>
-        </div>
-      </div>
-      <div class="row d-flex justify-content-center">
-        <div class="col-12 d-flex justify-content-center">
-          <button class="btn btn-primary w-100" data-bs-toggle="modal" data-bs-target="#changelogModal" aria-label="Changelog"><i class="bi bi-clock-history"></i> Changelog</button>
-        </div>
-      </div>
-    </div>
 
-    <!-- Result -->
-    <div id="resultBox" class="result-box" aria-live="polite" aria-atomic="true">
-      <div class="result" id="result"></div>
-    </div>
+      <!-- Hidden stat for summary.js compatibility -->
+      <span id="totalCost" class="visually-hidden">$0.00</span>
+    </section>
 
-    <!-- Footer -->
-    <div class="footer-divider">
-      <div class="credit">Created by: Caleb O'Hara</div>
-    </div>
-    <div class="credit mt-2">
-      <small style="color: var(--text-color); opacity: 0.8;">Data Privacy: All data is stored locally in your browser and never uploaded to any server.</small>
-    </div>
-    <div class="credit mt-2">Version 2.1.0</div>
-    <div class="disclaimer mt-3 text-center">
-      <small style="color: var(--text-color); opacity: 0.8;">
-        <strong>Disclaimer:</strong> The accuracy of calculations and reimbursements depends on the data provided. Please ensure all input values, including kWh usage and cost per kWh, are accurate and verified. Siemens is not responsible for any discrepancies resulting from incorrect data entry.
-      </small>
-    </div>
-  </div>
+    <!-- ─── COLLAPSIBLE: USAGE CHART ─── -->
+    <details class="section section-collapsible" id="chartBox">
+      <summary class="collapsible-header">
+        <i class="bi bi-bar-chart-fill"></i> Usage & Cost Chart
+        <i class="bi bi-chevron-down collapsible-chevron"></i>
+      </summary>
+      <div class="collapsible-body">
+        <canvas id="usageChart" height="160" aria-label="kWh Usage and Cost Chart"></canvas>
+      </div>
+    </details>
 
-  <!-- Help Modal -->
+    <!-- ─── COLLAPSIBLE: BILLING HISTORY ─── -->
+    <details class="section section-collapsible" id="historyBox">
+      <summary class="collapsible-header">
+        <i class="bi bi-clock-history"></i> Billing History
+        <i class="bi bi-chevron-down collapsible-chevron"></i>
+      </summary>
+      <div class="collapsible-body">
+        <div class="collapsible-actions">
+          <button class="btn-text btn-text-small" data-action="archive-period" title="Archive current period">
+            <i class="bi bi-archive"></i> Archive Current Period
+          </button>
+        </div>
+        <div id="historyList"></div>
+      </div>
+    </details>
+
+    <!-- ─── COLLAPSIBLE: TRENDS ─── -->
+    <details class="section section-collapsible" id="trendBox">
+      <summary class="collapsible-header">
+        <i class="bi bi-graph-up-arrow"></i> Month-over-Month Trends
+        <i class="bi bi-chevron-down collapsible-chevron"></i>
+      </summary>
+      <div class="collapsible-body">
+        <canvas id="trendChart" height="160" aria-label="Trend Chart"></canvas>
+        <div id="trendInsight" class="trend-insight"></div>
+      </div>
+    </details>
+
+  </main>
+
+  <!-- ═══ FOOTER ═══ -->
+  <footer class="app-footer">
+    <div class="footer-links">
+      <a href="https://travel.siemens.cloud" target="_blank" rel="noopener">Travel@Siemens</a>
+      <span class="footer-dot"></span>
+      <a href="#" data-bs-toggle="modal" data-bs-target="#evPolicyModal">EV Policy</a>
+      <span class="footer-dot"></span>
+      <a href="#" data-bs-toggle="modal" data-bs-target="#contactModal">Contact</a>
+      <span class="footer-dot"></span>
+      <a href="#" data-bs-toggle="modal" data-bs-target="#changelogModal">Changelog</a>
+    </div>
+    <div class="footer-meta">
+      <span>Created by Caleb O'Hara</span>
+      <span class="footer-dot"></span>
+      <span>v3.0</span>
+    </div>
+    <div class="footer-privacy">All data stored locally. Never uploaded.</div>
+    <div class="footer-disclaimer">
+      <strong>Disclaimer:</strong> Accuracy depends on data provided. Verify all values. Siemens is not responsible for discrepancies from incorrect data entry.
+    </div>
+  </footer>
+
+  <!-- ═══ MODALS (preserved for JS compatibility) ═══ -->
+
+  <!-- CSV Help Modal -->
   <div class="modal fade" id="helpModal" tabindex="-1" aria-labelledby="helpModalLabel" aria-hidden="true">
     <div class="modal-dialog">
       <div class="modal-content">
@@ -300,18 +294,14 @@
         </div>
         <div class="modal-body">
           <p>Your CSV should contain two columns: Date and kWh Usage.</p>
-          <p>Use the following structure:</p>
-          <pre>
-Date,kWh Usage
+          <pre>Date,kWh Usage
 2024-01-01,10.5
-2024-01-02,12.0
-          </pre>
-          <p>Important Notes:</p>
+2024-01-02,12.0</pre>
           <ul>
-            <li>The first row must be the header row exactly as shown.</li>
-            <li>Dates must be in YYYY-MM-DD format.</li>
-            <li>kWh values should be numeric.</li>
-            <li>Do not leave blank rows or columns.</li>
+            <li>First row must be the header row exactly as shown</li>
+            <li>Dates in YYYY-MM-DD format</li>
+            <li>kWh values should be numeric</li>
+            <li>No blank rows or columns</li>
           </ul>
         </div>
         <div class="modal-footer">
@@ -321,7 +311,7 @@ Date,kWh Usage
     </div>
   </div>
 
-  <!-- Feedback Modal -->
+  <!-- Feedback/Contact Modal -->
   <div class="modal fade" id="contactModal" tabindex="-1" aria-labelledby="contactModalLabel" aria-hidden="true">
     <div class="modal-dialog">
       <div class="modal-content">
@@ -332,50 +322,43 @@ Date,kWh Usage
         <div class="modal-body">
           <form id="feedbackForm">
             <div class="mb-4">
-              <label class="form-label"><i class="bi bi-star-fill"></i> Rate this app:</label>
-              <div class="star-rating" id="starRating" data-bs-toggle="tooltip" data-bs-placement="right" title="Click to rate your experience with the app">
+              <label class="form-label">Rate this app:</label>
+              <div class="star-rating" id="starRating">
                 <span class="star" data-rating="1">&#9733;</span>
                 <span class="star" data-rating="2">&#9733;</span>
                 <span class="star" data-rating="3">&#9733;</span>
                 <span class="star" data-rating="4">&#9733;</span>
                 <span class="star" data-rating="5">&#9733;</span>
               </div>
-              <small class="form-text text-muted mt-1" id="ratingText">Click the stars to rate your experience</small>
+              <small class="form-text text-muted" id="ratingText">Click stars to rate</small>
             </div>
             <div class="mb-3">
-              <label for="feedbackType" class="form-label"><i class="bi bi-tag"></i> Feedback Type:</label>
-              <select class="form-select" id="feedbackType" data-bs-toggle="tooltip" data-bs-placement="top" title="Choose the type of feedback you're providing">
+              <label for="feedbackType" class="form-label">Type:</label>
+              <select class="form-select" id="feedbackType">
                 <option value="feature">Feature Request</option>
                 <option value="bug">Bug Report</option>
-                <option value="improvement">Improvement Suggestion</option>
+                <option value="improvement">Improvement</option>
                 <option value="question">Question</option>
                 <option value="compliment">Compliment</option>
                 <option value="other">Other</option>
               </select>
             </div>
             <div class="mb-3">
-              <label for="feedbackMessage" class="form-label"><i class="bi bi-chat-text"></i> Your Message:</label>
-              <textarea class="form-control" id="feedbackMessage" rows="4" placeholder="Share your thoughts, suggestions, or report any issues you've encountered..." data-bs-toggle="tooltip" data-bs-placement="top" title="Describe your feedback in detail"></textarea>
-              <div class="form-text">
-                <small class="text-muted">Your feedback helps improve the app for everyone!</small>
-              </div>
+              <label for="feedbackMessage" class="form-label">Message:</label>
+              <textarea class="form-control" id="feedbackMessage" rows="4" placeholder="Share your thoughts..."></textarea>
             </div>
             <div class="mb-3">
-              <label for="userInfo" class="form-label"><i class="bi bi-person"></i> Your Name/Department (optional):</label>
-              <input type="text" class="form-control" id="userInfo" placeholder="e.g., John Smith - IT Department" data-bs-toggle="tooltip" data-bs-placement="top" title="Optional: Help us know who to follow up with">
+              <label for="userInfo" class="form-label">Name/Dept (optional):</label>
+              <input type="text" class="form-control" id="userInfo" placeholder="e.g., John Smith - IT">
             </div>
           </form>
         </div>
         <div class="modal-footer d-flex justify-content-between">
-          <div class="footer-info">
-            <small class="text-muted">
-              <i class="bi bi-shield-check"></i> Your feedback will be sent via email to <strong>caleb.ohara@siemens.com</strong>
-            </small>
-          </div>
-          <div class="footer-actions">
+          <small class="text-muted"><i class="bi bi-shield-check"></i> Sent to caleb.ohara@siemens.com</small>
+          <div class="d-flex gap-2">
             <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
             <button type="button" class="btn btn-primary" data-action="submit-feedback" id="submitFeedbackBtn">
-              <i class="bi bi-envelope"></i> Send Feedback
+              <i class="bi bi-envelope"></i> Send
             </button>
           </div>
         </div>
@@ -385,131 +368,33 @@ Date,kWh Usage
 
   <!-- Site Help Modal -->
   <div class="modal fade" id="siteHelpModal" tabindex="-1" aria-labelledby="siteHelpModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-xl modal-dialog-scrollable">
+    <div class="modal-dialog modal-lg modal-dialog-scrollable">
       <div class="modal-content">
         <div class="modal-header">
-          <h5 class="modal-title" id="siteHelpModalLabel">Site Help</h5>
+          <h5 class="modal-title" id="siteHelpModalLabel">How to Use</h5>
           <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
         </div>
         <div class="modal-body">
-          <p>Welcome to the EV kWh Reimbursement App! This application helps you calculate and manage your EV charging reimbursement. Here's a comprehensive guide to all features:</p>
+          <h6>1. Set Up Your Billing Period</h6>
+          <p>Enter your utility billing start/end dates and your rate per kWh. Enable tiered rates if your utility uses multi-tier billing.</p>
 
-          <h6>1. Profile Management</h6>
-          <ul>
-            <li>Use the profile selector to switch between different profiles</li>
-            <li>Add new profiles using the "+" button</li>
-            <li>Delete existing profiles using the "-" button (Default profile cannot be deleted)</li>
-            <li>Each profile maintains its own separate data, including billing history</li>
-          </ul>
+          <h6>2. Enter Daily Usage</h6>
+          <p>Type kWh values for each day, or import from a CSV file. Download the template for the correct format.</p>
 
-          <h6>2. Billing Period Setup</h6>
-          <ul>
-            <li>Select your billing period start and end dates</li>
-            <li>Dates must be valid and start date must be before end date</li>
-            <li>kWh input fields automatically generate once both valid dates are selected</li>
-            <li>Use "Reset" to clear all data and start over</li>
-          </ul>
+          <h6>3. Get Your Reimbursement</h6>
+          <p>Click Calculate to see your total. Export as a receipt, Excel, or PDF for submission via E2E Travel@Siemens.</p>
 
-          <h6>3. Data Entry Methods</h6>
-          <ul>
-            <li><strong>Manual Entry:</strong> Enter kWh usage directly into the generated fields</li>
-            <li><strong>CSV Import:</strong> Upload a CSV file with your kWh data
-              <ul>
-                <li>CSV must have "Date" and "kWh Usage" columns</li>
-                <li>Dates must be in YYYY-MM-DD format</li>
-                <li>Use the "Download CSV Template" button to get a properly formatted template</li>
-                <li>Invalid data will be highlighted and skipped during import</li>
-              </ul>
-            </li>
-          </ul>
+          <h6>Profiles</h6>
+          <p>Create multiple profiles to track separate vehicles or billing periods.</p>
 
-          <h6>4. Cost Calculation &amp; Rate Presets</h6>
-          <ul>
-            <li>Enter your cost per kWh in dollars for flat-rate billing</li>
-            <li><strong>Tiered Rates:</strong> Enable the "Use Tiered Rates" checkbox for multi-tier billing
-              <ul>
-                <li>Set a Tier 1 kWh limit, Tier 1 rate, and Tier 2 rate</li>
-                <li>Tiers are calculated cumulatively across the entire billing period</li>
-              </ul>
-            </li>
-            <li><strong>Saved Presets:</strong> Save your utility rate configuration for one-click reuse
-              <ul>
-                <li>Use the preset dropdown to select a saved rate configuration</li>
-                <li>Click the bookmark icon to save the current rate as a new preset</li>
-                <li>Presets are shared across all profiles</li>
-              </ul>
-            </li>
-          </ul>
+          <h6>History & Trends</h6>
+          <p>Archive billing periods to build history. View month-over-month trends when you have 2+ periods.</p>
 
-          <h6>5. Dashboard Summary</h6>
-          <ul>
-            <li>View real-time stats after calculating: Total kWh, Total Cost, Average Daily Usage, and Data Completeness</li>
-            <li>Stats update automatically as you enter or modify data</li>
-            <li>Color-coded progress bar tracks how many days have data entered</li>
-          </ul>
+          <h6>Rate Presets</h6>
+          <p>Save your utility rate configuration for one-click reuse each month.</p>
 
-          <h6>6. Data Visualization</h6>
-          <ul>
-            <li>Interactive dual-axis chart shows daily kWh usage and costs</li>
-            <li>Hover over data points for detailed tooltips with date, kWh, cost, and effective rate</li>
-            <li>Chart updates automatically as you enter data</li>
-          </ul>
-
-          <h6>7. Billing History</h6>
-          <ul>
-            <li><strong>Archive:</strong> Save your current billing period to history using "Archive Current Period"</li>
-            <li><strong>Browse:</strong> View all archived periods with date range, total kWh, and total cost</li>
-            <li><strong>Restore:</strong> Load a past period back into the form to review or re-export</li>
-            <li><strong>Delete:</strong> Remove archived periods you no longer need</li>
-            <li>Each profile maintains its own separate history</li>
-          </ul>
-
-          <h6>8. Month-over-Month Trends</h6>
-          <ul>
-            <li>Automatically appears when you have 2 or more archived periods</li>
-            <li>Compares total kWh, total cost, and average daily usage across periods</li>
-            <li>Insight text shows percentage changes and average monthly cost</li>
-          </ul>
-
-          <h6>9. Export Options</h6>
-          <ul>
-            <li><strong>Excel Export:</strong> Detailed spreadsheet with daily breakdown, effective rates, and currency formatting</li>
-            <li><strong>PDF Export:</strong> Professional report with billing period header and tiered rate notation</li>
-            <li><strong>Reimbursement Receipt:</strong> Siemens-formatted PDF receipt with:
-              <ul>
-                <li>Receipt number, employee name, and billing period</li>
-                <li>Line-item daily breakdown with costs</li>
-                <li>Submission instructions and signature line</li>
-              </ul>
-            </li>
-          </ul>
-
-          <h6>10. Additional Features</h6>
-          <ul>
-            <li><strong>Dark Mode:</strong> Toggle between light and dark themes using the moon icon</li>
-            <li><strong>Installable App:</strong> Install as a Progressive Web App for offline use and quick access from your home screen</li>
-            <li><strong>Data Persistence:</strong> All data is automatically saved in your browser</li>
-            <li><strong>Input Validation:</strong> Real-time validation with warnings for unusually high kWh values</li>
-            <li><strong>Travel@Siemens:</strong> Quick access to Siemens travel portal</li>
-            <li><strong>EV Policy:</strong> Access to Siemens EV policy information</li>
-            <li><strong>Feedback:</strong> Submit feedback with star rating via the Contact/Feedback form</li>
-          </ul>
-
-          <h6>11. Data Privacy</h6>
-          <ul>
-            <li>All data is stored locally in your browser — nothing is uploaded to any server</li>
-            <li>Each profile's data is kept separate</li>
-            <li>Regular exports are recommended for backup</li>
-          </ul>
-
-          <h6>12. Tips for Best Results</h6>
-          <ul>
-            <li>Save your utility rate as a preset so you don't have to re-enter it each month</li>
-            <li>Archive each billing period before starting a new one to build your history</li>
-            <li>Use the CSV template for bulk data entry</li>
-            <li>Check the trend chart to track your usage patterns over time</li>
-            <li>Generate a receipt PDF for easy expense submission via Travel@Siemens</li>
-          </ul>
+          <h6>Privacy</h6>
+          <p>All data is stored locally in your browser. Nothing is uploaded to any server.</p>
         </div>
         <div class="modal-footer">
           <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
@@ -583,101 +468,29 @@ Date,kWh Usage
 
   <!-- Changelog Modal -->
   <div class="modal fade" id="changelogModal" tabindex="-1" aria-labelledby="changelogModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-xl modal-dialog-scrollable">
+    <div class="modal-dialog modal-dialog-scrollable">
       <div class="modal-content">
         <div class="modal-header">
           <h5 class="modal-title" id="changelogModalLabel">Changelog</h5>
           <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
         </div>
         <div class="modal-body">
-          <h6>Version 2.1.0 - February 28, 2026</h6>
+          <h6>Version 3.0 — March 2026</h6>
           <ul>
-            <li><strong>Multi-Month History:</strong> Archive billing periods and browse, restore, or delete past records. Track your reimbursement history over time.</li>
-            <li><strong>Saved Rate Presets:</strong> Save and reuse utility rate configurations (flat or tiered) with one-click preset selection.</li>
-            <li><strong>Reimbursement Receipt:</strong> Generate a professional Siemens-formatted PDF receipt with receipt number, line items, totals, and signature line for E2E Travel submission.</li>
-            <li><strong>Month-over-Month Trends:</strong> Compare archived billing periods with an interactive trend chart showing kWh usage, costs, and average daily consumption over time.</li>
-            <li><strong>Progressive Web App (PWA):</strong> Install the app to your device for offline access with service worker caching and app manifest.</li>
+            <li><strong>Complete Redesign:</strong> Three-step wizard flow, hero result display, collapsible sections</li>
+            <li><strong>Slim Header:</strong> Fixed branded header with quick-access utilities</li>
+            <li><strong>Progressive Disclosure:</strong> Empty states hidden, tiered rates revealed on toggle</li>
+            <li><strong>Footer Links:</strong> EV Policy, Contact, Changelog moved to footer for cleaner layout</li>
+            <li><strong>Compact Exports:</strong> Contextual export buttons appear after calculation</li>
           </ul>
-          <h6>Version 2.0.0 - February 28, 2026</h6>
+
+          <h6>Version 2.1 — February 2026</h6>
           <ul>
-            <li><strong>Modular Architecture:</strong> Complete codebase refactor from monolithic single-file to ES module architecture with 13 focused modules across separate files.</li>
-            <li><strong>Centralized Date Parsing:</strong> Eliminated 12+ duplicate date parsing patterns with shared utility functions, preventing timezone-related bugs.</li>
-            <li><strong>Clean Event Architecture:</strong> Replaced monkey-patching patterns and inline onclick handlers with data-action delegation and proper module imports.</li>
-            <li><strong>CSS Organization:</strong> Split monolithic stylesheet into 5 organized files: variables, base, components, animations, and responsive.</li>
-            <li><strong>Profile Storage Refactor:</strong> Clean profile-scoped localStorage wrapper with backward compatibility for existing user data.</li>
-            <li><strong>All existing features preserved:</strong> Profiles, tiered billing, dark mode, chart visualization, CSV import/export, Excel/PDF export, feedback form, tooltips, animations, and accessibility features all work identically.</li>
-          </ul>
-          <h6>Version 1.10.0 - December 21, 2024</h6>
-          <ul>
-            <li><strong>Tiered Rates (Basic):</strong> Added optional tiered billing support where the first N kWh in a billing period are charged at Tier 1 rate, and remaining kWh at Tier 2 or base rate. Includes validation, persistence per profile, and integration with chart/summary/exports.</li>
-            <li><strong>Validation &amp; Fallbacks:</strong> Tier fields validate on the fly; if invalid, calculations safely fall back to base rate. When tiers are enabled and valid, base Cost per kWh can be blank.</li>
-            <li><strong>Dark Mode Polish:</strong> Improved modal and input readability in dark mode, including disabled inputs in tier settings.</li>
-          </ul>
-          <h6>Version 1.9.0 - December 20, 2024</h6>
-          <ul>
-            <li><strong>Dashboard Summary View:</strong> Added comprehensive summary card above the chart showing Total kWh, Total Cost, Average Daily Usage, and data completeness percentage with color-coded progress bar</li>
-            <li><strong>Interactive Feedback Form:</strong> Replaced static contact email with dynamic feedback form featuring 5-star rating system, feedback categories, and pre-filled mailto generation for better user engagement</li>
-            <li><strong>Loading Animations Enhancement:</strong> Implemented Bootstrap spinners for all async operations (CSV import, Excel/PDF export, calculations) with descriptive loading text for polished user experience</li>
-            <li><strong>Comprehensive Tooltips:</strong> Added contextual help tooltips throughout the app including date fields, cost inputs, CSV upload, chart explanations, and all action buttons for improved usability</li>
-            <li><strong>Automatic Field Generation:</strong> Enhanced date selection to automatically generate kWh input fields when both valid dates are selected, eliminating the need for manual "Generate Fields" button click</li>
-            <li><strong>Smooth Animations:</strong> Added fade-in animations for fields box, staggered field animations, and loading spinners to create a more professional and responsive feel</li>
-            <li><strong>Date Parsing Fix:</strong> Resolved timezone-related date offset issues where generated fields showed dates one day earlier than selected</li>
-            <li><strong>Dark Mode Improvements:</strong> Fixed text color contrast issues in feedback modal and enhanced dark mode support across all new components</li>
-            <li><strong>Real-time Updates:</strong> Enhanced summary dashboard to update automatically with all data changes, providing instant feedback on usage statistics and completeness</li>
-            <li><strong>Accessibility Enhancements:</strong> Added ARIA labels, keyboard navigation support for star ratings, and improved screen reader compatibility throughout the application</li>
-          </ul>
-          <h6>Version 1.8.0 - December 19, 2024</h6>
-          <ul>
-            <li><strong>Icon Fix &amp; Accessibility:</strong> Fixed car icon typo and added proper ARIA attributes for screen reader support</li>
-            <li><strong>Reset Function Enhancement:</strong> Unified key lists and improved form reset functionality with complete data clearing</li>
-            <li><strong>Local Date Formatting:</strong> Replaced UTC-based date formatting with local timezone support to prevent date shifts</li>
-            <li><strong>Anti-Debug Removal:</strong> Removed unnecessary event listeners that blocked developer tools and context menus</li>
-            <li><strong>Chart Theming:</strong> Added dynamic dark mode support for charts with automatic color adaptation</li>
-            <li><strong>Profile Management:</strong> Enhanced multi-user support with improved data persistence and profile switching</li>
-            <li><strong>Input Validation:</strong> Added real-time validation for kWh inputs with warning messages</li>
-            <li><strong>Progressive Saving:</strong> Implemented automatic data saving on all input changes</li>
-            <li><strong>Chart Visualization:</strong> Added interactive Chart.js integration with dual-axis support for kWh and cost data</li>
-            <li><strong>CSV Import/Export:</strong> Enhanced CSV functionality with comprehensive validation and error handling</li>
-            <li><strong>Export Features:</strong> Added Excel and PDF export capabilities with professional formatting</li>
-            <li><strong>Dark Mode:</strong> Implemented complete dark mode theming throughout the application</li>
-            <li><strong>Accessibility:</strong> Improved ARIA labels, screen reader support, and keyboard navigation</li>
-          </ul>
-          <h6>Version 1.7.0 - May 27, 2024</h6>
-          <ul>
-            <li>Enhanced Site Help content with comprehensive instructions on all features, including profile management, data entry methods, chart visualization, and export options.</li>
-            <li>Improved CSV import functionality to automatically update the kWh usage chart upon successful import.</li>
-            <li>Styled the total reimbursement result display to appear in a dedicated box below the buttons, including a subtle animation and improved horizontal and vertical centering.</li>
-            <li>Implemented a scrollable box for the dynamically generated daily kWh input fields, appearing automatically once valid billing period dates are selected for improved data entry usability.</li>
-            <li>Redesigned the layout of the action buttons below the chart (Calculate, Export, Travel@Siemens, EV Policy, Contact, Changelog) for better organization and consistent spacing.</li>
-          </ul>
-          <h6>Version 1.6.0 - May 25, 2025</h6>
-          <ul>
-            <li>Added 'Download CSV Template' feature, allowing users to generate a CSV file based on the selected billing period for manual entry of kWh usage data.</li>
-          </ul>
-          <h6>Version 1.5.0 - May 25, 2025</h6>
-          <ul>
-            <li>Enhanced CSV import functionality with comprehensive error handling, validation, and user feedback for improved data import reliability.</li>
-          </ul>
-          <h6>Version 1.4.0 - April 15, 2025</h6>
-          <ul>
-            <li>Introduced "EV Policy" button with a detailed modal containing Siemens' electric vehicle policy information.</li>
-          </ul>
-          <h6>Version 1.3.0 - March 10, 2025</h6>
-          <ul>
-            <li>Improved "Site Help" modal with scrollable content and adjusted size for enhanced readability and user experience.</li>
-          </ul>
-          <h6>Version 1.2.0 - February 20, 2025</h6>
-          <ul>
-            <li>Added "Site Help" button with a modal providing detailed instructions for application usage.</li>
-          </ul>
-          <h6>Version 1.1.0 - January 5, 2025</h6>
-          <ul>
-            <li>Implemented "Travel@Siemens" button linking to the Siemens travel portal for quick access.</li>
-          </ul>
-          <h6>Version 1.0.0 - December 1, 2024</h6>
-          <ul>
-            <li>Initial release featuring core functionality for calculating EV kWh reimbursement.</li>
-            <li>Included features: billing period selection, kWh input fields, cost per kWh entry, reimbursement calculation, form reset, and Excel export capability.</li>
+            <li>Multi-month billing history with archive/restore</li>
+            <li>Saved rate presets</li>
+            <li>Reimbursement receipt PDF generation</li>
+            <li>Month-over-month trend charts</li>
+            <li>PWA support for offline use</li>
           </ul>
         </div>
         <div class="modal-footer">
@@ -687,19 +500,17 @@ Date,kWh Usage
     </div>
   </div>
 
-  <!-- CDN Libraries (loaded before module script) -->
+  <!-- Scripts -->
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.7.0/jspdf.plugin.autotable.min.js"></script>
+  <script type="module" src="js/app.js"></script>
 
-  <!-- Service Worker Registration -->
+  <!-- Service Worker -->
   <script>
     if ('serviceWorker' in navigator) {
-      navigator.serviceWorker.register('sw.js');
+      navigator.serviceWorker.register('sw.js').catch(() => {});
     }
   </script>
-
-  <!-- App entry point (ES Module) -->
-  <script type="module" src="js/app.js"></script>
 </body>
 </html>

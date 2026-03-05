@@ -1,108 +1,395 @@
-/* Base styles — typography, layout, general elements */
+/* Base styles — layout, typography, structure */
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
 
 body {
+  margin: 0;
   background-color: var(--bg-color);
   color: var(--text-color);
-  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  font-family: var(--font-sans);
+  font-size: var(--text-base);
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  padding-top: var(--header-height);
+  transition: background-color var(--duration-normal) var(--ease-out),
+              color var(--duration-normal) var(--ease-out);
 }
 
-.container {
-  max-width: 600px;
-  padding: 20px;
-  background-color: var(--container-bg);
-  border-radius: 15px;
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
-  position: relative;
+/* ═══ FIXED HEADER ═══ */
+
+.app-header {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: var(--header-height);
+  background: var(--header-bg);
+  border-bottom: 1px solid var(--border-color);
+  z-index: 1000;
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  transition: background var(--duration-normal) var(--ease-out),
+              border-color var(--duration-normal) var(--ease-out);
 }
 
-pre {
-  background-color: var(--pre-bg);
-  padding: 10px;
-  border-radius: 5px;
+.header-inner {
+  max-width: var(--max-width);
+  margin: 0 auto;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  padding: 0 var(--space-md);
+  gap: var(--space-sm);
 }
 
-/* Form controls */
-.form-control {
-  background-color: var(--form-bg);
+.header-brand {
+  font-weight: 700;
+  font-size: var(--text-sm);
+  color: var(--siemens-teal);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  flex-shrink: 0;
+}
+
+.header-title {
+  font-weight: 600;
+  font-size: var(--text-base);
+  color: var(--text-color);
+  margin-left: var(--space-xs);
+}
+
+.header-actions {
+  display: flex;
+  align-items: center;
+  gap: var(--space-xs);
+  margin-left: auto;
+}
+
+.icon-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border: none;
+  background: transparent;
+  color: var(--text-secondary);
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  font-size: 1.1rem;
+  transition: background var(--duration-fast),
+              color var(--duration-fast);
+}
+
+.icon-btn:hover {
+  background: var(--section-hover);
+  color: var(--text-color);
+}
+
+/* ═══ MAIN CONTENT ═══ */
+
+.app-main {
+  max-width: var(--max-width);
+  margin: 0 auto;
+  padding: var(--space-lg) var(--space-md) var(--space-xl);
+}
+
+/* ═══ SECTIONS ═══ */
+
+.section {
+  background: var(--container-bg);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-lg);
+  padding: var(--space-lg);
+  margin-bottom: var(--space-md);
+  box-shadow: var(--shadow-sm);
+  transition: background var(--duration-normal) var(--ease-out),
+              border-color var(--duration-normal) var(--ease-out),
+              box-shadow var(--duration-normal) var(--ease-out);
+}
+
+.section-label {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+  font-weight: 600;
+  font-size: var(--text-base);
+  color: var(--text-color);
+  margin-bottom: var(--space-md);
+}
+
+.step-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  background: var(--siemens-teal);
+  color: #fff;
+  font-weight: 700;
+  font-size: var(--text-sm);
+  flex-shrink: 0;
+}
+
+.step-badge-success {
+  background: #28a745;
+}
+
+/* ═══ FIELDS ═══ */
+
+.field-row {
+  display: flex;
+  gap: var(--space-md);
+  margin-bottom: var(--space-md);
+}
+
+.field-group {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-xs);
+}
+
+.field-label {
+  font-size: var(--text-sm);
+  font-weight: 500;
+  color: var(--text-secondary);
+}
+
+.field-input {
+  width: 100%;
+  padding: 10px 12px;
+  border: 1px solid var(--input-border);
+  border-radius: var(--radius-sm);
+  background: var(--input-bg);
   color: var(--form-text);
-  border: 1px solid #ced4da;
+  font-size: var(--text-base);
+  font-family: inherit;
+  transition: border-color var(--duration-fast),
+              box-shadow var(--duration-fast),
+              background var(--duration-fast);
+  outline: none;
+}
+
+.field-input:focus {
+  border-color: var(--siemens-teal);
+  box-shadow: 0 0 0 3px rgba(0, 153, 153, 0.15);
+}
+
+.field-input:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.field-input::placeholder {
+  color: var(--text-muted);
+}
+
+/* Form-control compatibility (JS-generated inputs) */
+.form-control {
+  background-color: var(--input-bg);
+  color: var(--form-text);
+  border: 1px solid var(--input-border);
+  border-radius: var(--radius-sm);
+  transition: border-color var(--duration-fast),
+              box-shadow var(--duration-fast);
+}
+
+.form-control:focus {
+  background-color: var(--input-bg);
+  color: var(--form-text);
+  border-color: var(--siemens-teal);
+  box-shadow: 0 0 0 3px rgba(0, 153, 153, 0.15);
 }
 
 .form-control:disabled,
 .form-control[disabled] {
-  background-color: var(--form-bg) !important;
+  background-color: var(--input-bg) !important;
   color: var(--form-text) !important;
-  opacity: 0.75;
-  border-color: #adb5bd;
-}
-
-body.dark-mode .form-control:disabled,
-body.dark-mode .form-control[disabled] {
-  background-color: var(--form-bg) !important;
-  color: var(--form-text) !important;
-  border-color: #6c757d;
+  opacity: 0.5;
 }
 
 .form-control::placeholder {
-  color: rgba(0, 0, 0, 0.45);
+  color: var(--text-muted);
 }
 
-body.dark-mode .form-control::placeholder {
-  color: rgba(255, 255, 255, 0.7);
+.form-control.is-invalid,
+.field-input.is-invalid {
+  border-color: #dc3545 !important;
+  box-shadow: 0 0 0 3px rgba(220, 53, 69, 0.15) !important;
 }
 
-.form-control:focus {
-  background-color: var(--form-bg);
+/* Form select theming */
+.form-select {
+  background-color: var(--input-bg);
   color: var(--form-text);
-  border-color: #86b7fe;
-  box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.25);
+  border: 1px solid var(--input-border);
 }
 
-/* Branding */
-.siemens-header {
-  font-size: 1.5rem;
-  font-weight: bold;
+body.dark-mode .form-select {
+  background-color: var(--input-bg);
+  color: var(--form-text);
+  border-color: var(--input-border);
+}
+
+/* ═══ FOOTER ═══ */
+
+.app-footer {
+  max-width: var(--max-width);
+  margin: 0 auto;
+  padding: var(--space-lg) var(--space-md) var(--space-2xl);
   text-align: center;
-  color: #009999;
-  margin-bottom: 15px;
+  font-size: var(--text-sm);
+  color: var(--text-muted);
 }
 
-/* Footer */
-.footer-divider {
-  border-top: 1px solid #dee2e6;
-  margin-top: 30px;
-  padding-top: 15px;
+.footer-links {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: var(--space-sm);
+  flex-wrap: wrap;
+  margin-bottom: var(--space-sm);
 }
 
-.credit {
-  font-size: 0.875rem;
-  text-align: center;
-  color: #6c757d;
+.footer-links a {
+  color: var(--siemens-teal);
+  text-decoration: none;
+  font-weight: 500;
+  transition: color var(--duration-fast);
 }
 
-/* Modal theming */
+.footer-links a:hover {
+  color: var(--siemens-teal-light);
+  text-decoration: underline;
+}
+
+.footer-dot {
+  width: 3px;
+  height: 3px;
+  border-radius: 50%;
+  background: var(--text-muted);
+  flex-shrink: 0;
+}
+
+.footer-meta {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: var(--space-sm);
+  margin-bottom: var(--space-sm);
+  color: var(--text-muted);
+  font-size: var(--text-xs);
+}
+
+.footer-privacy {
+  font-size: var(--text-xs);
+  color: var(--text-muted);
+  margin-bottom: var(--space-sm);
+}
+
+.footer-disclaimer {
+  font-size: var(--text-xs);
+  color: var(--text-muted);
+  max-width: 480px;
+  margin: 0 auto;
+  line-height: 1.4;
+}
+
+.footer-disclaimer strong {
+  color: var(--text-secondary);
+}
+
+/* ═══ MODAL THEMING ═══ */
+
 .modal-content {
   background-color: var(--container-bg);
   color: var(--text-color);
+  border: 1px solid var(--border-color);
+}
+
+/* Always show scrollbar in scrollable modals so users know there's more content */
+.modal-dialog-scrollable .modal-body {
+  overflow-y: scroll !important;
+  scrollbar-width: thin;
+  scrollbar-color: var(--border-color) transparent;
+}
+
+.modal-dialog-scrollable .modal-body::-webkit-scrollbar {
+  -webkit-appearance: none;
+  width: 6px;
+}
+
+.modal-dialog-scrollable .modal-body::-webkit-scrollbar-thumb {
+  background-color: var(--border-color);
+  border-radius: 3px;
+}
+
+.modal-dialog-scrollable .modal-body::-webkit-scrollbar-track {
+  background: transparent;
 }
 
 body.dark-mode .modal-content .form-label,
 body.dark-mode .modal-content label,
 body.dark-mode .modal-content p,
 body.dark-mode .modal-content li,
-body.dark-mode .modal-content small {
+body.dark-mode .modal-content small,
+body.dark-mode .modal-content h6 {
   color: var(--text-color);
 }
 
 body.dark-mode .text-muted {
-  color: #c8ced6 !important;
+  color: var(--text-muted) !important;
 }
 
-/* Dark mode tiered rate inputs */
-body.dark-mode #tier1Limit,
-body.dark-mode #tier1Rate,
-body.dark-mode #tier2Rate {
-  background-color: var(--form-bg);
-  color: var(--form-text);
-  border-color: #495057;
+body.dark-mode .modal-content .form-text {
+  color: var(--text-muted);
+}
+
+body.dark-mode .modal-content .text-muted {
+  color: var(--text-muted) !important;
+}
+
+body.dark-mode .btn-close {
+  filter: invert(1) grayscale(100%) brightness(200%);
+}
+
+/* pre inside modals */
+pre {
+  background-color: var(--pre-bg);
+  padding: 10px;
+  border-radius: var(--radius-sm);
+  font-size: var(--text-sm);
+}
+
+/* ═══ COMPATIBILITY: old classes used by JS ═══ */
+
+/* billing-box — used by scrollToAndHighlight in ui.js */
+.billing-box {
+  border-radius: var(--radius-lg);
+}
+
+/* siemens-header — referenced nowhere in new HTML but kept for safety */
+.siemens-header {
+  color: var(--siemens-teal);
+  font-weight: 700;
+}
+
+/* Utility: visually hidden (Bootstrap has this too, but just in case) */
+.visually-hidden {
+  position: absolute !important;
+  width: 1px !important;
+  height: 1px !important;
+  padding: 0 !important;
+  margin: -1px !important;
+  overflow: hidden !important;
+  clip: rect(0, 0, 0, 0) !important;
+  white-space: nowrap !important;
+  border: 0 !important;
 }

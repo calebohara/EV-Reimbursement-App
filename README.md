@@ -60,7 +60,7 @@ A web-based application designed to help Siemens employees calculate and manage 
 
 ## Architecture
 
-Version 2.1 uses ES modules with no build tools required:
+Version 3.0 uses ES modules with no build tools required:
 
 ```
 index.html                  Semantic HTML, <script type="module">
@@ -185,6 +185,16 @@ Date,kWh Usage
 
 ## Version History
 
+### Version 3.0.0 (March 2026)
+- **Complete UI Redesign**: Three-step wizard flow (Setup → Usage → Your Reimbursement)
+- **Slim Fixed Header**: Branded SIEMENS header with quick-access help, dark mode, and feedback
+- **Progressive Disclosure**: Empty states hidden until data exists, tiered rates revealed on toggle
+- **Hero Result Display**: Large, prominent reimbursement amount with contextual export buttons
+- **Collapsible Sections**: Chart, history, and trends collapse via `<details>` elements
+- **Footer Navigation**: EV Policy, Contact, and Changelog moved to footer for cleaner layout
+- **Design Token System**: CSS custom properties for consistent theming and spacing
+- **Mobile-First Responsive**: Optimized layouts at 768px, 600px, and 360px breakpoints
+
 ### Version 2.1.0 (February 28, 2026)
 - **Multi-Month History**: Archive billing periods, browse/restore/delete past records
 - **Saved Rate Presets**: Save and reuse utility rate configurations with one-click selection
@@ -269,4 +279,4 @@ This project is proprietary and confidential. All rights reserved.
 
 ---
 
-*Last updated: February 28, 2026*
+*Last updated: March 2026*
