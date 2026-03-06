@@ -43,6 +43,9 @@
       <span class="header-brand">SIEMENS</span>
       <span class="header-title">EV Reimbursement</span>
       <div class="header-actions">
+        <button class="icon-btn" data-action="refresh-app" aria-label="Check for updates" title="Check for updates">
+          <i class="bi bi-arrow-clockwise"></i>
+        </button>
         <button class="icon-btn" data-bs-toggle="modal" data-bs-target="#siteHelpModal" aria-label="Help" title="Help">
           <i class="bi bi-question-circle"></i>
         </button>
@@ -552,7 +555,27 @@
   <!-- Service Worker + PWA Install -->
   <script>
     if ('serviceWorker' in navigator) {
-      navigator.serviceWorker.register('sw.js').catch(() => {});
+      navigator.serviceWorker.register('sw.js').then((reg) => {
+        // Check for updates every 30 minutes
+        setInterval(() => reg.update(), 30 * 60 * 1000);
+
+        // When a new SW is waiting or becomes active, reload silently
+        reg.addEventListener('updatefound', () => {
+          const newWorker = reg.installing;
+          if (!newWorker) return;
+          newWorker.addEventListener('statechange', () => {
+            if (newWorker.state === 'activated' && navigator.serviceWorker.controller) {
+              window.location.reload();
+            }
+          });
+        });
+      }).catch(() => {});
+
+      // Also reload if a new SW takes over via skipWaiting + clients.claim
+      let refreshing = false;
+      navigator.serviceWorker.addEventListener('controllerchange', () => {
+        if (!refreshing) { refreshing = true; window.location.reload(); }
+      });
     }
 
     // PWA Install Prompt

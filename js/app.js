@@ -258,6 +258,16 @@ document.addEventListener('click', (e) => {
     case 'export-history-pdf':
       exportHistoryPDF(actionEl.dataset.historyId);
       break;
+    case 'refresh-app':
+      if ('serviceWorker' in navigator) {
+        navigator.serviceWorker.getRegistration().then(reg => {
+          if (reg) reg.update().then(() => window.location.reload());
+          else window.location.reload();
+        });
+      } else {
+        window.location.reload();
+      }
+      break;
   }
 });
 
