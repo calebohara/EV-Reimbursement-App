@@ -563,14 +563,14 @@ details[open] > .collapsible-header .collapsible-chevron {
 .history-list {
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 10px;
 }
 
 .history-item {
   display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 12px 14px;
+  flex-direction: column;
+  gap: 10px;
+  padding: 14px;
   background: var(--section-hover);
   border: 1px solid var(--border-color);
   border-radius: var(--radius-sm);
@@ -581,9 +581,10 @@ details[open] > .collapsible-header .collapsible-chevron {
   border-color: var(--siemens-teal);
 }
 
-.history-info {
-  flex: 1;
-  min-width: 0;
+.history-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
 }
 
 .history-label {
@@ -592,23 +593,39 @@ details[open] > .collapsible-header .collapsible-chevron {
   color: var(--text-color);
 }
 
-.history-details {
-  font-size: var(--text-xs);
+.history-meta {
+  font-size: 0.65rem;
   color: var(--text-muted);
-  margin-top: 2px;
+  white-space: nowrap;
 }
 
-.history-meta {
-  font-size: 0.7rem;
+.history-stats {
+  display: flex;
+  gap: 12px;
+}
+
+.history-stat {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+}
+
+.history-stat-value {
+  font-weight: 600;
+  font-size: var(--text-sm);
+  color: var(--text-color);
+}
+
+.history-stat-label {
+  font-size: 0.65rem;
   color: var(--text-muted);
-  margin-top: 2px;
+  text-transform: lowercase;
 }
 
 .history-actions {
   display: flex;
   gap: 6px;
-  flex-shrink: 0;
-  margin-left: 12px;
+  justify-content: flex-end;
 }
 
 /* ═══ TREND INSIGHT ═══ */

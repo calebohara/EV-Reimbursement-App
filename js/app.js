@@ -18,7 +18,7 @@ import { initializeFeedbackForm, submitFeedback } from './feedback.js';
 import { showButtonLoading, resetButtonLoading, scrollToAndHighlight } from './ui.js';
 import { parseLocalDate } from './utils/dates.js';
 import { computeTieredTotals } from './billing.js';
-import { archiveCurrentPeriod, renderHistoryList, restorePeriod, deletePeriod, setOnHistoryChange } from './history.js';
+import { archiveCurrentPeriod, renderHistoryList, restorePeriod, deletePeriod, exportHistoryPDF, setOnHistoryChange } from './history.js';
 import { initPresets, applyPreset, saveCurrentAsPreset, deleteSelectedPreset, setOnPresetApply } from './presets.js';
 import { renderTrendChart } from './trend.js';
 
@@ -254,6 +254,9 @@ document.addEventListener('click', (e) => {
       break;
     case 'delete-period':
       deletePeriod(actionEl.dataset.historyId);
+      break;
+    case 'export-history-pdf':
+      exportHistoryPDF(actionEl.dataset.historyId);
       break;
   }
 });

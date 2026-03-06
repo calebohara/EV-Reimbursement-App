@@ -6,6 +6,7 @@ import * as storage from './storage.js';
 import { parseLocalDate, forEachDay, ymd } from './utils/dates.js';
 import { computeCostsFromData, getTierSettings, isUsingTieredRates } from './billing.js';
 import { showButtonLoading, resetButtonLoading } from './ui.js';
+import { exportReceiptFromSnapshot } from './exports/receipt.js';
 
 let onHistoryChange = null;
 export function setOnHistoryChange(fn) { onHistoryChange = fn; }
@@ -102,18 +103,32 @@ export function renderHistoryList() {
     });
     html += `
       <div class="history-item" data-history-id="${entry.id}">
-        <div class="history-info">
+        <div class="history-header">
           <div class="history-label">${entry.label}</div>
-          <div class="history-details">
-            ${entry.startDate} to ${entry.endDate} | ${entry.totalKwh.toFixed(1)} kWh | $${entry.totalCost.toFixed(2)}
-          </div>
           <div class="history-meta">Archived ${savedDate}</div>
         </div>
+        <div class="history-stats">
+          <div class="history-stat">
+            <span class="history-stat-value">${entry.totalKwh.toFixed(1)}</span>
+            <span class="history-stat-label">kWh</span>
+          </div>
+          <div class="history-stat">
+            <span class="history-stat-value">$${entry.totalCost.toFixed(2)}</span>
+            <span class="history-stat-label">total</span>
+          </div>
+          <div class="history-stat">
+            <span class="history-stat-value">${entry.startDate}</span>
+            <span class="history-stat-label">to ${entry.endDate}</span>
+          </div>
+        </div>
         <div class="history-actions">
-          <button class="btn btn-sm btn-outline-primary" data-action="restore-period" data-history-id="${entry.id}" title="Restore this period">
+          <button class="btn-icon-sm" data-action="export-history-pdf" data-history-id="${entry.id}" title="Export PDF">
+            <i class="bi bi-file-earmark-pdf"></i>
+          </button>
+          <button class="btn-icon-sm" data-action="restore-period" data-history-id="${entry.id}" title="Restore this period">
             <i class="bi bi-arrow-counterclockwise"></i>
           </button>
-          <button class="btn btn-sm btn-outline-danger" data-action="delete-period" data-history-id="${entry.id}" title="Delete this archive">
+          <button class="btn-icon-sm btn-icon-danger" data-action="delete-period" data-history-id="${entry.id}" title="Delete this archive">
             <i class="bi bi-trash"></i>
           </button>
         </div>
@@ -161,6 +176,18 @@ export function restorePeriod(id) {
 
   // Trigger a page-level refresh to regenerate fields with restored data
   fireHistoryChange();
+}
+
+/**
+ * Export a history entry as a receipt PDF.
+ */
+export function exportHistoryPDF(id) {
+  const snapshot = storage.loadFromHistory(id);
+  if (!snapshot) {
+    alert('Could not find the archived period.');
+    return;
+  }
+  exportReceiptFromSnapshot(snapshot);
 }
 
 /**

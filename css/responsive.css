@@ -168,16 +168,23 @@
     gap: 4px;
   }
 
-  /* History items stack */
+  /* History items compact */
   .history-item {
-    flex-direction: column;
-    gap: 8px;
     padding: 10px;
+    gap: 8px;
   }
 
-  .history-actions {
-    align-self: flex-end;
-    margin-left: 0;
+  .history-stats {
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+
+  .history-stat-value {
+    font-size: var(--text-xs);
+  }
+
+  .history-stat-label {
+    font-size: 0.6rem;
   }
 
   /* Footer */
