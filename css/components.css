@@ -809,3 +809,99 @@ body.dark-mode .modal-footer strong {
 body.dark-mode .pwa-banner-inner {
   box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.3);
 }
+
+/* ═══ iOS INSTALL OVERLAY ═══ */
+
+.ios-install-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 1070;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0, 0, 0, 0.5);
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.ios-install-overlay.show {
+  opacity: 1;
+}
+
+.ios-install-card {
+  position: relative;
+  background: var(--container-bg);
+  border-radius: var(--radius-lg);
+  padding: var(--space-lg) var(--space-lg) var(--space-md);
+  margin: var(--space-md);
+  max-width: 340px;
+  width: 100%;
+  box-shadow: 0 16px 48px rgba(0, 0, 0, 0.2);
+  transform: translateY(20px);
+  transition: transform 0.3s var(--ease-out);
+}
+
+.ios-install-overlay.show .ios-install-card {
+  transform: translateY(0);
+}
+
+.ios-install-close {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  background: none;
+  border: none;
+  font-size: 1.5rem;
+  line-height: 1;
+  color: var(--text-muted);
+  cursor: pointer;
+  padding: 4px;
+}
+
+.ios-install-close:hover {
+  color: var(--text-color);
+}
+
+.ios-install-card h3 {
+  margin: 0 0 var(--space-md);
+  font-size: var(--text-lg);
+  color: var(--text-color);
+  text-align: center;
+}
+
+.ios-install-steps {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  counter-reset: ios-step;
+}
+
+.ios-install-steps li {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-sm);
+  padding: var(--space-sm) 0;
+  font-size: var(--text-sm);
+  color: var(--text-color);
+  line-height: 1.5;
+}
+
+.ios-install-steps li + li {
+  border-top: 1px solid var(--border-color);
+}
+
+.ios-step-icon {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border-radius: var(--radius-sm);
+  background: var(--siemens-teal);
+  color: white;
+}
+
+body.dark-mode .ios-install-card {
+  box-shadow: 0 16px 48px rgba(0, 0, 0, 0.4);
+}
