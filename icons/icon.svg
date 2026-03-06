@@ -1,37 +1,187 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
   <defs>
-    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
-      <stop offset="0%" stop-color="#00b3b3"/>
-      <stop offset="100%" stop-color="#007a7a"/>
+    <!-- Background gradient - rich teal with depth -->
+    <linearGradient id="bgGrad" x1="0" y1="0" x2="0.5" y2="1">
+      <stop offset="0%" stop-color="#00cccc"/>
+      <stop offset="40%" stop-color="#009999"/>
+      <stop offset="100%" stop-color="#006666"/>
     </linearGradient>
-    <linearGradient id="bolt" x1="0" y1="0" x2="0" y2="1">
-      <stop offset="0%" stop-color="#FFE066"/>
-      <stop offset="100%" stop-color="#FFB800"/>
+
+    <!-- Glass shine overlay -->
+    <linearGradient id="glassShine" x1="0.5" y1="0" x2="0.5" y2="1">
+      <stop offset="0%" stop-color="white" stop-opacity="0.35"/>
+      <stop offset="45%" stop-color="white" stop-opacity="0.08"/>
+      <stop offset="55%" stop-color="white" stop-opacity="0"/>
+      <stop offset="100%" stop-color="black" stop-opacity="0.15"/>
     </linearGradient>
+
+    <!-- Car body gradient - pearly white with depth -->
+    <linearGradient id="carBody" x1="0.5" y1="0" x2="0.5" y2="1">
+      <stop offset="0%" stop-color="#ffffff"/>
+      <stop offset="60%" stop-color="#e8f0f0"/>
+      <stop offset="100%" stop-color="#c8dada"/>
+    </linearGradient>
+
+    <!-- Car roof gradient -->
+    <linearGradient id="carRoof" x1="0.5" y1="0" x2="0.5" y2="1">
+      <stop offset="0%" stop-color="#ffffff"/>
+      <stop offset="100%" stop-color="#dceaea"/>
+    </linearGradient>
+
+    <!-- Window glass -->
+    <linearGradient id="windowGlass" x1="0" y1="0" x2="0.5" y2="1">
+      <stop offset="0%" stop-color="#40d0d0"/>
+      <stop offset="100%" stop-color="#007777"/>
+    </linearGradient>
+
+    <!-- Lightning bolt glow -->
+    <linearGradient id="boltGrad" x1="0.3" y1="0" x2="0.7" y2="1">
+      <stop offset="0%" stop-color="#FFF7A0"/>
+      <stop offset="30%" stop-color="#FFE033"/>
+      <stop offset="100%" stop-color="#FF9500"/>
+    </linearGradient>
+
+    <!-- Wheel gradient -->
+    <radialGradient id="wheelOuter" cx="0.4" cy="0.35" r="0.6">
+      <stop offset="0%" stop-color="#555"/>
+      <stop offset="100%" stop-color="#111"/>
+    </radialGradient>
+    <radialGradient id="wheelHub" cx="0.4" cy="0.35" r="0.5">
+      <stop offset="0%" stop-color="#999"/>
+      <stop offset="100%" stop-color="#444"/>
+    </radialGradient>
+
+    <!-- Shadow filter -->
+    <filter id="carShadow" x="-20%" y="-20%" width="140%" height="160%">
+      <feDropShadow dx="0" dy="8" stdDeviation="12" flood-color="#004444" flood-opacity="0.4"/>
+    </filter>
+
+    <!-- Bolt glow filter -->
+    <filter id="boltGlow" x="-50%" y="-50%" width="200%" height="200%">
+      <feGaussianBlur in="SourceGraphic" stdDeviation="6" result="blur"/>
+      <feMerge>
+        <feMergeNode in="blur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+
+    <!-- Subtle inner shadow for background -->
+    <filter id="innerDepth">
+      <feGaussianBlur in="SourceAlpha" stdDeviation="8" result="blur"/>
+      <feOffset dx="0" dy="4" result="offsetBlur"/>
+      <feComposite in="SourceGraphic" in2="offsetBlur" operator="over"/>
+    </filter>
+
+    <!-- Headlight glow -->
+    <radialGradient id="headlightGlow" cx="0.5" cy="0.5" r="0.5">
+      <stop offset="0%" stop-color="#ffffff" stop-opacity="0.9"/>
+      <stop offset="40%" stop-color="#ccffff" stop-opacity="0.5"/>
+      <stop offset="100%" stop-color="#00cccc" stop-opacity="0"/>
+    </radialGradient>
   </defs>
-  <!-- Background -->
-  <rect width="512" height="512" rx="108" fill="url(#bg)"/>
-  <!-- Car silhouette -->
-  <g transform="translate(256,235)">
-    <!-- Body -->
-    <path d="M-130,45 Q-135,45 -135,35 L-135,10 L-95,-50 Q-85,-65 -65,-65 L65,-65 Q85,-65 95,-50 L135,10 L135,35 Q135,45 125,45 Z" fill="white" opacity="0.95"/>
-    <!-- Roof line -->
-    <path d="M-60,-65 L-35,-105 Q-30,-112 -20,-112 L30,-112 Q40,-112 45,-105 L70,-65" fill="white" opacity="0.95"/>
-    <!-- Windows -->
-    <path d="M-50,-60 L-30,-95 Q-28,-100 -20,-100 L5,-100 L5,-60 Z" fill="#009999" opacity="0.5"/>
-    <path d="M15,-60 L15,-100 L35,-100 Q43,-100 48,-93 L62,-60 Z" fill="#009999" opacity="0.5"/>
-    <!-- Wheels -->
-    <circle cx="-80" cy="48" r="26" fill="#1a1a1a"/>
-    <circle cx="-80" cy="48" r="16" fill="#444"/>
-    <circle cx="-80" cy="48" r="6" fill="#1a1a1a"/>
-    <circle cx="80" cy="48" r="26" fill="#1a1a1a"/>
-    <circle cx="80" cy="48" r="16" fill="#444"/>
-    <circle cx="80" cy="48" r="6" fill="#1a1a1a"/>
+
+  <!-- ══ BACKGROUND ══ -->
+  <!-- Base rounded rect with gradient -->
+  <rect width="512" height="512" rx="112" fill="url(#bgGrad)"/>
+  <!-- Glass shine overlay for 3D depth -->
+  <rect width="512" height="512" rx="112" fill="url(#glassShine)"/>
+  <!-- Subtle edge highlight (top-left) -->
+  <rect x="4" y="4" width="504" height="504" rx="110" fill="none" stroke="white" stroke-opacity="0.15" stroke-width="2"/>
+
+  <!-- ══ GROUND REFLECTION ══ -->
+  <ellipse cx="256" cy="380" rx="160" ry="14" fill="#004d4d" opacity="0.3"/>
+
+  <!-- ══ CAR GROUP (with shadow) ══ -->
+  <g filter="url(#carShadow)" transform="translate(256, 260)">
+    <!-- Car body -->
+    <path d="M-140,30 Q-148,30 -148,18 L-148,-5 L-105,-68 Q-93,-88 -70,-88 L70,-88 Q93,-88 105,-68 L148,-5 L148,18 Q148,30 138,30 Z"
+          fill="url(#carBody)"/>
+
+    <!-- Body highlight stripe -->
+    <path d="M-140,5 L-105,-60 Q-93,-78 -70,-78 L70,-78 Q93,-78 105,-60 L140,5"
+          fill="none" stroke="white" stroke-opacity="0.5" stroke-width="2"/>
+
+    <!-- Roof -->
+    <path d="M-65,-88 L-38,-133 Q-32,-143 -20,-143 L30,-143 Q42,-143 48,-133 L75,-88"
+          fill="url(#carRoof)"/>
+
+    <!-- Roof highlight -->
+    <path d="M-55,-90 L-33,-128 Q-28,-136 -18,-136 L28,-136 Q38,-136 43,-128 L65,-90"
+          fill="white" opacity="0.3"/>
+
+    <!-- Left window -->
+    <path d="M-55,-83 L-33,-122 Q-30,-128 -22,-128 L5,-128 L5,-83 Z"
+          fill="url(#windowGlass)" opacity="0.7"/>
+    <!-- Window reflection -->
+    <path d="M-45,-83 L-30,-110 L-25,-110 L-40,-83 Z" fill="white" opacity="0.25"/>
+
+    <!-- Right window -->
+    <path d="M15,-83 L15,-128 L35,-128 Q45,-128 50,-120 L68,-83 Z"
+          fill="url(#windowGlass)" opacity="0.7"/>
+    <!-- Window reflection -->
+    <path d="M22,-83 L22,-110 L28,-110 L28,-83 Z" fill="white" opacity="0.2"/>
+
+    <!-- Door line -->
+    <line x1="8" y1="-83" x2="8" y2="25" stroke="#b0c8c8" stroke-width="1.5" opacity="0.5"/>
+
+    <!-- Headlight (front) -->
+    <ellipse cx="140" cy="0" rx="12" ry="8" fill="white" opacity="0.85"/>
+    <ellipse cx="140" cy="0" rx="8" ry="5" fill="#ccffff"/>
+
+    <!-- Tail light (rear) -->
+    <rect x="-148" y="-8" width="8" height="14" rx="3" fill="#ff4444" opacity="0.8"/>
+    <rect x="-148" y="-6" width="5" height="10" rx="2" fill="#ff6666" opacity="0.5"/>
+
+    <!-- ══ WHEELS ══ -->
+    <!-- Left wheel -->
+    <circle cx="-85" cy="34" r="30" fill="url(#wheelOuter)"/>
+    <circle cx="-85" cy="34" r="20" fill="url(#wheelHub)"/>
+    <circle cx="-85" cy="34" r="8" fill="#222"/>
+    <circle cx="-85" cy="34" r="4" fill="#666"/>
+    <!-- Wheel spokes -->
+    <g stroke="#666" stroke-width="2" opacity="0.4">
+      <line x1="-85" y1="18" x2="-85" y2="50"/>
+      <line x1="-101" y1="34" x2="-69" y2="34"/>
+      <line x1="-96" y1="23" x2="-74" y2="45"/>
+      <line x1="-74" y1="23" x2="-96" y2="45"/>
+    </g>
+
+    <!-- Right wheel -->
+    <circle cx="85" cy="34" r="30" fill="url(#wheelOuter)"/>
+    <circle cx="85" cy="34" r="20" fill="url(#wheelHub)"/>
+    <circle cx="85" cy="34" r="8" fill="#222"/>
+    <circle cx="85" cy="34" r="4" fill="#666"/>
+    <!-- Wheel spokes -->
+    <g stroke="#666" stroke-width="2" opacity="0.4">
+      <line x1="85" y1="18" x2="85" y2="50"/>
+      <line x1="69" y1="34" x2="101" y2="34"/>
+      <line x1="74" y1="23" x2="96" y2="45"/>
+      <line x1="96" y1="23" x2="74" y2="45"/>
+    </g>
+
+    <!-- Bumper detail -->
+    <rect x="-120" y="22" width="240" height="6" rx="3" fill="#b8d4d4" opacity="0.3"/>
   </g>
-  <!-- Lightning bolt -->
-  <g transform="translate(256,130)">
-    <path d="M-18,-55 L12,-55 L5,-10 L22,-10 L-12,55 L-5,10 L-22,10 Z" fill="url(#bolt)"/>
+
+  <!-- ══ LIGHTNING BOLT (above car) ══ -->
+  <g filter="url(#boltGlow)" transform="translate(256, 105)">
+    <path d="M-22,-60 L14,-60 L6,-12 L26,-12 L-14,60 L-6,12 L-26,12 Z"
+          fill="url(#boltGrad)" stroke="#FFB800" stroke-width="1.5" stroke-linejoin="round"/>
+    <!-- Bolt highlight -->
+    <path d="M-16,-52 L8,-52 L2,-12 L-6,-12 Z" fill="white" opacity="0.3"/>
   </g>
-  <!-- kWh text -->
-  <text x="256" y="400" text-anchor="middle" font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif" font-size="56" font-weight="700" fill="white" letter-spacing="4" opacity="0.95">kWh</text>
+
+  <!-- ══ kWh TEXT with 3D effect ══ -->
+  <!-- Text shadow -->
+  <text x="256" y="432" text-anchor="middle"
+        font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif"
+        font-size="52" font-weight="800" fill="#004d4d" opacity="0.4" letter-spacing="6">kWh</text>
+  <!-- Main text -->
+  <text x="256" y="430" text-anchor="middle"
+        font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif"
+        font-size="52" font-weight="800" fill="white" letter-spacing="6" opacity="0.95">kWh</text>
+  <!-- Text highlight -->
+  <text x="256" y="429" text-anchor="middle"
+        font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif"
+        font-size="52" font-weight="800" fill="white" letter-spacing="6" opacity="0.15">kWh</text>
 </svg>
