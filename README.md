@@ -19,6 +19,7 @@ A web-based application designed to help Siemens employees calculate and manage 
 - Base cost per kWh input
 - Optional tiered rate billing (Tier 1 limit, Tier 1 rate, Tier 2 rate)
 - Cumulative tier calculation across the billing period
+- Additional charges toggle for named line items (e.g., EV Service Fee, Demand Charge)
 - Real-time cost updates as data changes
 
 ### Data Visualization
@@ -187,6 +188,8 @@ Date,kWh Usage
 
 ### Version 3.4.0 (March 2026)
 - **Additional Charges**: Toggle to add named line items (e.g., EV Service Fee, Demand Charge) with custom amounts, included in all calculations, exports (Receipt, Excel, PDF), and history snapshots
+- **History Redesign**: Expense-style breakdown cards with human-readable dates, kWh subtotal, itemized charges, and bold total with separator
+- **Security Fix**: Charge row inputs built via safe DOM APIs (`createElement` + `.value`) to prevent stored XSS from localStorage data
 
 ### Version 3.3.0 (March 2026)
 - **Storage Indicator**: Live localStorage usage display in footer showing bytes used, with a "Clear" button that warns before permanently deleting all app data (profiles, history, presets, preferences)

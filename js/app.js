@@ -88,13 +88,28 @@ function addChargeRow(name = '', amount = '') {
   if (!container) return;
   const row = document.createElement('div');
   row.className = 'additional-charge-row';
-  row.innerHTML = `
-    <input type="text" class="field-input charge-name" placeholder="Charge name" value="${name}">
-    <input type="number" min="0" step="0.01" class="field-input charge-amount" placeholder="$0.00" value="${amount}">
-    <button class="btn-icon-sm btn-icon-danger" data-action="remove-charge" title="Remove charge">
-      <i class="bi bi-x-lg"></i>
-    </button>
-  `;
+
+  const nameInput = document.createElement('input');
+  nameInput.type = 'text';
+  nameInput.className = 'field-input charge-name';
+  nameInput.placeholder = 'Charge name';
+  nameInput.value = name;
+
+  const amountInput = document.createElement('input');
+  amountInput.type = 'number';
+  amountInput.min = '0';
+  amountInput.step = '0.01';
+  amountInput.className = 'field-input charge-amount';
+  amountInput.placeholder = '$0.00';
+  amountInput.value = amount;
+
+  const removeBtn = document.createElement('button');
+  removeBtn.className = 'btn-icon-sm btn-icon-danger';
+  removeBtn.dataset.action = 'remove-charge';
+  removeBtn.title = 'Remove charge';
+  removeBtn.innerHTML = '<i class="bi bi-x-lg"></i>';
+
+  row.append(nameInput, amountInput, removeBtn);
   container.appendChild(row);
 }
 
