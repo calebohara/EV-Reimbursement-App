@@ -3,7 +3,7 @@
  * Cache-first for app shell, network-first for CDN libraries.
  */
 
-const CACHE_NAME = 'ev-reimburse-v3.12.2';
+const CACHE_NAME = 'ev-reimburse-v3.12.3';
 
 // Relative paths — resolved against SW scope at install time
 const APP_SHELL_RELATIVE = [
