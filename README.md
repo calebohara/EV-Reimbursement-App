@@ -1,321 +1,377 @@
-# EV kWh Reimbursement App
+<p align="center">
+  <img src="icons/icon-512.png" alt="EV kWh Reimbursement App" width="120" height="120" style="border-radius: 24px;">
+</p>
 
-A web-based application designed to help Siemens employees calculate and manage their electric vehicle (EV) charging reimbursements. Track kWh usage, calculate costs, and generate reports for reimbursement purposes.
+<h1 align="center">EV kWh Reimbursement App</h1>
 
-## Features
+<p align="center">
+  Calculate, track, and export electric vehicle charging reimbursements.
+</p>
 
-### Profile Management
-- Create and manage multiple profiles for separate vehicles or billing periods
-- Switch between profiles with independent data storage
-- Default profile cannot be deleted
+<p align="center">
+  <img src="https://img.shields.io/badge/version-3.7.1-009999?style=flat-square" alt="Version">
+  <img src="https://img.shields.io/badge/license-proprietary-333?style=flat-square" alt="License">
+  <img src="https://img.shields.io/badge/PWA-installable-5A0FC8?style=flat-square" alt="PWA">
+  <img src="https://img.shields.io/badge/build-zero--config-blue?style=flat-square" alt="Build">
+  <img src="https://img.shields.io/badge/WCAG-AA-green?style=flat-square" alt="Accessibility">
+</p>
 
-### Data Entry
-- Manual entry of daily kWh usage with per-day input fields
-- CSV import with validation (date range, format, error highlighting)
-- Download pre-formatted CSV template with billing period dates
-- Automatic field generation when both dates are selected
+---
 
-### Cost Calculation
-- Base cost per kWh input
-- Optional tiered rate billing (Tier 1 limit, Tier 1 rate, Tier 2 rate)
-- Cumulative tier calculation across the billing period
-- Additional charges toggle for named line items (e.g., EV Service Fee, Demand Charge)
-- Real-time cost updates as data changes
+## Overview
 
-### Data Visualization
-- Interactive dual-axis Chart.js chart (kWh usage + daily cost)
-- Dashboard summary: Total kWh, Total Cost, Avg Daily, Data Completeness %
-- Color-coded progress bar for data entry tracking
-- Tooltips with date, kWh, cost, and effective rate on hover
+A client-side Progressive Web App for Siemens employees to calculate EV charging reimbursements from daily kWh usage data. The application runs entirely in the browser with no backend — all data is stored in `localStorage`.
 
-### Export Options
-- **Excel**: Daily breakdown with effective rate and currency formatting via SheetJS
-- **PDF**: Professional report with billing period header and tiered rate notation via jsPDF
-- **Receipt**: Siemens-formatted reimbursement receipt with receipt number, line items, signature line
+**Problem**: Employees who charge company EVs at home need to calculate reimbursement amounts from utility billing data and submit expense reports with supporting documentation.
 
-### Billing History
-- Archive billing periods for future reference
-- Browse, restore, or delete past records
-- Month-over-month trend chart comparing archived periods (kWh, cost, avg daily)
-- Insight text showing usage changes and average monthly cost
+**Solution**: Enter billing period dates and daily kWh readings (manually or via CSV), configure your utility rate (flat or tiered), and generate export-ready PDFs, Excel spreadsheets, and Siemens-formatted receipts.
 
-### Saved Rate Presets
-- Save utility rate configurations (flat or tiered) as named presets
-- One-click preset selection from dropdown
-- Global presets shared across profiles
+**Users**: Siemens employees, field technicians, fleet managers, and anyone tracking EV charging costs for reimbursement.
 
-### Progressive Web App
-- Installable on desktop and mobile devices
-- Offline-capable with service worker caching
-- App manifest with standalone display mode
+---
 
-### Additional Features
-- Dark mode with full component coverage (inputs, modals, chart)
-- Feedback form with 1-5 star rating, categories, and mailto generation
-- Contextual tooltips on all interactive elements
-- Input validation (negative values, unusually high kWh warnings)
-- Loading spinners on all async operations
-- ARIA labels and keyboard navigation for accessibility
-- Mobile responsive layout (< 600px)
-- Guided tour for first-time visitors with spotlight overlay and step-by-step walkthrough
-- EV Impact: CO₂ saved and miles powered in a collapsible section
-- Stats for Nerds: days tracked, avg daily usage, cost per mile, data points, and build info
-- All data stored locally in the browser (no server)
+## Core Features
+
+| Feature | Description |
+|---|---|
+| **Multi-Profile Management** | Separate data stores for different vehicles or billing accounts |
+| **Flexible Rate Configuration** | Flat rate, two-tier cumulative billing, saved rate presets, additional named charges |
+| **CSV Import/Export** | Template download, validated import with error highlighting, XSS-safe parsing |
+| **Three Export Formats** | Excel (SheetJS), PDF report (jsPDF), Siemens-branded receipt with receipt number |
+| **Billing History** | Archive periods, restore past data, delete records, per-entry PDF export |
+| **Interactive Charts** | Dual-axis kWh + cost chart, month-over-month trend comparison |
+| **EV Impact Stats** | CO₂ saved vs gasoline, miles powered, tree-month equivalents |
+| **Stats for Nerds** | Total days tracked, avg daily usage, cost per mile, data points, build info |
+| **Guided Tour** | 9-step spotlight walkthrough for first-time users with keyboard navigation |
+| **Theme Switcher** | System / Light / Dark tri-state pill with OS preference detection |
+| **PWA** | Installable, offline-capable, silent auto-updates with service worker |
+| **Dashboard Summary** | Real-time stat chips for total kWh, cost, daily average, data completeness |
+
+---
+
+## Technology Stack
+
+| Layer | Technology | Purpose |
+|---|---|---|
+| **Markup** | HTML5 | Semantic structure, native `<details>` collapsibles |
+| **Styling** | CSS3 Custom Properties | Design token system, light/dark theming |
+| **Logic** | JavaScript ES Modules | 18 modules, no transpilation, native `import/export` |
+| **UI Framework** | Bootstrap 5.3.0 | Grid, modals, tooltips, form controls |
+| **Icons** | Bootstrap Icons 1.10.5 | UI iconography |
+| **Charts** | Chart.js (latest) | Dual-axis line/bar charts |
+| **Excel Export** | SheetJS 0.18.5 | XLSX generation with currency formatting |
+| **PDF Export** | jsPDF 2.5.1 + AutoTable 3.7.0 | Report and receipt PDF generation |
+| **Hosting** | GitHub Pages | Static file serving, no server required |
+| **Storage** | localStorage | Profile-scoped client-side persistence |
+
+All external libraries loaded via CDN with SRI integrity hashes. No `package.json`, no build step, no bundler.
+
+---
 
 ## Architecture
 
-Version 3.0 uses ES modules with no build tools required:
-
 ```
-index.html                  Semantic HTML, <script type="module">
-manifest.json               PWA manifest
-sw.js                       Service worker for offline support
-icons/icon.svg              PWA app icon
-css/
-  variables.css             CSS custom properties and theme tokens
-  base.css                  Reset, typography, layout, modal theming
-  components.css            Cards, buttons, profile box, summary stats
-  animations.css            Keyframes and transitions
-  responsive.css            Media queries (768px, 600px breakpoints)
-js/
-  app.js                    Entry point — imports, init, event delegation
-  utils/dates.js            parseLocalDate, ymd, forEachDay, dayCount
-  storage.js                Profile-scoped localStorage + history + presets
-  profiles.js               Profile CRUD and dropdown UI
-  billing.js                Tiered rate logic and cost calculations
-  fields.js                 kWh field generation and validation
-  csv.js                    CSV template download and import
-  chart.js                  Chart.js dual-axis visualization
-  summary.js                Dashboard summary card updates
-  history.js                Billing period archive management
-  presets.js                Rate preset CRUD and UI
-  trend.js                  Month-over-month comparison chart
-  exports/excel.js          SheetJS Excel export
-  exports/pdf.js            jsPDF + autoTable PDF export
-  exports/receipt.js        Siemens-formatted receipt PDF
-  feedback.js               Star rating form and mailto generation
-  tour.js                   Guided tour spotlight + tooltip walkthrough
-  stats.js                  EV Impact + Stats for Nerds
-  ui.js                     Dark mode, button loading, tooltips
+┌─────────────────────────────────────────────────────┐
+│                    index.html                        │
+│              (single-page application)               │
+├─────────────────────────────────────────────────────┤
+│  app.js (entry point + event delegation)             │
+│    ├── storage.js ──── localStorage (profile-scoped) │
+│    ├── profiles.js                                   │
+│    ├── billing.js ──── tiered rates + cost engine     │
+│    ├── fields.js ───── kWh input generation           │
+│    ├── csv.js ──────── import/export with validation  │
+│    ├── chart.js ────── Chart.js dual-axis             │
+│    ├── summary.js ──── dashboard stat chips           │
+│    ├── history.js ──── archive management             │
+│    ├── presets.js ──── rate preset CRUD               │
+│    ├── trend.js ────── month-over-month chart         │
+│    ├── stats.js ────── EV impact + nerds stats        │
+│    ├── tour.js ─────── guided walkthrough             │
+│    ├── feedback.js ─── star rating + mailto           │
+│    ├── ui.js ───────── theme switcher + helpers       │
+│    ├── exports/
+│    │   ├── excel.js ── SheetJS XLSX                   │
+│    │   ├── pdf.js ──── jsPDF report                   │
+│    │   └── receipt.js ─ Siemens receipt               │
+│    └── utils/
+│        └── dates.js ── timezone-safe date parsing     │
+├─────────────────────────────────────────────────────┤
+│  sw.js (service worker: cache-first app shell,       │
+│         network-first CDN, offline fallback)          │
+└─────────────────────────────────────────────────────┘
 ```
 
-## Getting Started
+### Key Patterns
+
+- **Event delegation**: A single `click` listener on `document` dispatches via `data-action` attributes — no inline `onclick` handlers
+- **Cross-module callbacks**: `setOnFieldsGenerated()`, `setOnHistoryChange()`, etc. for loose coupling between modules
+- **Profile-scoped storage**: All `getItem`/`setItem` calls auto-prefix with `ProfileName__` — theme and tour state are intentionally global
+- **Data-driven billing**: `computeCostsFromData()` is a pure function for history/receipts; `computeTieredDailyCostsMap()` reads the DOM for the active session
+- **Timezone-safe dates**: `parseLocalDate()` uses `new Date(y, m-1, d)` to avoid UTC midnight offset bugs from `new Date("YYYY-MM-DD")`
+
+---
+
+## Project Structure
+
+```
+EV-Reimbursement-App/
+├── index.html              Single-page app, CSP header, CDN links, all modals
+├── manifest.json           PWA manifest (name, icons, theme, display mode)
+├── sw.js                   Service worker (cache strategy, app shell, CDN caching)
+├── CLAUDE.md               AI assistant project conventions
+│
+├── css/
+│   ├── variables.css       Design tokens: colors, spacing, typography, radii, transitions
+│   ├── base.css            Reset, header, footer, body layout, theme switcher, skip link
+│   ├── components.css      Cards, buttons, profile bar, stats, history, collapsibles
+│   ├── animations.css      Keyframes: fade, slide, highlight, spin, pulse
+│   ├── responsive.css      Breakpoints: 768px, 600px, 360px
+│   └── tour.css            Spotlight overlay and tooltip positioning
+│
+├── js/
+│   ├── app.js              Entry point: imports, DOMContentLoaded, event delegation
+│   ├── storage.js          Profile-scoped localStorage wrapper + migration
+│   ├── profiles.js         Profile CRUD and dropdown UI
+│   ├── billing.js          Tiered rate engine, cost computation, additional charges
+│   ├── fields.js           Daily kWh field generation and validation
+│   ├── csv.js              CSV template download, import with XSS-safe parsing
+│   ├── chart.js            Chart.js dual-axis line chart (kWh + cost)
+│   ├── summary.js          Dashboard stat chips and progress bar
+│   ├── history.js          Billing period archive, restore, delete, PDF export
+│   ├── presets.js           Rate preset CRUD and dropdown
+│   ├── trend.js            Month-over-month bar + line comparison chart
+│   ├── stats.js            EV Impact (CO₂, miles) + Stats for Nerds
+│   ├── tour.js             9-step guided tour with spotlight overlay
+│   ├── feedback.js         Star rating form and mailto generation
+│   ├── ui.js               Theme switcher (system/light/dark), button states, tooltips
+│   ├── exports/
+│   │   ├── excel.js        SheetJS XLSX with currency formatting
+│   │   ├── pdf.js          jsPDF + AutoTable report PDF
+│   │   └── receipt.js      Siemens-branded receipt PDF
+│   └── utils/
+│       └── dates.js        parseLocalDate, ymd, forEachDay, dayCount, isValidDateRange
+│
+└── icons/
+    ├── icon.svg            App icon (SVG source)
+    ├── icon-192.png        PWA icon 192×192
+    ├── icon-512.png        PWA icon 512×512 (also maskable)
+    ├── apple-touch-icon.png  iOS home screen icon 180×180
+    ├── favicon-32x32.png   Browser tab favicon
+    ├── og-image.svg        Open Graph image (SVG source)
+    └── og-image.png        Open Graph image 1200×630
+```
+
+---
+
+## Installation
 
 ### Prerequisites
-- Modern web browser (Chrome, Firefox, Safari, Edge)
-- Internet connection for CDN libraries on first load
 
-### Running Locally
+- A modern browser (Chrome 80+, Firefox 78+, Safari 14+, Edge 80+)
+- An HTTP server (ES modules do not work over `file://` URLs)
+- Internet connection on first load (CDN libraries are then cached by the service worker)
 
-ES modules require an HTTP server (they don't work with `file://` URLs).
+### Setup
 
 ```bash
-# Clone the repository
 git clone https://github.com/calebohara/EV-Reimbursement-App.git
 cd EV-Reimbursement-App
-
-# Serve with any local HTTP server:
-python3 -m http.server 8080
-# or
-npx serve .
 ```
 
-Then open `http://localhost:8080` in your browser.
+There is no `npm install` or build step. The app is ready to serve.
 
-### GitHub Pages
+---
 
-The app works directly on GitHub Pages with no build step — just push and it's live.
+## Running the Application
+
+### Development
+
+```bash
+# Option 1: Python
+python3 -m http.server 8080
+
+# Option 2: Node.js (npx)
+npx serve -l 8080 .
+```
+
+Open `http://localhost:8080` in your browser.
+
+### Production
+
+Push to GitHub and enable GitHub Pages on the `main` branch. No build step required — the repository is the deployment artifact.
 
 ### Direct Download
 
-1. Visit [github.com/calebohara/EV-Reimbursement-App](https://github.com/calebohara/EV-Reimbursement-App)
-2. Click **Code** > **Download ZIP**
-3. Extract and serve the folder with a local HTTP server (see above)
+1. Download the repository as a ZIP from GitHub
+2. Extract to any directory
+3. Serve with any static HTTP server
 
-## Usage
+---
 
-### Profile Setup
-1. Select or create a profile using the dropdown
-2. Use **+** to add new profiles, **-** to delete (Default is protected)
+## Configuration
 
-### Data Entry
-1. Select billing period start and end dates (fields auto-generate)
-2. Enter kWh usage manually or import from CSV
-3. Download the CSV template for bulk data entry
+No environment variables or configuration files are required. All settings are managed through the UI and persisted in `localStorage`.
 
-### Cost Calculation
-1. Enter cost per kWh (or enable tiered rates for multi-tier billing)
-2. Click **Calculate Reimbursement** to see the total
-3. View the dashboard summary and chart for visual breakdown
+### localStorage Keys
 
-### Exporting
-1. **Export to Excel** for a detailed spreadsheet with daily data and totals
-2. **Export to PDF** for a professional report suitable for expense submission
-3. Use **Travel@Siemens** link to access the Siemens travel portal
+| Key | Scope | Purpose |
+|---|---|---|
+| `profiles` | Global | JSON array of profile names |
+| `currentProfile` | Global | Active profile name |
+| `themeMode` | Global | `'system'` \| `'light'` \| `'dark'` |
+| `tourCompleted` | Global | Boolean flag for guided tour |
+| `ratePresets` | Global | JSON array of saved rate configurations |
+| `{Profile}__startDate` | Profile | Billing period start |
+| `{Profile}__endDate` | Profile | Billing period end |
+| `{Profile}__costPerKwh` | Profile | Rate per kWh |
+| `{Profile}__history` | Profile | JSON array of archived billing periods |
+| `{Profile}__dailyKwh_*` | Profile | Per-day kWh values |
+
+---
+
+## PWA Functionality
+
+### Installation
+
+- **Desktop Chrome/Edge**: Click the install icon in the address bar
+- **Android**: "Add to Home Screen" from the browser menu or the in-app install banner
+- **iOS Safari**: Share → "Add to Home Screen" (guided by an in-app overlay)
+
+### Offline Behavior
+
+The service worker (`sw.js`) uses a two-tier caching strategy:
+
+| Resource Type | Strategy | Behavior |
+|---|---|---|
+| App shell (HTML, CSS, JS, icons) | Cache-first | Serve from cache, fall back to network |
+| CDN libraries (Bootstrap, Chart.js, etc.) | Network-first | Fetch fresh, cache response, fall back to cache |
+| Other requests | Network with cache fallback | Standard fetch with offline resilience |
+
+On activation, stale caches are automatically purged. The app calls `skipWaiting()` and `clients.claim()` for immediate updates.
+
+### Manifest
+
+```
+Display:     standalone
+Orientation: portrait-primary
+Theme:       #1a1a2e (dark navy)
+Icons:       192px, 512px (PNG), any (SVG), 512px maskable
+```
+
+---
+
+## Accessibility
+
+The application targets WCAG 2.1 AA compliance:
+
+| Practice | Implementation |
+|---|---|
+| **Skip navigation** | `<a href="#main-content" class="skip-link">` hidden until focused |
+| **Landmarks** | `<header>`, `<main id="main-content">`, `<footer>` |
+| **Language** | `lang="en"` on `<html>` |
+| **Focus indicators** | `:focus-visible` outlines on all interactive elements |
+| **ARIA roles** | `role="radiogroup"` on theme switcher, `role="figure"` on stat cards, `role="group"` on related controls |
+| **ARIA states** | `aria-checked` on theme buttons, `aria-expanded` on toggles, `aria-live="polite"` on dynamic regions |
+| **Labels** | `aria-label` on all buttons, inputs, and icon-only controls |
+| **Keyboard navigation** | Tour: Escape/ArrowRight/ArrowLeft/Enter. Star rating: Enter/Space. All modals: standard Bootstrap keyboard trapping |
+| **Color contrast** | WCAG AA (4.5:1) verified for all text tokens in both themes |
+| **Semantic HTML** | Native `<details>/<summary>` for collapsibles, `<button>` for actions, `<input>` for data entry |
+
+---
+
+## Performance
+
+| Technique | Detail |
+|---|---|
+| **Zero build** | No transpilation, bundling, or minification overhead — files served as-is |
+| **Service worker caching** | Full app shell cached on install; subsequent loads served from cache |
+| **CDN with SRI** | Libraries loaded from global CDNs with subresource integrity verification |
+| **Progressive disclosure** | Sections hidden until data exists — reduces initial DOM and paint |
+| **Staggered animations** | kWh field rows animate with capped `transition-delay` (max 0.33s) |
+| **Chart lazy rendering** | Charts render only when data is present |
+| **Cache busting** | Versioned query strings (`?v=3`) on icons and CSS files |
+
+---
+
+## Security
+
+| Measure | Implementation |
+|---|---|
+| **Content Security Policy** | `<meta>` CSP restricting script, style, font, image, and connect sources |
+| **Subresource Integrity** | SHA-384 hashes on all 7 CDN resources with `crossorigin="anonymous"` |
+| **XSS prevention** | All user data rendered via `createElement` + `.textContent` — never `innerHTML` with untrusted data |
+| **Input sanitization** | `escapeHTML()` helper for CSV import and history label rendering |
+| **Resilient storage** | All `JSON.parse` calls wrapped in try-catch with safe defaults |
+| **No server communication** | `connect-src 'self'` — data never leaves the browser |
+| **No credentials stored** | No passwords, tokens, or API keys |
+
+---
 
 ## CSV Format
 
-```
+The CSV template is auto-generated with dates from your selected billing period.
+
+```csv
 Date,kWh Usage
-2024-01-01,10.5
-2024-01-02,12.0
+2026-03-01,10.5
+2026-03-02,12.0
+2026-03-03,8.7
 ```
 
-- First row must be the header: `Date,kWh Usage`
+**Validation rules**:
+- Header row must be `Date,kWh Usage`
 - Dates in `YYYY-MM-DD` format
-- kWh values must be numeric
 - Dates must fall within the selected billing period
+- kWh values must be non-negative numbers
+- Empty rows are skipped
 
-## Data Privacy
+---
 
-- All data is stored locally in your browser via localStorage
-- No data is uploaded to any server
-- Each profile's data is stored with a scoped key prefix
-- Regular exports recommended for backup
+## Development Guidelines
 
-## Technical Details
+### Code Standards
 
-### Built With
-- HTML5 + CSS3 + JavaScript (ES Modules)
-- Bootstrap 5.3.0 + Bootstrap Icons 1.10.5
-- Chart.js (interactive charting)
-- SheetJS / XLSX 0.18.5 (Excel export)
-- jsPDF 2.5.1 + jsPDF-AutoTable 3.7.0 (PDF export)
+- **Pure ES modules** — `import`/`export` with no build tools
+- **Safe DOM APIs** — use `createElement` + `.textContent` for user data; never `innerHTML` with dynamic content
+- **Event delegation** — add `data-action="your-action"` to elements and handle in `app.js` switch block
+- **Profile-scoped storage** — use `storage.getItem()`/`storage.setItem()` which auto-prefix with the active profile name
+- **CSS custom properties** — use design tokens from `variables.css` (e.g., `var(--siemens-teal)`, `var(--border-color)`)
 
-### Key Design Decisions
-- **ES Modules** (`<script type="module">`) for native browser module system with no build step
-- **Event delegation** via `data-action` attributes replacing inline `onclick` handlers
-- **Profile-scoped localStorage** with backward compatibility for pre-profile data
-- **Centralized date parsing** eliminating timezone bugs from duplicated patterns
-- **Callback pattern** for cross-module communication (chart/summary updates)
+### Adding a New Module
 
-## Version History
+1. Create `js/your-module.js` with exported functions
+2. Import in `js/app.js`
+3. Wire up in `DOMContentLoaded` and/or event delegation switch
+4. Add the file to `sw.js` `APP_SHELL_RELATIVE` array
+5. Bump the SW `CACHE_NAME` version
 
-### Version 3.7.1 (March 2026)
-- **Guided Tour Expansion**: Tour now highlights all visible collapsible sections (Chart, History, Trends, EV Impact, Stats for Nerds) with graceful skipping of hidden sections
-- **Security Fix**: Replaced innerHTML in stat card icon rendering with safe DOM APIs
-- **ADA Compliance**: Added role/aria-label on stat cards and stats grids, aria-live on tour tooltip
-- **Legal Disclaimer**: Footer modal with independent project notice, no warranty, limitation of liability, data privacy, and trademark sections
+### Version Checklist
 
-### Version 3.7.0 (March 2026)
-- **EV Impact**: Collapsible section showing CO₂ saved vs gasoline equivalent and miles powered estimate
-- **Stats for Nerds**: Collapsible section with total days tracked, avg daily usage, cost per mile, data points count, and build info
+When releasing a new version, update all of these:
 
-### Version 3.6.0 (March 2026)
-- **Guided Tour**: Interactive 4-step walkthrough for first-time visitors with spotlight overlay, tooltip descriptions, Skip/Next/Finish navigation, keyboard support (Escape/Arrow keys), and "Take Tour" replay button in Site Help modal
+| Location | What to update |
+|---|---|
+| `js/stats.js` | `APP_VERSION` constant |
+| `js/feedback.js` | `APP_VERSION` constant |
+| `js/exports/receipt.js` | Footer version string |
+| `index.html` | Footer `<span>v{x.y.z}</span>` |
+| `index.html` | Changelog modal entry |
+| `sw.js` | `CACHE_NAME` version |
+| `README.md` | Version badge + changelog |
 
-### Version 3.5.0 (March 2026)
-- **Profile Help Button**: Info button in profile bar with Bootstrap tooltip explaining what profiles do and how they work
-- **Mobile Modals**: Footer popups (EV Policy, Contact, Changelog) now vertically centered, constrained to 92vw, with reduced padding and font size on phones
-- **ADA Compliance**: Skip navigation link, `aria-live` regions for dynamic content, `aria-expanded` on toggle checkboxes, `role="group"` on star rating, `:focus-visible` keyboard indicators on all interactive elements, WCAG AA color contrast fix for `--text-muted`
+---
 
-### Version 3.4.0 (March 2026)
-- **Additional Charges**: Toggle to add named line items (e.g., EV Service Fee, Demand Charge) with custom amounts, included in all calculations, exports (Receipt, Excel, PDF), and history snapshots
-- **History Redesign**: Expense-style breakdown cards with human-readable dates, kWh subtotal, itemized charges, and bold total with separator
-- **Security Fix**: Charge row inputs built via safe DOM APIs (`createElement` + `.value`) to prevent stored XSS from localStorage data
+## Roadmap
 
-### Version 3.3.0 (March 2026)
-- **Storage Indicator**: Live localStorage usage display in footer showing bytes used, with a "Clear" button that warns before permanently deleting all app data (profiles, history, presets, preferences)
+- [ ] Multi-currency support for international Siemens offices
+- [ ] Time-of-use rate schedules (peak / off-peak / super off-peak)
+- [ ] Data export/import for cross-device transfer
+- [ ] Utility API integration for automatic kWh retrieval
+- [ ] Team dashboard for fleet managers
+- [ ] Localization (i18n) for non-English users
 
-### Version 3.2.0 (March 2026)
-- **XSS Hardening**: Sanitized all `innerHTML` usage — profile names, preset names, CSV import data, and history labels now escaped or built via safe DOM APIs
-- **Subresource Integrity**: All 7 CDN resources (Bootstrap, Chart.js, SheetJS, jsPDF) verified with SHA-384 integrity hashes
-- **Content Security Policy**: Added CSP meta tag restricting script, style, font, image, and connection sources
-- **Resilient Storage**: All `JSON.parse` calls in storage.js wrapped in try-catch with safe defaults to prevent app crashes from corrupted localStorage
-
-### Version 3.1.0 (March 2026)
-- **Billing History Redesign**: Refreshed history cards with per-entry PDF export
-- **PWA Install Banner**: Native-style install prompt with iOS step-by-step overlay
-- **App Icon Refresh**: Bold lightning-bolt icon and updated OG image
-- **Silent Auto-Update**: PWA updates automatically with a manual refresh button
-
-### Version 3.0.0 (March 2026)
-- **Complete UI Redesign**: Three-step wizard flow (Setup → Usage → Your Reimbursement)
-- **Slim Fixed Header**: Branded SIEMENS header with quick-access help, dark mode, and feedback
-- **Progressive Disclosure**: Empty states hidden until data exists, tiered rates revealed on toggle
-- **Hero Result Display**: Large, prominent reimbursement amount with contextual export buttons
-- **Collapsible Sections**: Chart, history, and trends collapse via `<details>` elements
-- **Footer Navigation**: EV Policy, Contact, and Changelog moved to footer for cleaner layout
-- **Design Token System**: CSS custom properties for consistent theming and spacing
-- **Mobile-First Responsive**: Optimized layouts at 768px, 600px, and 360px breakpoints
-
-### Version 2.1.0 (February 28, 2026)
-- **Multi-Month History**: Archive billing periods, browse/restore/delete past records
-- **Saved Rate Presets**: Save and reuse utility rate configurations with one-click selection
-- **Reimbursement Receipt**: Siemens-formatted PDF receipt with receipt number, line items, signature line
-- **Month-over-Month Trends**: Interactive comparison chart across archived periods
-- **PWA**: Installable progressive web app with offline support via service worker
-- **Data-driven billing**: New `computeCostsFromData()` API for history and receipt generation
-
-### Version 2.0.0 (February 28, 2026)
-- **Modular Architecture**: Complete refactor from monolithic single-file to 13 ES modules
-- **Centralized Date Parsing**: Eliminated 12+ duplicate patterns with shared utilities
-- **Clean Event Architecture**: Replaced monkey-patching and inline handlers with data-action delegation
-- **CSS Organization**: Split into 5 files (variables, base, components, animations, responsive)
-- **Profile Storage Refactor**: Clean scoped wrapper with backward compatibility
-- **All existing features preserved**: Zero functionality removed
-
-### Version 1.10.0 (December 21, 2024)
-- Tiered rate billing with cumulative tier calculation
-- Tier input validation with fallback to base rate
-- Dark mode polish for modals and disabled inputs
-
-### Version 1.9.0 (December 20, 2024)
-- Dashboard summary view with real-time stats
-- Feedback form with star rating and mailto generation
-- Loading animations for async operations
-- Contextual tooltips across the app
-- Automatic field generation on date selection
-- Date parsing timezone fix
-
-### Version 1.8.0 (December 19, 2024)
-- Chart.js dual-axis visualization
-- Profile management with scoped persistence
-- CSV import/export with validation
-- Excel and PDF export
-- Dark mode theming
-- Input validation and progressive saving
-- ARIA labels and accessibility improvements
-
-### Version 1.7.0 (May 27, 2024)
-- Enhanced Site Help, CSV import updates, scrollable fields, button layout redesign
-
-### Version 1.6.0 (May 25, 2025)
-- CSV template download feature
-
-### Version 1.5.0 (May 25, 2025)
-- Enhanced CSV import with error handling
-
-### Version 1.4.0 (April 15, 2025)
-- EV Policy modal
-
-### Version 1.3.0 (March 10, 2025)
-- Improved Site Help modal
-
-### Version 1.2.0 (February 20, 2025)
-- Site Help feature
-
-### Version 1.1.0 (January 5, 2025)
-- Travel@Siemens integration
-
-### Version 1.0.0 (December 1, 2024)
-- Initial release with core kWh reimbursement functionality
-
-## Contributing
-
-1. Fork the repository
-2. Create your feature branch (`git checkout -b feature/AmazingFeature`)
-3. Commit your changes (`git commit -m 'Add some AmazingFeature'`)
-4. Push to the branch (`git push origin feature/AmazingFeature`)
-5. Open a Pull Request
-
-## Contact
-
-Caleb O'Hara - caleb.ohara@siemens.com
-
-## Disclaimer
-
-The accuracy of calculations and reimbursements depends on the data provided. Please ensure all input values, including kWh usage and cost per kWh, are accurate and verified. Siemens is not responsible for any discrepancies resulting from incorrect data entry.
+---
 
 ## License
 
@@ -323,4 +379,23 @@ This project is proprietary and confidential. All rights reserved.
 
 ---
 
-*Last updated: March 2026*
+## Disclaimer
+
+This application was independently developed by [Caleb O'Hara](https://www.calebblaze.com) as a personal productivity tool. It is not an official Siemens product, nor is it endorsed, sponsored, maintained, or affiliated with Siemens AG or any of its subsidiaries. "Siemens" is a registered trademark of Siemens AG.
+
+---
+
+## Acknowledgements
+
+- [Bootstrap](https://getbootstrap.com/) — UI framework and component library
+- [Bootstrap Icons](https://icons.getbootstrap.com/) — Icon set
+- [Chart.js](https://www.chartjs.org/) — Interactive charting
+- [SheetJS](https://sheetjs.com/) — Excel file generation
+- [jsPDF](https://github.com/parallax/jsPDF) — PDF document generation
+- [jsPDF-AutoTable](https://github.com/simonbengtsson/jsPDF-AutoTable) — PDF table formatting
+
+---
+
+<p align="center">
+  <sub>Built by <a href="https://www.calebblaze.com">Caleb O'Hara</a></sub>
+</p>
