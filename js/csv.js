@@ -7,6 +7,13 @@ import * as storage from './storage.js';
 import { showButtonLoading, resetButtonLoading, initializeTooltips } from './ui.js';
 import { validateKwhInput } from './fields.js';
 
+// Sanitize strings before inserting into HTML to prevent XSS
+function escapeHTML(str) {
+  const div = document.createElement('div');
+  div.textContent = str;
+  return div.innerHTML;
+}
+
 // Callback for post-import updates
 let onImportComplete = null;
 export function setOnImportComplete(fn) { onImportComplete = fn; }
@@ -146,19 +153,22 @@ export function importCSV() {
 
       if (rowInvalid) {
         invalidRows.push({ row: i + 1, date, kwh, reason });
+        const safeDate = escapeHTML(date || 'Invalid Date');
+        const safeKwh = escapeHTML(kwh || '');
         htmlString += `
           <div class="mb-2">
-            <label><i class="bi bi-battery-charging"></i> <span style="color:#dc3545;">${date || 'Invalid Date'}</span> kWh Usage:</label>
-            <input type="number" step="0.01" class="form-control dailyKwh is-invalid" data-date="${date}" value="${kwh || ''}" disabled>
-            <div class="text-danger small">${reason}</div>
+            <label><i class="bi bi-battery-charging"></i> <span style="color:#dc3545;">${safeDate}</span> kWh Usage:</label>
+            <input type="number" step="0.01" class="form-control dailyKwh is-invalid" data-date="${safeDate}" value="${safeKwh}" disabled>
+            <div class="text-danger small">${escapeHTML(reason)}</div>
           </div>`;
         continue;
       }
 
+      // dateISO is safe (output of ymd()), kwhValue is a parsed float
       htmlString += `
         <div class="mb-2">
-          <label><i class="bi bi-battery-charging"></i> ${date} kWh Usage:</label>
-          <input type="number" step="0.01" class="form-control dailyKwh" data-date="${date}" value="${kwhValue}">
+          <label><i class="bi bi-battery-charging"></i> ${escapeHTML(date)} kWh Usage:</label>
+          <input type="number" step="0.01" class="form-control dailyKwh" data-date="${dateISO}" value="${kwhValue}">
         </div>`;
       imported++;
     }
@@ -194,7 +204,7 @@ export function importCSV() {
       }
 
       if (invalidRows.length > 0) {
-        invalidMsgDiv.innerHTML = `<div class='alert alert-danger mt-2'><strong>Some rows were invalid and skipped:</strong><ul style='margin-bottom:0;'>${invalidRows.map(r => `<li>Row ${r.row}: ${r.reason}</li>`).join('')}</ul></div>`;
+        invalidMsgDiv.innerHTML = `<div class='alert alert-danger mt-2'><strong>Some rows were invalid and skipped:</strong><ul style='margin-bottom:0;'>${invalidRows.map(r => `<li>Row ${r.row}: ${escapeHTML(r.reason)}</li>`).join('')}</ul></div>`;
       } else {
         invalidMsgDiv.innerHTML = '';
       }

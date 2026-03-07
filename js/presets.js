@@ -15,12 +15,19 @@ export function initPresets() {
   if (!select) return;
 
   const presets = storage.getRatePresets();
-  select.innerHTML = '<option value="">Custom Rate</option>';
+  select.innerHTML = '';
+  const defaultOpt = document.createElement('option');
+  defaultOpt.value = '';
+  defaultOpt.textContent = 'Custom Rate';
+  select.appendChild(defaultOpt);
   presets.forEach(p => {
     const rateLabel = p.useTieredRates
       ? `Tiered (${p.tier1Rate}/${p.tier2Rate})`
       : `$${p.costPerKwh}/kWh`;
-    select.innerHTML += `<option value="${p.id}">${p.name} — ${rateLabel}</option>`;
+    const opt = document.createElement('option');
+    opt.value = p.id;
+    opt.textContent = `${p.name} — ${rateLabel}`;
+    select.appendChild(opt);
   });
 }
 

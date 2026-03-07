@@ -8,6 +8,12 @@ import { computeCostsFromData, getTierSettings, isUsingTieredRates } from './bil
 import { showButtonLoading, resetButtonLoading } from './ui.js';
 import { exportReceiptFromSnapshot } from './exports/receipt.js';
 
+function escapeHTML(str) {
+  const div = document.createElement('div');
+  div.textContent = str;
+  return div.innerHTML;
+}
+
 let onHistoryChange = null;
 export function setOnHistoryChange(fn) { onHistoryChange = fn; }
 
@@ -104,7 +110,7 @@ export function renderHistoryList() {
     html += `
       <div class="history-item" data-history-id="${entry.id}">
         <div class="history-header">
-          <div class="history-label">${entry.label}</div>
+          <div class="history-label">${escapeHTML(entry.label)}</div>
           <div class="history-meta">Archived ${savedDate}</div>
         </div>
         <div class="history-stats">

@@ -15,7 +15,13 @@ function fireProfileChange() {
 export function updateProfileDropdown() {
   const select = document.getElementById('profileSelect');
   const profiles = storage.getProfiles();
-  select.innerHTML = profiles.map(p => `<option value="${p}">${p}</option>`).join('');
+  select.innerHTML = '';
+  profiles.forEach(p => {
+    const opt = document.createElement('option');
+    opt.value = p;
+    opt.textContent = p;
+    select.appendChild(opt);
+  });
   select.value = storage.getCurrentProfile();
 }
 

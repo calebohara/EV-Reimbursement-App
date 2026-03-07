@@ -13,7 +13,11 @@ const FORM_KEYS = ['startDate', 'endDate', 'costPerKwh', 'dailyKwhData',
 // --- Profile management ---
 
 export function getProfiles() {
-  return JSON.parse(localStorage.getItem(PROFILE_LIST_KEY) || '["Default"]');
+  try {
+    return JSON.parse(localStorage.getItem(PROFILE_LIST_KEY) || '["Default"]');
+  } catch {
+    return ['Default'];
+  }
 }
 
 export function setProfiles(profiles) {
@@ -110,7 +114,11 @@ export function loadFormData() {
 
 export function getDailyKwhData() {
   const raw = getItem('dailyKwhData');
-  return raw ? JSON.parse(raw) : {};
+  try {
+    return raw ? JSON.parse(raw) : {};
+  } catch {
+    return {};
+  }
 }
 
 export function clearFormData() {
@@ -128,7 +136,11 @@ export function deleteProfileData(profileName) {
 
 export function getHistory() {
   const raw = localStorage.getItem(profileKey('history'));
-  return raw ? JSON.parse(raw) : [];
+  try {
+    return raw ? JSON.parse(raw) : [];
+  } catch {
+    return [];
+  }
 }
 
 export function saveToHistory(snapshot) {
@@ -152,7 +164,11 @@ const PRESETS_KEY = 'ratePresets';
 
 export function getRatePresets() {
   const raw = localStorage.getItem(PRESETS_KEY);
-  return raw ? JSON.parse(raw) : [];
+  try {
+    return raw ? JSON.parse(raw) : [];
+  } catch {
+    return [];
+  }
 }
 
 export function setRatePresets(presets) {
