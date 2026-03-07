@@ -629,27 +629,37 @@ details[open] > .collapsible-header .collapsible-chevron {
   white-space: nowrap;
 }
 
-.history-stats {
-  display: flex;
-  gap: 12px;
+.history-period {
+  font-size: 0.7rem;
+  color: var(--text-muted);
+  margin-top: -4px;
 }
 
-.history-stat {
+.history-breakdown {
   display: flex;
   flex-direction: column;
-  gap: 1px;
+  gap: 4px;
 }
 
-.history-stat-value {
-  font-weight: 600;
+.history-line {
+  display: flex;
+  justify-content: space-between;
   font-size: var(--text-sm);
-  color: var(--text-color);
+  color: var(--text-secondary);
 }
 
-.history-stat-label {
-  font-size: 0.65rem;
+.history-line-charge {
+  padding-left: 8px;
   color: var(--text-muted);
-  text-transform: lowercase;
+  font-size: 0.75rem;
+}
+
+.history-line-total {
+  font-weight: 600;
+  color: var(--text-color);
+  border-top: 1px solid var(--border-color);
+  padding-top: 4px;
+  margin-top: 2px;
 }
 
 .history-actions {

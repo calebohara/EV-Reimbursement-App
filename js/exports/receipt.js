@@ -116,10 +116,13 @@ function generateReceiptPDF(data) {
     }
   });
 
-  // Add additional charges as line items
-  for (const charge of additionalCharges) {
-    rows.push([charge.name, '—', `$${charge.amount.toFixed(2)}`]);
-    totalCost += charge.amount;
+  // Add additional charges as line items with subtotal
+  if (additionalCharges.length > 0) {
+    rows.push(['Subtotal (kWh)', totalKwh.toFixed(2), `$${totalCost.toFixed(2)}`]);
+    for (const charge of additionalCharges) {
+      rows.push([charge.name, '—', `$${charge.amount.toFixed(2)}`]);
+      totalCost += charge.amount;
+    }
   }
 
   // Generate receipt number

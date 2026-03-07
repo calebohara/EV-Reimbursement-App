@@ -14,6 +14,12 @@ function escapeHTML(str) {
   return div.innerHTML;
 }
 
+function formatDateRange(isoDate) {
+  const d = parseLocalDate(isoDate);
+  if (!d) return isoDate;
+  return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+}
+
 let onHistoryChange = null;
 export function setOnHistoryChange(fn) { onHistoryChange = fn; }
 
@@ -113,24 +119,31 @@ export function renderHistoryList() {
     const savedDate = new Date(entry.savedAt).toLocaleDateString('en-US', {
       month: 'short', day: 'numeric', year: 'numeric'
     });
+    const startFmt = formatDateRange(entry.startDate);
+    const endFmt = formatDateRange(entry.endDate);
+    const hasCharges = entry.additionalCharges && entry.additionalCharges.length > 0;
+    const chargesTotal = hasCharges ? entry.additionalCharges.reduce((s, c) => s + c.amount, 0) : 0;
+    const kwhCost = entry.totalCost - chargesTotal;
+
     html += `
       <div class="history-item" data-history-id="${entry.id}">
         <div class="history-header">
           <div class="history-label">${escapeHTML(entry.label)}</div>
           <div class="history-meta">Archived ${savedDate}</div>
         </div>
-        <div class="history-stats">
-          <div class="history-stat">
-            <span class="history-stat-value">${entry.totalKwh.toFixed(1)}</span>
-            <span class="history-stat-label">kWh</span>
-          </div>
-          <div class="history-stat">
-            <span class="history-stat-value">$${entry.totalCost.toFixed(2)}</span>
-            <span class="history-stat-label">total</span>
-          </div>
-          <div class="history-stat">
-            <span class="history-stat-value">${entry.startDate}</span>
-            <span class="history-stat-label">to ${entry.endDate}</span>
+        <div class="history-period">${startFmt} — ${endFmt}</div>
+        <div class="history-breakdown">
+          <div class="history-line">
+            <span>kWh Usage (${entry.totalKwh.toFixed(1)} kWh)</span>
+            <span>$${kwhCost.toFixed(2)}</span>
+          </div>${hasCharges ? entry.additionalCharges.map(c => `
+          <div class="history-line history-line-charge">
+            <span>${escapeHTML(c.name)}</span>
+            <span>$${c.amount.toFixed(2)}</span>
+          </div>`).join('') : ''}
+          <div class="history-line history-line-total">
+            <span>Total Reimbursement</span>
+            <span>$${entry.totalCost.toFixed(2)}</span>
           </div>
         </div>
         <div class="history-actions">

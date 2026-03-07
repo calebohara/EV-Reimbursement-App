@@ -62,14 +62,22 @@ export function exportToExcel() {
 
     // Additional charges
     const charges = getAdditionalCharges();
-    for (const charge of charges) {
-      totalCost += charge.amount;
+    if (charges.length > 0) {
       data.push({
-        'Date': charge.name,
-        'kWh Usage': '',
+        'Date': 'Subtotal (kWh Usage)',
+        'kWh Usage': totalKwh,
         'Cost per kWh': '',
-        'Daily Cost': charge.amount
+        'Daily Cost': totalCost
       });
+      for (const charge of charges) {
+        totalCost += charge.amount;
+        data.push({
+          'Date': charge.name,
+          'kWh Usage': '',
+          'Cost per kWh': '',
+          'Daily Cost': charge.amount
+        });
+      }
     }
 
     data.push({

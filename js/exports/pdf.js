@@ -83,9 +83,12 @@ export function exportToPDF() {
 
     // Additional charges
     const charges = getAdditionalCharges();
-    for (const charge of charges) {
-      totalCost += charge.amount;
-      data.push([charge.name, '', '', `$${charge.amount.toFixed(2)}`]);
+    if (charges.length > 0) {
+      data.push(['Subtotal (kWh Usage)', totalKwh, '', `$${totalCost.toFixed(2)}`]);
+      for (const charge of charges) {
+        totalCost += charge.amount;
+        data.push([charge.name, '', '', `$${charge.amount.toFixed(2)}`]);
+      }
     }
 
     data.push(['TOTAL', totalKwh, '', `$${totalCost.toFixed(2)}`]);
