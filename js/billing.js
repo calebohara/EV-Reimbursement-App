@@ -85,20 +85,30 @@ export function getAdditionalCharges() {
  * Toggle additional charges fields visibility.
  */
 export function updateAdditionalChargesState() {
-  const enabled = document.getElementById('useAdditionalCharges')?.checked;
+  const checkbox = document.getElementById('useAdditionalCharges');
+  const enabled = checkbox?.checked;
   const container = document.getElementById('additionalChargesFields');
   if (container) {
     if (enabled) container.classList.add('show');
     else container.classList.remove('show');
   }
+  if (checkbox) {
+    checkbox.setAttribute('aria-expanded', enabled ? 'true' : 'false');
+    checkbox.setAttribute('aria-controls', 'additionalChargesFields');
+  }
 }
 
 export function updateTierInputsState() {
+  const checkbox = document.getElementById('useTieredRates');
   const enabled = isUsingTieredRates();
   ['tier1Limit', 'tier1Rate', 'tier2Rate'].forEach(id => {
     const el = document.getElementById(id);
     if (el) el.disabled = !enabled;
   });
+  if (checkbox) {
+    checkbox.setAttribute('aria-expanded', enabled ? 'true' : 'false');
+    checkbox.setAttribute('aria-controls', 'tierFields');
+  }
   validateTierInputs(true);
 }
 

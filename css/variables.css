@@ -13,7 +13,7 @@
   --bg-color: #f5f6f8;
   --text-color: #1a1a2e;
   --text-secondary: #6b7280;
-  --text-muted: #9ca3af;
+  --text-muted: #6b7280;
   --container-bg: #ffffff;
   --pre-bg: #f8f9fa;
   --form-bg: #ffffff;
@@ -63,7 +63,7 @@ body.dark-mode {
   --bg-color: #1a1a2e;
   --text-color: #e8eaed;
   --text-secondary: #9aa0a6;
-  --text-muted: #6b7280;
+  --text-muted: #8a9098;
   --container-bg: #16213e;
   --pre-bg: #1a2744;
   --form-bg: #1a2744;

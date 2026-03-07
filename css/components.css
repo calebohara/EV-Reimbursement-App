@@ -142,6 +142,11 @@
   transition: background var(--duration-fast);
 }
 
+.toggle-input:focus-visible + .toggle-switch {
+  outline: 2px solid var(--siemens-teal);
+  outline-offset: 2px;
+}
+
 .toggle-switch::after {
   content: '';
   position: absolute;

@@ -107,6 +107,7 @@ function addChargeRow(name = '', amount = '') {
   removeBtn.className = 'btn-icon-sm btn-icon-danger';
   removeBtn.dataset.action = 'remove-charge';
   removeBtn.title = 'Remove charge';
+  removeBtn.setAttribute('aria-label', 'Remove charge');
   removeBtn.innerHTML = '<i class="bi bi-x-lg"></i>';
 
   row.append(nameInput, amountInput, removeBtn);

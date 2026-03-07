@@ -374,6 +374,65 @@ pre {
   font-size: var(--text-sm);
 }
 
+/* ═══ SKIP NAVIGATION — ADA requirement ═══ */
+
+.skip-link {
+  position: absolute !important;
+  width: 1px !important;
+  height: 1px !important;
+  padding: 0 !important;
+  margin: -1px !important;
+  overflow: hidden !important;
+  clip: rect(0, 0, 0, 0) !important;
+  white-space: nowrap !important;
+  border: 0 !important;
+}
+
+.skip-link:focus {
+  position: fixed !important;
+  top: calc(var(--header-height) + 8px) !important;
+  left: 50% !important;
+  transform: translateX(-50%);
+  width: auto !important;
+  height: auto !important;
+  padding: 8px 16px !important;
+  margin: 0 !important;
+  overflow: visible !important;
+  clip: auto !important;
+  white-space: normal !important;
+  background: var(--siemens-teal) !important;
+  color: #fff !important;
+  font-weight: 600 !important;
+  border-radius: var(--radius-sm) !important;
+  z-index: 9999 !important;
+  text-decoration: none !important;
+  box-shadow: var(--shadow-md) !important;
+}
+
+/* ═══ FOCUS VISIBLE — Keyboard navigation indicators ═══ */
+
+:focus:not(:focus-visible) {
+  outline: none;
+}
+
+:focus-visible {
+  outline: 2px solid var(--siemens-teal);
+  outline-offset: 2px;
+}
+
+.btn-icon-sm:focus-visible,
+.icon-btn:focus-visible,
+.btn-text:focus-visible,
+.btn-export:focus-visible,
+.btn-primary-cta:focus-visible,
+.btn-sm-action:focus-visible,
+.collapsible-header:focus-visible,
+.star:focus-visible,
+.storage-clear-btn:focus-visible {
+  outline: 2px solid var(--siemens-teal);
+  outline-offset: 2px;
+}
+
 /* ═══ COMPATIBILITY: old classes used by JS ═══ */
 
 /* billing-box — used by scrollToAndHighlight in ui.js */

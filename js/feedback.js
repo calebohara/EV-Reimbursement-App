@@ -5,7 +5,7 @@
 import { initializeTooltips } from './ui.js';
 
 let selectedRating = 0;
-const APP_VERSION = '3.4.0';
+const APP_VERSION = '3.5.0';
 
 export function initializeFeedbackForm() {
   const stars = document.querySelectorAll('.star');

@@ -186,6 +186,11 @@ Date,kWh Usage
 
 ## Version History
 
+### Version 3.5.0 (March 2026)
+- **Profile Help Button**: Info button in profile bar with Bootstrap tooltip explaining what profiles do and how they work
+- **Mobile Modals**: Footer popups (EV Policy, Contact, Changelog) now vertically centered, constrained to 92vw, with reduced padding and font size on phones
+- **ADA Compliance**: Skip navigation link, `aria-live` regions for dynamic content, `aria-expanded` on toggle checkboxes, `role="group"` on star rating, `:focus-visible` keyboard indicators on all interactive elements, WCAG AA color contrast fix for `--text-muted`
+
 ### Version 3.4.0 (March 2026)
 - **Additional Charges**: Toggle to add named line items (e.g., EV Service Fee, Demand Charge) with custom amounts, included in all calculations, exports (Receipt, Excel, PDF), and history snapshots
 - **History Redesign**: Expense-style breakdown cards with human-readable dates, kWh subtotal, itemized charges, and bold total with separator
