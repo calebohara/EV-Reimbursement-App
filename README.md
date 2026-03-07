@@ -185,6 +185,24 @@ Date,kWh Usage
 
 ## Version History
 
+### Version 3.4.0 (March 2026)
+- **Additional Charges**: Toggle to add named line items (e.g., EV Service Fee, Demand Charge) with custom amounts, included in all calculations, exports (Receipt, Excel, PDF), and history snapshots
+
+### Version 3.3.0 (March 2026)
+- **Storage Indicator**: Live localStorage usage display in footer showing bytes used, with a "Clear" button that warns before permanently deleting all app data (profiles, history, presets, preferences)
+
+### Version 3.2.0 (March 2026)
+- **XSS Hardening**: Sanitized all `innerHTML` usage — profile names, preset names, CSV import data, and history labels now escaped or built via safe DOM APIs
+- **Subresource Integrity**: All 7 CDN resources (Bootstrap, Chart.js, SheetJS, jsPDF) verified with SHA-384 integrity hashes
+- **Content Security Policy**: Added CSP meta tag restricting script, style, font, image, and connection sources
+- **Resilient Storage**: All `JSON.parse` calls in storage.js wrapped in try-catch with safe defaults to prevent app crashes from corrupted localStorage
+
+### Version 3.1.0 (March 2026)
+- **Billing History Redesign**: Refreshed history cards with per-entry PDF export
+- **PWA Install Banner**: Native-style install prompt with iOS step-by-step overlay
+- **App Icon Refresh**: Bold lightning-bolt icon and updated OG image
+- **Silent Auto-Update**: PWA updates automatically with a manual refresh button
+
 ### Version 3.0.0 (March 2026)
 - **Complete UI Redesign**: Three-step wizard flow (Setup → Usage → Your Reimbursement)
 - **Slim Fixed Header**: Branded SIEMENS header with quick-access help, dark mode, and feedback

@@ -1,9 +1,9 @@
 /**
- * Service Worker for EV kWh Reimbursement App v2.1
+ * Service Worker for EV kWh Reimbursement App v3.4
  * Cache-first for app shell, network-first for CDN libraries.
  */
 
-const CACHE_NAME = 'ev-reimburse-v3.5.0';
+const CACHE_NAME = 'ev-reimburse-v3.8.0';
 
 // Relative paths — resolved against SW scope at install time
 const APP_SHELL_RELATIVE = [

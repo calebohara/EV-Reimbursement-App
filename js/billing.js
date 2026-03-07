@@ -64,6 +64,35 @@ export function validateTierInputs(showAlerts = false) {
   return valid;
 }
 
+/**
+ * Read additional charges from DOM inputs.
+ * Returns array of { name, amount }.
+ */
+export function getAdditionalCharges() {
+  const useCharges = document.getElementById('useAdditionalCharges')?.checked;
+  if (!useCharges) return [];
+
+  const charges = [];
+  document.querySelectorAll('.additional-charge-row').forEach(row => {
+    const name = row.querySelector('.charge-name')?.value?.trim() || '';
+    const amount = parseFloat(row.querySelector('.charge-amount')?.value) || 0;
+    if (name && amount > 0) charges.push({ name, amount });
+  });
+  return charges;
+}
+
+/**
+ * Toggle additional charges fields visibility.
+ */
+export function updateAdditionalChargesState() {
+  const enabled = document.getElementById('useAdditionalCharges')?.checked;
+  const container = document.getElementById('additionalChargesFields');
+  if (container) {
+    if (enabled) container.classList.add('show');
+    else container.classList.remove('show');
+  }
+}
+
 export function updateTierInputsState() {
   const enabled = isUsingTieredRates();
   ['tier1Limit', 'tier1Rate', 'tier2Rate'].forEach(id => {
@@ -139,5 +168,10 @@ export function computeTieredTotals(baseRate) {
     totalCost += result.dailyCostMap[ymd(d)] || 0;
   });
 
-  return { totalKwh: result.totalKwh, totalCost };
+  // Add additional charges
+  const charges = getAdditionalCharges();
+  const additionalChargesTotal = charges.reduce((sum, c) => sum + c.amount, 0);
+  totalCost += additionalChargesTotal;
+
+  return { totalKwh: result.totalKwh, totalCost, additionalCharges: charges, additionalChargesTotal };
 }

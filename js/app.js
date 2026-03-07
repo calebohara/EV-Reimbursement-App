@@ -6,7 +6,7 @@ import * as storage from './storage.js';
 import { initDarkMode, toggleDarkMode, initializeTooltips } from './ui.js';
 import { setupProfileUI } from './profiles.js';
 import { setOnProfileChange } from './profiles.js';
-import { updateTierInputsState, isUsingTieredRates, validateTierInputs } from './billing.js';
+import { updateTierInputsState, isUsingTieredRates, validateTierInputs, updateAdditionalChargesState, getAdditionalCharges } from './billing.js';
 import { generateKwhFields, checkAndGenerateFields, attachKwhValidation, setOnFieldsGenerated } from './fields.js';
 import { generateCSVTemplate, importCSV, setOnImportComplete } from './csv.js';
 import { renderUsageChart } from './chart.js';
@@ -21,6 +21,16 @@ import { computeTieredTotals } from './billing.js';
 import { archiveCurrentPeriod, renderHistoryList, restorePeriod, deletePeriod, exportHistoryPDF, setOnHistoryChange } from './history.js';
 import { initPresets, applyPreset, saveCurrentAsPreset, deleteSelectedPreset, setOnPresetApply } from './presets.js';
 import { renderTrendChart } from './trend.js';
+import { getStorageUsage, clearAllData } from './storage.js';
+
+function updateStorageIndicator() {
+  const el = document.getElementById('storageUsageText');
+  if (!el) return;
+  const { bytes } = getStorageUsage();
+  if (bytes < 1024) el.textContent = `${bytes} B`;
+  else if (bytes < 1024 * 1024) el.textContent = `${(bytes / 1024).toFixed(1)} KB`;
+  else el.textContent = `${(bytes / (1024 * 1024)).toFixed(2)} MB`;
+}
 
 // --- Cross-module callbacks ---
 
@@ -48,6 +58,8 @@ setOnPresetApply(onDataChange);
 setOnProfileChange(() => {
   storage.loadFormData();
   updateTierInputsState();
+  updateAdditionalChargesState();
+  rebuildChargeRows();
   initPresets();
 
   const startDate = document.getElementById('startDate').value;
@@ -68,6 +80,33 @@ setOnProfileChange(() => {
   renderHistoryList();
   renderTrendChart();
 });
+
+// --- Additional charge row management ---
+
+function addChargeRow(name = '', amount = '') {
+  const container = document.getElementById('additionalChargeRows');
+  if (!container) return;
+  const row = document.createElement('div');
+  row.className = 'additional-charge-row';
+  row.innerHTML = `
+    <input type="text" class="field-input charge-name" placeholder="Charge name" value="${name}">
+    <input type="number" min="0" step="0.01" class="field-input charge-amount" placeholder="$0.00" value="${amount}">
+    <button class="btn-icon-sm btn-icon-danger" data-action="remove-charge" title="Remove charge">
+      <i class="bi bi-x-lg"></i>
+    </button>
+  `;
+  container.appendChild(row);
+}
+
+function rebuildChargeRows() {
+  const container = document.getElementById('additionalChargeRows');
+  if (!container) return;
+  container.innerHTML = '';
+  const raw = storage.getItem('additionalChargesData');
+  let charges = [];
+  try { charges = raw ? JSON.parse(raw) : []; } catch { charges = []; }
+  charges.forEach(c => addChargeRow(c.name, c.amount || ''));
+}
 
 // --- Calculate reimbursement ---
 
@@ -132,6 +171,8 @@ document.addEventListener('DOMContentLoaded', () => {
   // Load saved data
   storage.loadFormData();
   updateTierInputsState();
+  updateAdditionalChargesState();
+  rebuildChargeRows();
 
   // Rate presets
   initPresets();
@@ -156,6 +197,9 @@ document.addEventListener('DOMContentLoaded', () => {
   // History list and trend chart
   renderHistoryList();
   renderTrendChart();
+
+  // Storage indicator
+  updateStorageIndicator();
 
   // Ensure result box is hidden on load
   const resultBox = document.getElementById('resultBox');
@@ -187,9 +231,12 @@ document.addEventListener('DOMContentLoaded', () => {
     document.addEventListener(evt, (e) => {
       if (e.target.matches('input,select,textarea')) {
         storage.saveFormData();
+        updateStorageIndicator();
       }
       // Update chart and summary on relevant field changes
       if (e.target.classList.contains('dailyKwh') ||
+          e.target.classList.contains('charge-name') ||
+          e.target.classList.contains('charge-amount') ||
           e.target.id === 'costPerKwh' ||
           e.target.id === 'startDate' ||
           e.target.id === 'endDate') {
@@ -213,6 +260,16 @@ document.addEventListener('DOMContentLoaded', () => {
     tieredCheckbox.addEventListener('change', () => {
       storage.saveFormData();
       updateTierInputsState();
+      onDataChange();
+    });
+  }
+
+  // Additional charges checkbox
+  const chargesCheckbox = document.getElementById('useAdditionalCharges');
+  if (chargesCheckbox) {
+    chargesCheckbox.addEventListener('change', () => {
+      storage.saveFormData();
+      updateAdditionalChargesState();
       onDataChange();
     });
   }
@@ -257,6 +314,22 @@ document.addEventListener('click', (e) => {
       break;
     case 'export-history-pdf':
       exportHistoryPDF(actionEl.dataset.historyId);
+      break;
+    case 'clear-all-data':
+      if (confirm('This will permanently delete ALL app data including:\n\n• All profiles and their billing periods\n• All archived billing history\n• All saved rate presets\n• Dark mode and display preferences\n\nThis cannot be undone. Continue?')) {
+        clearAllData();
+        window.location.reload();
+      }
+      break;
+    case 'add-charge':
+      addChargeRow();
+      storage.saveFormData();
+      onDataChange();
+      break;
+    case 'remove-charge':
+      actionEl.closest('.additional-charge-row')?.remove();
+      storage.saveFormData();
+      onDataChange();
       break;
     case 'refresh-app':
       if ('serviceWorker' in navigator) {

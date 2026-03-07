@@ -3,7 +3,7 @@
  */
 
 import { ymd, parseLocalDate, forEachDay } from '../utils/dates.js';
-import { isUsingTieredRates, validateTierInputs, computeTieredDailyCostsMap } from '../billing.js';
+import { isUsingTieredRates, validateTierInputs, computeTieredDailyCostsMap, getAdditionalCharges } from '../billing.js';
 import { showButtonLoading, resetButtonLoading, scrollToAndHighlight } from '../ui.js';
 
 export function exportToExcel() {
@@ -59,6 +59,18 @@ export function exportToExcel() {
         'Daily Cost': dailyCost
       });
     });
+
+    // Additional charges
+    const charges = getAdditionalCharges();
+    for (const charge of charges) {
+      totalCost += charge.amount;
+      data.push({
+        'Date': charge.name,
+        'kWh Usage': '',
+        'Cost per kWh': '',
+        'Daily Cost': charge.amount
+      });
+    }
 
     data.push({
       'Date': 'TOTAL',

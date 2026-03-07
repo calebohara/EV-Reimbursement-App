@@ -133,6 +133,22 @@
         </div>
       </div>
 
+      <!-- Additional Charges (hidden by default, revealed on toggle) -->
+      <div class="tier-toggle">
+        <label class="toggle-label" for="useAdditionalCharges">
+          <input class="toggle-input" type="checkbox" id="useAdditionalCharges">
+          <span class="toggle-switch"></span>
+          <span class="toggle-text">Additional charges</span>
+        </label>
+      </div>
+
+      <div class="additional-charges-fields" id="additionalChargesFields">
+        <div id="additionalChargeRows"></div>
+        <button class="btn-text btn-text-small" data-action="add-charge">
+          <i class="bi bi-plus-circle"></i> Add charge
+        </button>
+      </div>
+
       <div class="section-actions">
         <button class="btn-text btn-text-warning" data-action="reset">
           <i class="bi bi-arrow-counterclockwise"></i> Reset
@@ -280,9 +296,16 @@
     <div class="footer-meta">
       <span>Created by Caleb O'Hara</span>
       <span class="footer-dot"></span>
-      <span>v3.0</span>
+      <span>v3.4</span>
     </div>
-    <div class="footer-privacy">All data stored locally. Never uploaded.</div>
+    <div class="footer-privacy">
+      All data stored locally. Never uploaded.
+      <span class="storage-indicator" id="storageIndicator">
+        <i class="bi bi-database"></i>
+        <span id="storageUsageText">0 KB</span> used
+        <button class="storage-clear-btn" data-action="clear-all-data" title="Clear all app data">Clear</button>
+      </span>
+    </div>
     <div class="footer-disclaimer">
       <strong>Disclaimer:</strong> Accuracy depends on data provided. Verify all values. Siemens is not responsible for discrepancies from incorrect data entry.
     </div>
@@ -481,6 +504,24 @@
           <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
         </div>
         <div class="modal-body">
+          <h6>Version 3.4 — March 2026</h6>
+          <ul>
+            <li><strong>Additional Charges:</strong> Toggle to add named line items (e.g., EV Service Fee, Demand Charge) included in all calculations and exports</li>
+          </ul>
+
+          <h6>Version 3.3 — March 2026</h6>
+          <ul>
+            <li><strong>Storage Indicator:</strong> Live localStorage usage display in footer with clear data button</li>
+          </ul>
+
+          <h6>Version 3.2 — March 2026</h6>
+          <ul>
+            <li><strong>XSS Hardening:</strong> Sanitized all innerHTML usage for profile names, preset names, CSV data, and history labels</li>
+            <li><strong>SRI Integrity Hashes:</strong> All CDN resources now verified with Subresource Integrity to prevent tampering</li>
+            <li><strong>Content Security Policy:</strong> Added CSP meta tag restricting script, style, and connection sources</li>
+            <li><strong>Resilient Storage:</strong> JSON.parse calls wrapped in try-catch to gracefully handle corrupted localStorage</li>
+          </ul>
+
           <h6>Version 3.1 — March 2026</h6>
           <ul>
             <li><strong>Billing History Redesign:</strong> Refreshed history cards with per-entry PDF export</li>

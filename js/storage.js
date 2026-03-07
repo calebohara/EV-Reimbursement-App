@@ -8,7 +8,8 @@ const PROFILE_LIST_KEY = 'profiles';
 const CURRENT_PROFILE_KEY = 'currentProfile';
 const DEFAULT_PROFILE = 'Default';
 const FORM_KEYS = ['startDate', 'endDate', 'costPerKwh', 'dailyKwhData',
-  'useTieredRates', 'tier1Limit', 'tier1Rate', 'tier2Rate'];
+  'useTieredRates', 'tier1Limit', 'tier1Rate', 'tier2Rate',
+  'useAdditionalCharges', 'additionalChargesData'];
 
 // --- Profile management ---
 
@@ -75,6 +76,18 @@ export function saveFormData() {
     data[id] = el?.value || '';
   });
 
+  // Additional charges
+  const useChargesEl = document.getElementById('useAdditionalCharges');
+  data.useAdditionalCharges = useChargesEl?.checked ? 'true' : 'false';
+  const chargeRows = document.querySelectorAll('.additional-charge-row');
+  const charges = [];
+  chargeRows.forEach(row => {
+    const name = row.querySelector('.charge-name')?.value || '';
+    const amount = parseFloat(row.querySelector('.charge-amount')?.value) || 0;
+    if (name || amount) charges.push({ name, amount });
+  });
+  data.additionalChargesData = JSON.stringify(charges);
+
   // Daily kWh data from input fields
   const dailyKwhInputs = document.querySelectorAll('.dailyKwh');
   const dailyKwhData = {};
@@ -108,6 +121,11 @@ export function loadFormData() {
     const val = getItem(id);
     if (el && val) el.value = val;
   });
+
+  // Additional charges
+  const useCharges = getItem('useAdditionalCharges') === 'true';
+  const useChargesEl = document.getElementById('useAdditionalCharges');
+  if (useChargesEl) useChargesEl.checked = useCharges;
 
   return { startDate, endDate, costPerKwh };
 }
@@ -184,6 +202,23 @@ export function saveRatePreset(preset) {
 export function deleteRatePreset(id) {
   const presets = getRatePresets().filter(p => p.id !== id);
   setRatePresets(presets);
+}
+
+// --- Storage usage ---
+
+export function getStorageUsage() {
+  let totalBytes = 0;
+  for (let i = 0; i < localStorage.length; i++) {
+    const key = localStorage.key(i);
+    totalBytes += key.length + (localStorage.getItem(key) || '').length;
+  }
+  // JS strings are UTF-16 (2 bytes per char)
+  totalBytes *= 2;
+  return { bytes: totalBytes, keys: localStorage.length };
+}
+
+export function clearAllData() {
+  localStorage.clear();
 }
 
 // --- Dark mode (not profile-scoped) ---

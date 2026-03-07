@@ -3,7 +3,7 @@
  */
 
 import { ymd, parseLocalDate, forEachDay } from '../utils/dates.js';
-import { isUsingTieredRates, validateTierInputs, computeTieredDailyCostsMap } from '../billing.js';
+import { isUsingTieredRates, validateTierInputs, computeTieredDailyCostsMap, getAdditionalCharges } from '../billing.js';
 import { showButtonLoading, resetButtonLoading, scrollToAndHighlight } from '../ui.js';
 
 export function exportToPDF() {
@@ -80,6 +80,13 @@ export function exportToPDF() {
       const effectiveRate = kwh > 0 ? (dailyCost / kwh) : 0;
       data.push([dateStr, kwh, `$${effectiveRate.toFixed(3)}`, `$${dailyCost.toFixed(2)}`]);
     });
+
+    // Additional charges
+    const charges = getAdditionalCharges();
+    for (const charge of charges) {
+      totalCost += charge.amount;
+      data.push([charge.name, '', '', `$${charge.amount.toFixed(2)}`]);
+    }
 
     data.push(['TOTAL', totalKwh, '', `$${totalCost.toFixed(2)}`]);
 

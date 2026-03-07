@@ -4,7 +4,7 @@
 
 import * as storage from './storage.js';
 import { parseLocalDate, forEachDay, ymd } from './utils/dates.js';
-import { computeCostsFromData, getTierSettings, isUsingTieredRates } from './billing.js';
+import { computeCostsFromData, getTierSettings, isUsingTieredRates, getAdditionalCharges } from './billing.js';
 import { showButtonLoading, resetButtonLoading } from './ui.js';
 import { exportReceiptFromSnapshot } from './exports/receipt.js';
 
@@ -57,6 +57,11 @@ export function archiveCurrentPeriod() {
     totalCost += result.dailyCostMap[ymd(d)] || 0;
   });
 
+  // Additional charges
+  const additionalCharges = getAdditionalCharges();
+  const additionalChargesTotal = additionalCharges.reduce((sum, c) => sum + c.amount, 0);
+  totalCost += additionalChargesTotal;
+
   // Generate label from date range
   const startMonth = start.toLocaleDateString('en-US', { month: 'short', year: 'numeric' });
   const endMonth = end.toLocaleDateString('en-US', { month: 'short', year: 'numeric' });
@@ -73,6 +78,7 @@ export function archiveCurrentPeriod() {
     tier1Limit: tierSettings.tier1Limit,
     tier1Rate: tierSettings.tier1Rate,
     tier2Rate: tierSettings.tier2Rate,
+    additionalCharges,
     dailyKwhData,
     totalKwh: result.totalKwh,
     totalCost
@@ -170,6 +176,18 @@ export function restorePeriod(id) {
     document.getElementById('tier1Limit').value = snapshot.tier1Limit || '';
     document.getElementById('tier1Rate').value = snapshot.tier1Rate || '';
     document.getElementById('tier2Rate').value = snapshot.tier2Rate || '';
+  }
+
+  // Additional charges
+  const chargesCheckbox = document.getElementById('useAdditionalCharges');
+  const hasCharges = snapshot.additionalCharges && snapshot.additionalCharges.length > 0;
+  if (chargesCheckbox) chargesCheckbox.checked = hasCharges;
+  if (hasCharges) {
+    storage.setItem('additionalChargesData', JSON.stringify(snapshot.additionalCharges));
+    storage.setItem('useAdditionalCharges', 'true');
+  } else {
+    storage.setItem('additionalChargesData', '[]');
+    storage.setItem('useAdditionalCharges', 'false');
   }
 
   // Save form data to storage
