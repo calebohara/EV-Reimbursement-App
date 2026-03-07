@@ -35,6 +35,7 @@
   <link rel="stylesheet" href="css/components.css?v=3.2">
   <link rel="stylesheet" href="css/animations.css?v=3.0">
   <link rel="stylesheet" href="css/responsive.css?v=3.1">
+  <link rel="stylesheet" href="css/tour.css?v=3.5">
 </head>
 <body>
   <a href="#main-content" class="skip-link">Skip to main content</a>
@@ -284,6 +285,28 @@
       </div>
     </details>
 
+    <!-- ─── COLLAPSIBLE: EV IMPACT ─── -->
+    <details class="section section-collapsible" id="statsBox">
+      <summary class="collapsible-header">
+        <i class="bi bi-lightning-charge"></i> EV Impact
+        <i class="bi bi-chevron-down collapsible-chevron"></i>
+      </summary>
+      <div class="collapsible-body">
+        <div id="statsContent" class="stats-grid" role="group" aria-label="EV environmental impact statistics"></div>
+      </div>
+    </details>
+
+    <!-- ─── COLLAPSIBLE: STATS FOR NERDS ─── -->
+    <details class="section section-collapsible" id="nerdsBox">
+      <summary class="collapsible-header">
+        <i class="bi bi-braces-asterisk"></i> Stats for Nerds
+        <i class="bi bi-chevron-down collapsible-chevron"></i>
+      </summary>
+      <div class="collapsible-body">
+        <div id="nerdsContent" class="stats-grid" role="group" aria-label="Detailed usage statistics and build information"></div>
+      </div>
+    </details>
+
   </main>
 
   <!-- ═══ FOOTER ═══ -->
@@ -296,11 +319,13 @@
       <a href="#" data-bs-toggle="modal" data-bs-target="#contactModal">Contact</a>
       <span class="footer-dot"></span>
       <a href="#" data-bs-toggle="modal" data-bs-target="#changelogModal">Changelog</a>
+      <span class="footer-dot"></span>
+      <a href="#" data-bs-toggle="modal" data-bs-target="#disclaimerModal">Disclaimer</a>
     </div>
     <div class="footer-meta">
       <span>Created by Caleb O'Hara</span>
       <span class="footer-dot"></span>
-      <span>v3.5</span>
+      <span>v3.7.1</span>
     </div>
     <div class="footer-privacy">
       All data stored locally. Never uploaded.
@@ -311,7 +336,7 @@
       </span>
     </div>
     <div class="footer-disclaimer">
-      <strong>Disclaimer:</strong> Accuracy depends on data provided. Verify all values. Siemens is not responsible for discrepancies from incorrect data entry.
+      Not an official Siemens product. Built by Caleb O'Hara. <a href="#" data-bs-toggle="modal" data-bs-target="#disclaimerModal">Full disclaimer</a>
     </div>
   </footer>
 
@@ -430,6 +455,9 @@
           <p>All data is stored locally in your browser. Nothing is uploaded to any server.</p>
         </div>
         <div class="modal-footer">
+          <button type="button" class="btn btn-primary" data-action="start-tour" data-bs-dismiss="modal">
+            <i class="bi bi-signpost"></i> Take Tour
+          </button>
           <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
         </div>
       </div>
@@ -508,6 +536,25 @@
           <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
         </div>
         <div class="modal-body">
+          <h6>Version 3.7.1 — March 2026</h6>
+          <ul>
+            <li><strong>Guided Tour Expansion:</strong> Tour now highlights all visible collapsible sections (Chart, History, Trends, EV Impact, Stats for Nerds) with graceful skipping of hidden sections</li>
+            <li><strong>Security Fix:</strong> Replaced innerHTML in stat card icon rendering with safe DOM APIs to prevent potential XSS</li>
+            <li><strong>ADA Compliance:</strong> Added role="figure" and aria-label on stat cards, role="group" on stats grids, aria-live on tour tooltip</li>
+            <li><strong>Legal Disclaimer:</strong> Footer modal with independent project notice, no warranty, accuracy/verification, limitation of liability, data privacy, and trademark sections</li>
+          </ul>
+
+          <h6>Version 3.7.0 — March 2026</h6>
+          <ul>
+            <li><strong>EV Impact:</strong> Collapsible section showing CO₂ saved vs gasoline equivalent and miles powered estimate</li>
+            <li><strong>Stats for Nerds:</strong> Collapsible section with total days tracked, avg daily usage, cost per mile, data points count, and build info</li>
+          </ul>
+
+          <h6>Version 3.6 — March 2026</h6>
+          <ul>
+            <li><strong>Guided Tour:</strong> Interactive 4-step walkthrough for first-time visitors highlighting Profiles, Billing Period, Daily Usage, and Reimbursement sections with spotlight overlay and Skip/Next navigation</li>
+          </ul>
+
           <h6>Version 3.5 — March 2026</h6>
           <ul>
             <li><strong>Profile Help:</strong> Info button in profile bar with tooltip explaining what profiles do</li>
@@ -563,6 +610,40 @@
         </div>
         <div class="modal-footer">
           <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Disclaimer Modal -->
+  <div class="modal fade" id="disclaimerModal" tabindex="-1" aria-labelledby="disclaimerModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-scrollable modal-dialog-centered">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="disclaimerModalLabel"><i class="bi bi-shield-exclamation"></i> Disclaimer</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <h6>Independent Project</h6>
+          <p>This application was independently developed by Caleb O'Hara as a personal productivity tool. It is <strong>not an official Siemens product</strong>, nor is it endorsed, sponsored, maintained, or affiliated with Siemens AG or any of its subsidiaries.</p>
+
+          <h6>No Warranty</h6>
+          <p>This tool is provided <strong>"as is"</strong> without warranty of any kind, express or implied, including but not limited to the warranties of merchantability, fitness for a particular purpose, and noninfringement. The developer makes no guarantees regarding the accuracy, reliability, or completeness of any calculations or outputs.</p>
+
+          <h6>Accuracy &amp; Verification</h6>
+          <p>All reimbursement calculations depend entirely on user-provided data. You are solely responsible for verifying that all input values (kWh usage, rates, billing periods) are accurate before submitting any reimbursement claims. Always cross-check results against your utility bill.</p>
+
+          <h6>Limitation of Liability</h6>
+          <p>In no event shall the developer be liable for any claim, damages, or other liability arising from the use of this application, including but not limited to incorrect reimbursement amounts, data loss, or any financial discrepancies.</p>
+
+          <h6>Data Privacy</h6>
+          <p>All data is stored locally in your browser via localStorage. No data is transmitted to any server, collected, or shared with any third party. The developer has no access to your data.</p>
+
+          <h6>Trademarks</h6>
+          <p>SIEMENS is a registered trademark of Siemens AG. All other trademarks are the property of their respective owners. Use of the Siemens name and branding in this tool is for identification purposes only and does not imply any official association.</p>
+        </div>
+        <div class="modal-footer">
+          <small class="text-muted">Last updated March 2026</small>
         </div>
       </div>
     </div>

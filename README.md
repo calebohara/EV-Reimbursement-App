@@ -57,6 +57,9 @@ A web-based application designed to help Siemens employees calculate and manage 
 - Loading spinners on all async operations
 - ARIA labels and keyboard navigation for accessibility
 - Mobile responsive layout (< 600px)
+- Guided tour for first-time visitors with spotlight overlay and step-by-step walkthrough
+- EV Impact: CO₂ saved and miles powered in a collapsible section
+- Stats for Nerds: days tracked, avg daily usage, cost per mile, data points, and build info
 - All data stored locally in the browser (no server)
 
 ## Architecture
@@ -91,6 +94,8 @@ js/
   exports/pdf.js            jsPDF + autoTable PDF export
   exports/receipt.js        Siemens-formatted receipt PDF
   feedback.js               Star rating form and mailto generation
+  tour.js                   Guided tour spotlight + tooltip walkthrough
+  stats.js                  EV Impact + Stats for Nerds
   ui.js                     Dark mode, button loading, tooltips
 ```
 
@@ -185,6 +190,19 @@ Date,kWh Usage
 - **Callback pattern** for cross-module communication (chart/summary updates)
 
 ## Version History
+
+### Version 3.7.1 (March 2026)
+- **Guided Tour Expansion**: Tour now highlights all visible collapsible sections (Chart, History, Trends, EV Impact, Stats for Nerds) with graceful skipping of hidden sections
+- **Security Fix**: Replaced innerHTML in stat card icon rendering with safe DOM APIs
+- **ADA Compliance**: Added role/aria-label on stat cards and stats grids, aria-live on tour tooltip
+- **Legal Disclaimer**: Footer modal with independent project notice, no warranty, limitation of liability, data privacy, and trademark sections
+
+### Version 3.7.0 (March 2026)
+- **EV Impact**: Collapsible section showing CO₂ saved vs gasoline equivalent and miles powered estimate
+- **Stats for Nerds**: Collapsible section with total days tracked, avg daily usage, cost per mile, data points count, and build info
+
+### Version 3.6.0 (March 2026)
+- **Guided Tour**: Interactive 4-step walkthrough for first-time visitors with spotlight overlay, tooltip descriptions, Skip/Next/Finish navigation, keyboard support (Escape/Arrow keys), and "Take Tour" replay button in Site Help modal
 
 ### Version 3.5.0 (March 2026)
 - **Profile Help Button**: Info button in profile bar with Bootstrap tooltip explaining what profiles do and how they work

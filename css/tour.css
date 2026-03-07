@@ -1,0 +1,102 @@
+/**
+ * Guided Tour — spotlight + tooltip overlay styles.
+ */
+
+/* Spotlight — box-shadow acts as the backdrop */
+.tour-spotlight {
+  position: fixed;
+  z-index: 10000;
+  border-radius: var(--radius-lg);
+  box-shadow: 0 0 0 9999px rgba(0, 0, 0, 0.55);
+  pointer-events: none;
+  transition: all 0.35s var(--ease-out);
+}
+
+/* Tooltip card */
+.tour-tooltip {
+  position: fixed;
+  z-index: 10001;
+  width: 320px;
+  max-width: calc(100vw - 32px);
+  background: var(--container-bg);
+  color: var(--text-color);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-lg);
+  padding: 16px 18px;
+  box-shadow: var(--shadow-lg);
+  animation: fadeInUp 0.3s var(--ease-out);
+}
+
+.tour-tooltip-title {
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: var(--siemens-teal);
+  margin-bottom: 6px;
+}
+
+.tour-tooltip-body {
+  font-size: var(--text-sm);
+  color: var(--text-secondary);
+  line-height: 1.5;
+  margin-bottom: 14px;
+}
+
+/* Footer: step counter left, buttons right */
+.tour-tooltip-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.tour-step-counter {
+  font-size: 0.7rem;
+  color: var(--text-muted);
+  font-weight: 600;
+}
+
+.tour-tooltip-actions {
+  display: flex;
+  gap: 8px;
+}
+
+/* Buttons */
+.tour-btn {
+  padding: 6px 14px;
+  border-radius: var(--radius-sm);
+  font-size: var(--text-sm);
+  font-weight: 600;
+  cursor: pointer;
+  border: 1px solid var(--border-color);
+  background: var(--container-bg);
+  color: var(--text-secondary);
+  transition: all var(--duration-fast);
+}
+
+.tour-btn:hover {
+  background: var(--section-hover);
+  color: var(--text-color);
+}
+
+.tour-btn-primary {
+  background: var(--siemens-teal);
+  color: #fff;
+  border-color: var(--siemens-teal);
+}
+
+.tour-btn-primary:hover {
+  background: #00b3b3;
+  border-color: #00b3b3;
+  color: #fff;
+}
+
+/* Mobile */
+@media (max-width: 600px) {
+  .tour-tooltip {
+    width: calc(100vw - 24px);
+    padding: 12px 14px;
+  }
+
+  .tour-tooltip-body {
+    font-size: 0.78rem;
+  }
+}

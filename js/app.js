@@ -22,6 +22,8 @@ import { archiveCurrentPeriod, renderHistoryList, restorePeriod, deletePeriod, e
 import { initPresets, applyPreset, saveCurrentAsPreset, deleteSelectedPreset, setOnPresetApply } from './presets.js';
 import { renderTrendChart } from './trend.js';
 import { getStorageUsage, clearAllData } from './storage.js';
+import { initTour, startTour } from './tour.js';
+import { updateStats } from './stats.js';
 
 function updateStorageIndicator() {
   const el = document.getElementById('storageUsageText');
@@ -37,6 +39,7 @@ function updateStorageIndicator() {
 function onDataChange() {
   renderUsageChart();
   updateSummary();
+  updateStats();
 }
 
 // When fields are generated or kWh values change
@@ -49,6 +52,7 @@ setOnImportComplete(onDataChange);
 setOnHistoryChange(() => {
   renderHistoryList();
   renderTrendChart();
+  updateStats();
 });
 
 // When a preset is applied, update chart/summary
@@ -217,6 +221,12 @@ document.addEventListener('DOMContentLoaded', () => {
   // Storage indicator
   updateStorageIndicator();
 
+  // EV Impact stats
+  updateStats();
+
+  // Guided tour for first-time visitors
+  initTour();
+
   // Ensure result box is hidden on load
   const resultBox = document.getElementById('resultBox');
   if (resultBox) {
@@ -300,6 +310,7 @@ document.addEventListener('click', (e) => {
   const action = actionEl.dataset.action;
 
   switch (action) {
+    case 'start-tour': startTour(); break;
     case 'reset': resetForm(); break;
     case 'calculate': calculateTotal(); break;
     case 'export-excel': exportToExcel(); break;
