@@ -1,20 +1,48 @@
 /**
- * UI helpers — dark mode toggle, button loading states, tooltips.
+ * UI helpers — theme switcher, button loading states, tooltips.
  */
 
 import * as storage from './storage.js';
 
-// --- Dark mode ---
+// --- Theme switcher (system / light / dark) ---
 
-export function initDarkMode() {
-  if (storage.getDarkMode()) {
-    document.body.classList.add('dark-mode');
-  }
+const darkMQ = window.matchMedia('(prefers-color-scheme: dark)');
+let currentMode = 'system';
+
+function applyTheme(mode) {
+  const isDark = mode === 'dark' || (mode === 'system' && darkMQ.matches);
+  document.body.classList.toggle('dark-mode', isDark);
 }
 
-export function toggleDarkMode() {
-  document.body.classList.toggle('dark-mode');
-  storage.setDarkMode(document.body.classList.contains('dark-mode'));
+function updateSwitcherUI(mode) {
+  const switcher = document.querySelector('.theme-switcher');
+  if (!switcher) return;
+  switcher.dataset.active = mode;
+  switcher.querySelectorAll('.theme-option').forEach(btn => {
+    const isActive = btn.dataset.theme === mode;
+    btn.classList.toggle('active', isActive);
+    btn.setAttribute('aria-checked', isActive);
+  });
+}
+
+export function setTheme(mode) {
+  currentMode = mode;
+  storage.setThemeMode(mode);
+  applyTheme(mode);
+  updateSwitcherUI(mode);
+}
+
+export function initTheme() {
+  currentMode = storage.getThemeMode();
+  applyTheme(currentMode);
+  updateSwitcherUI(currentMode);
+
+  // Listen for OS theme changes (relevant when mode is 'system')
+  darkMQ.addEventListener('change', () => {
+    if (currentMode === 'system') {
+      applyTheme('system');
+    }
+  });
 }
 
 // --- Button loading helpers ---

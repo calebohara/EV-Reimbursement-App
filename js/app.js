@@ -3,7 +3,7 @@
  */
 
 import * as storage from './storage.js';
-import { initDarkMode, toggleDarkMode, initializeTooltips } from './ui.js';
+import { initTheme, setTheme, initializeTooltips } from './ui.js';
 import { setupProfileUI } from './profiles.js';
 import { setOnProfileChange } from './profiles.js';
 import { updateTierInputsState, isUsingTieredRates, validateTierInputs, updateAdditionalChargesState, getAdditionalCharges } from './billing.js';
@@ -182,8 +182,8 @@ function resetForm() {
 // --- Initialization ---
 
 document.addEventListener('DOMContentLoaded', () => {
-  // Dark mode
-  initDarkMode();
+  // Theme (system / light / dark)
+  initTheme();
 
   // Profiles
   setupProfileUI();
@@ -305,6 +305,17 @@ document.addEventListener('DOMContentLoaded', () => {
 // Using event delegation for clean module integration
 
 document.addEventListener('click', (e) => {
+  // Theme switcher (pill buttons)
+  const themeBtn = e.target.closest('[data-theme]');
+  if (themeBtn) {
+    setTheme(themeBtn.dataset.theme);
+    setTimeout(() => {
+      onDataChange();
+      renderTrendChart();
+    }, 100);
+    return;
+  }
+
   const actionEl = e.target.closest('[data-action]');
   if (!actionEl) return;
   const action = actionEl.dataset.action;
@@ -322,13 +333,6 @@ document.addEventListener('click', (e) => {
     case 'archive-period': archiveCurrentPeriod(); break;
     case 'save-rate-preset': saveCurrentAsPreset(); break;
     case 'delete-rate-preset': deleteSelectedPreset(); break;
-    case 'toggle-dark-mode':
-      toggleDarkMode();
-      setTimeout(() => {
-        onDataChange();
-        renderTrendChart();
-      }, 100);
-      break;
     case 'restore-period':
       restorePeriod(actionEl.dataset.historyId);
       // After restore, regenerate fields with restored data

@@ -52,9 +52,18 @@
         <button class="icon-btn" data-bs-toggle="modal" data-bs-target="#siteHelpModal" aria-label="Help" title="Help">
           <i class="bi bi-question-circle"></i>
         </button>
-        <button class="icon-btn" data-action="toggle-dark-mode" aria-label="Toggle dark mode" title="Toggle dark mode">
-          <i class="bi bi-moon-fill"></i>
-        </button>
+        <div class="theme-switcher" role="radiogroup" aria-label="Theme">
+          <button class="theme-option" data-theme="system" aria-label="System theme" title="System">
+            <i class="bi bi-display"></i>
+          </button>
+          <button class="theme-option" data-theme="light" aria-label="Light theme" title="Light">
+            <i class="bi bi-sun-fill"></i>
+          </button>
+          <button class="theme-option" data-theme="dark" aria-label="Dark theme" title="Dark">
+            <i class="bi bi-moon-fill"></i>
+          </button>
+          <div class="theme-slider"></div>
+        </div>
       </div>
     </div>
   </header>

@@ -221,12 +221,22 @@ export function clearAllData() {
   localStorage.clear();
 }
 
-// --- Dark mode (not profile-scoped) ---
+// --- Theme mode (not profile-scoped) ---
 
-export function getDarkMode() {
-  return localStorage.getItem('darkMode') === 'true';
+export function getThemeMode() {
+  const mode = localStorage.getItem('themeMode');
+  if (mode) return mode;
+  // Migrate from old darkMode key
+  const oldDark = localStorage.getItem('darkMode');
+  if (oldDark !== null) {
+    const migrated = oldDark === 'true' ? 'dark' : 'light';
+    localStorage.setItem('themeMode', migrated);
+    localStorage.removeItem('darkMode');
+    return migrated;
+  }
+  return 'system';
 }
 
-export function setDarkMode(enabled) {
-  localStorage.setItem('darkMode', enabled ? 'true' : 'false');
+export function setThemeMode(mode) {
+  localStorage.setItem('themeMode', mode);
 }
