@@ -334,7 +334,7 @@
     <div class="footer-meta">
       <span>Created by <a href="https://www.calebblaze.com" target="_blank" rel="noopener noreferrer">Caleb O'Hara</a></span>
       <span class="footer-dot"></span>
-      <span>v3.7.1</span>
+      <span>v3.7.2</span>
     </div>
     <div class="footer-privacy">
       All data stored locally. Never uploaded.
@@ -391,11 +391,11 @@
             <div class="mb-4">
               <label class="form-label">Rate this app:</label>
               <div class="star-rating" id="starRating" role="group" aria-label="Star rating">
-                <span class="star" data-rating="1">&#9733;</span>
-                <span class="star" data-rating="2">&#9733;</span>
-                <span class="star" data-rating="3">&#9733;</span>
-                <span class="star" data-rating="4">&#9733;</span>
-                <span class="star" data-rating="5">&#9733;</span>
+                <span class="star" data-rating="1" aria-pressed="false">&#9733;</span>
+                <span class="star" data-rating="2" aria-pressed="false">&#9733;</span>
+                <span class="star" data-rating="3" aria-pressed="false">&#9733;</span>
+                <span class="star" data-rating="4" aria-pressed="false">&#9733;</span>
+                <span class="star" data-rating="5" aria-pressed="false">&#9733;</span>
               </div>
               <small class="form-text text-muted" id="ratingText">Click stars to rate</small>
             </div>
@@ -545,6 +545,11 @@
           <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
         </div>
         <div class="modal-body">
+          <h6>Version 3.7.2 — March 2026</h6>
+          <ul>
+            <li><strong>Bug Fixes:</strong> kWh display chip now uses billing module total (S1-1), star rating arrow-key navigation and aria-pressed states (S1-4/S1-11), service worker cache version aligned (S1-5), receipt footer version corrected (S1-7), history sort no longer mutates storage array (S1-8), null guard on result box (S1-6), storage usage null key guard (S1-2), PDF/Excel effective rate type consistency (S1-10), setTheme input validation (S1-13)</li>
+          </ul>
+
           <h6>Version 3.7.1 — March 2026</h6>
           <ul>
             <li><strong>Guided Tour Expansion:</strong> Tour now highlights all visible collapsible sections (Chart, History, Trends, EV Impact, Stats for Nerds) with graceful skipping of hidden sections</li>

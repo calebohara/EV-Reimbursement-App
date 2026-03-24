@@ -27,24 +27,21 @@ export function updateSummary() {
   const totalDays = dayCount(startDate, endDate);
 
   const dailyKwhInputs = document.querySelectorAll('.dailyKwh');
-  let totalKwh = 0;
   let daysWithData = 0;
 
   dailyKwhInputs.forEach(input => {
     const value = parseFloat(input.value || 0);
-    if (value > 0) {
-      totalKwh += value;
-      daysWithData++;
-    }
+    if (value > 0) daysWithData++;
   });
 
+  // Use billing module's totalKwh so display always matches the calculated dollar amount
   const tierTotals = computeTieredTotals(costPerKwh);
   const totalCost = tierTotals.totalCost;
-  const avgDaily = daysWithData > 0 ? totalKwh / daysWithData : 0;
+  const avgDaily = daysWithData > 0 ? tierTotals.totalKwh / daysWithData : 0;
   const completeness = totalDays > 0 ? Math.round((daysWithData / totalDays) * 100) : 0;
 
   // Update display
-  document.getElementById('totalKwh').textContent = totalKwh.toFixed(2);
+  document.getElementById('totalKwh').textContent = tierTotals.totalKwh.toFixed(2);
   document.getElementById('totalCost').textContent = '$' + totalCost.toFixed(2);
   document.getElementById('avgDaily').textContent = avgDaily.toFixed(2);
   document.getElementById('completeness').textContent = completeness + '%';

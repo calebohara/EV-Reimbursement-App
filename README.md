@@ -9,7 +9,7 @@
 </p>
 
 <p align="center">
-  <img src="https://img.shields.io/badge/version-3.7.1-009999?style=flat-square" alt="Version">
+  <img src="https://img.shields.io/badge/version-3.7.2-009999?style=flat-square" alt="Version">
   <img src="https://img.shields.io/badge/license-proprietary-333?style=flat-square" alt="License">
   <img src="https://img.shields.io/badge/PWA-installable-5A0FC8?style=flat-square" alt="PWA">
   <img src="https://img.shields.io/badge/build-zero--config-blue?style=flat-square" alt="Build">
@@ -359,6 +359,20 @@ When releasing a new version, update all of these:
 | `index.html` | Changelog modal entry |
 | `sw.js` | `CACHE_NAME` version |
 | `README.md` | Version badge + changelog |
+
+---
+
+## Version History
+
+### v3.7.2 — March 2026
+Bug fix release. 11 issues resolved from first QA sweep (S1).
+- **Critical**: kWh summary chip now sourced from billing module (`summary.js`) — display guaranteed to match dollar calculation
+- **High**: SW `CACHE_NAME` corrected from `v3.12.3` to `v3.7.2`; star rating arrow-key navigation added (WCAG 2.1 SC 2.1.1); `storage.js` null guard in `getStorageUsage()`
+- **Medium**: Receipt footer version fixed (`v3.7` → `v3.7.2`); `aria-pressed` on star rating; PDF effective rate type unified with Excel (`''` for zero-kWh rows); history sort no longer mutates storage array; `resultBox` null guard in `app.js`; `setTheme()` input validation in `ui.js`
+- Added `QC.md` (quality control checklist + 5-agent sweep prompt) and `BUGS.md` (issue tracker)
+
+### v3.7.1 — March 2026
+Guided tour expansion, ADA compliance improvements, security hardening, and legal disclaimer modal.
 
 ---
 

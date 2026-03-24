@@ -111,11 +111,11 @@ export function renderHistoryList() {
     return;
   }
 
-  // Sort by savedAt descending (newest first)
-  history.sort((a, b) => new Date(b.savedAt) - new Date(a.savedAt));
+  // Sort by savedAt descending (newest first) — clone to avoid mutating the retrieved array
+  const sorted = [...history].sort((a, b) => new Date(b.savedAt) - new Date(a.savedAt));
 
   let html = '<div class="history-list">';
-  for (const entry of history) {
+  for (const entry of sorted) {
     const savedDate = new Date(entry.savedAt).toLocaleDateString('en-US', {
       month: 'short', day: 'numeric', year: 'numeric'
     });

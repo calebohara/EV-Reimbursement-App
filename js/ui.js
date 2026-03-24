@@ -26,6 +26,7 @@ function updateSwitcherUI(mode) {
 }
 
 export function setTheme(mode) {
+  if (!['system', 'light', 'dark'].includes(mode)) return;
   currentMode = mode;
   storage.setThemeMode(mode);
   applyTheme(mode);

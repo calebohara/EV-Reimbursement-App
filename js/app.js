@@ -151,6 +151,7 @@ function calculateTotal() {
   setTimeout(() => {
     const { totalCost } = computeTieredTotals(isNaN(costPerKwh) ? 0 : costPerKwh);
     const resultBox = document.getElementById('resultBox');
+    if (!resultBox) return;
     document.getElementById('result').innerText = `Total Reimbursement: $${totalCost.toFixed(2)}`;
     resultBox.classList.add('show');
     resultBox.scrollIntoView({ behavior: 'smooth', block: 'center', inline: 'nearest' });

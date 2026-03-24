@@ -5,7 +5,7 @@
 import { initializeTooltips } from './ui.js';
 
 let selectedRating = 0;
-const APP_VERSION = '3.7.1';
+const APP_VERSION = '3.7.2';
 
 export function initializeFeedbackForm() {
   const stars = document.querySelectorAll('.star');
@@ -30,6 +30,19 @@ export function initializeFeedbackForm() {
       if (e.key === 'Enter' || e.key === ' ') {
         e.preventDefault();
         this.click();
+      } else if (e.key === 'ArrowRight' || e.key === 'ArrowLeft') {
+        e.preventDefault();
+        const currentRating = parseInt(this.getAttribute('data-rating'));
+        const newRating = e.key === 'ArrowRight'
+          ? Math.min(5, currentRating + 1)
+          : Math.max(1, currentRating - 1);
+        const targetStar = document.querySelector(`.star[data-rating="${newRating}"]`);
+        if (targetStar) {
+          targetStar.focus();
+          selectedRating = newRating;
+          updateStarDisplay();
+          updateRatingText();
+        }
       }
     });
   });
@@ -53,7 +66,9 @@ function highlightStars(rating) {
 function updateStarDisplay() {
   document.querySelectorAll('.star').forEach((star, index) => {
     star.classList.remove('active', 'hover');
-    if (index < selectedRating) star.classList.add('active');
+    const isSelected = index < selectedRating;
+    if (isSelected) star.classList.add('active');
+    star.setAttribute('aria-pressed', isSelected ? 'true' : 'false');
   });
 }
 

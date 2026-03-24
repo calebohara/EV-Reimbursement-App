@@ -210,6 +210,7 @@ export function getStorageUsage() {
   let totalBytes = 0;
   for (let i = 0; i < localStorage.length; i++) {
     const key = localStorage.key(i);
+    if (!key) continue;
     totalBytes += key.length + (localStorage.getItem(key) || '').length;
   }
   // JS strings are UTF-16 (2 bytes per char)

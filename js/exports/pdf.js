@@ -77,8 +77,8 @@ export function exportToPDF() {
       const kwh = tierResult.kwhMap[dateStr] || 0;
       const dailyCost = tierResult.dailyCostMap[dateStr] || 0;
       totalCost += dailyCost;
-      const effectiveRate = kwh > 0 ? (dailyCost / kwh) : 0;
-      data.push([dateStr, kwh, `$${effectiveRate.toFixed(3)}`, `$${dailyCost.toFixed(2)}`]);
+      const effectiveRateStr = kwh > 0 ? `$${(dailyCost / kwh).toFixed(3)}` : '';
+      data.push([dateStr, kwh, effectiveRateStr, `$${dailyCost.toFixed(2)}`]);
     });
 
     // Additional charges

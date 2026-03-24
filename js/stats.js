@@ -4,7 +4,7 @@
 
 import { getProfiles, getStorageUsage } from './storage.js';
 
-const APP_VERSION = '3.7.1';
+const APP_VERSION = '3.7.2';
 const CO2_KG_PER_KWH = 0.42;   // net CO₂ savings: EV vs gasoline equivalent (US avg)
 const MILES_PER_KWH = 3.5;      // average EV efficiency
 const TREES_KG_PER_YEAR = 22;   // kg CO₂ absorbed per tree per year
